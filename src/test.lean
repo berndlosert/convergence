@@ -19,4 +19,4 @@ class convergence_space (α : Type u) :=
 open convergence_space
 
 structure continuous {α β : Type*} (f : α → β) [convergence_space α] [convergence_space β] : Prop :=
-(filter_conv : ∀ (F : filter α) (x : α), x ∈ lim F → f x ∈ lim (map f F))
+(filter_conv : ∀ (x : α) (F : filter α), x ∈ lim F → f x ∈ lim (map f F))
