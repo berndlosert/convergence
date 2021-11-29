@@ -13,8 +13,8 @@ def dot {α : Type u} (x : α) : filter α := principal {x}
 class convergence_space (α : Type u) :=
 (lim        : filter α → set α)
 (dot_conv    : ∀ (x : α), x ∈ lim (dot x))
-(subfil_conv : ∀ (x : α) (F G : filter α), F ≤ G ∧ x ∈ lim F → x ∈ lim G)
-(inter_conv  : ∀ (x : α) (F G : filter α), x ∈ lim F → x ∈ lim (F ⊓ dot x))
+(inter_conv  : ∀ (x : α) (F : filter α), lim F ⊆ lim (F ⊓ dot x))
+(subfil_conv : ∀ (F G : filter α), F ≤ G → lim F ⊆ lim G)
 
 open convergence_space
 
