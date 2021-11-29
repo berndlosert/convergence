@@ -16,5 +16,7 @@ class convergence_space (α : Type u) :=
 (subfil_conv : ∀ (x : α) (F G : filter α), F ≤ G ∧ conv F x → conv G x)
 (inter_conv  : ∀ (x : α) (F G : filter α), conv F x → conv (F ⊓ dot x) x)
 
-structure continuous {α β : Type u} (f : α → β) [cp1 : convergence_space α] [cp2 : convergence_space β] : Prop :=
-(filter_conv : ∀ (F : filter α) (x : α), @convergence_space.conv α cp1 F x → @convergence_space.conv β cp2 (map f F) (f x))
+open convergence_space
+
+structure continuous {α β : Type*} (f : α → β) [cp1 : convergence_space α] [cp2 : convergence_space β] : Prop :=
+(filter_conv : ∀ (F : filter α) (x : α), conv F x → conv (map f F) (f x))
