@@ -34,8 +34,7 @@ def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space �
   dot_conv :=
     begin
       intro,
-      have h : lim (dot (f x)) (f x), from dot_conv (f x),
       simp [map_dot],
-      exact h
+      apply dot_conv (f x)
     end
 }
