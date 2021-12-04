@@ -21,11 +21,13 @@ class convergence_space (α : Type u) :=
 
 open convergence_space
 
+def lim {α : Type u} [convergence_space α] (F : filter α) : set α := set_of (conv F)
+
 structure continuous {α β : Type*} (f : α → β) [convergence_space α] [convergence_space β] : Prop :=
 (filter_conv : ∀ (F : filter α), image f (conv F) ⊆ conv (map f F))
 
 class hausdorff_space (α : Type u) [convergence_space α] : Prop :=
-(convit_subsingl : ∀ (F : filter α), subsingleton (set_of (conv F)))
+(hausdorff_pred : ∀ (F : filter α), subsingleton (lim F))
 
 def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space β) : convergence_space α := {
   conv := λ F x, conv (map f F) (f x),
