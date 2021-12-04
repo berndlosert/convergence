@@ -16,7 +16,7 @@ by simp [dot]
 class convergence_space (α : Type u) :=
 (lim       : filter α → α → Prop)
 (dot_conv  : ∀ {x : α}, lim (dot x) x)
-(le_conv   : ∀ {x : α} {F G : filter α} (h0 : F ≤ G) (h1 : lim F x), lim G x)
+(le_conv   : ∀ {x : α} {F G : filter α}, F ≤ G → lim F x → lim G x)
 (sup_conv  : ∀ {x : α} {F G : filter α} (h0 : lim F x) (h1 : lim G x), lim (F ⊔ G) x)
 
 open convergence_space
@@ -35,7 +35,10 @@ def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space �
     apply dot_conv
   end,
   le_conv := begin
-    intros,
+    assume x : α,
+    assume F G : filter α,
+    assume h0 : F ≤ G,
+    assume h1 : lim (map f F) (f x),
     have h : map f F ≤ map f G, apply map_mono h0,
     apply le_conv h h1
   end,
