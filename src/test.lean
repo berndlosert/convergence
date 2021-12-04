@@ -15,11 +15,9 @@ by simp [dot]
 
 class convergence_space (α : Type u) :=
 (lim         : filter α → α → Prop)
-(dot_conv    : ∀ (x : α), lim (dot x) x)
-/-
-(inter_conv  : ∀ (x : α) (F : filter α), lim F ⊆ lim (F ⊓ dot x))
-(subfil_conv : ∀ (F G : filter α), F ≤ G → lim F ⊆ lim G)
--/
+(dot_conv    : ∀ {x : α}, lim (dot x) x)
+(subfil_conv : ∀ {x : α} {F G : filter α}, F ≤ G → lim F x → lim G x)
+(inter_conv  : ∀ {x : α} {F G : filter α}, lim F x → lim G x → lim (F ⊓ G) x)
 
 open convergence_space
 
@@ -31,10 +29,15 @@ class hausdorff_space (α : Type u) [convergence_space α] : Prop :=
 
 def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space β) : convergence_space α := {
   lim := λ F x, lim (map f F) (f x),
-  dot_conv :=
-    begin
-      intro,
-      simp [map_dot],
-      apply dot_conv (f x)
-    end
+  dot_conv := begin
+    intro,
+    simp [map_dot],
+    apply dot_conv
+  end,
+  subfil_conv := begin
+    intros,
+    have h : map f F ≤ map f G, apply map_mono ᾰ,
+    apply subfil_conv h ᾰ_1
+  end,
+  inter_conv := sorry
 }
