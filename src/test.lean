@@ -24,7 +24,7 @@ open convergence_space
 def lim {α : Type u} [convergence_space α] (F : filter α) : set α := set_of (conv F)
 
 structure continuous {α β : Type*} (f : α → β) [convergence_space α] [convergence_space β] : Prop :=
-(filter_conv : ∀ (F : filter α), image f (conv F) ⊆ conv (map f F))
+(filter_conv : ∀ {x : α} {F : filter α}, conv F x → conv (map f F) (f x))
 
 class hausdorff_space (α : Type u) [convergence_space α] : Prop :=
 (hausdorff_pred : ∀ (F : filter α), subsingleton (lim F))
