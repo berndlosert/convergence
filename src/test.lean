@@ -14,10 +14,10 @@ lemma map_dot {α : Type u} {β : Type v} {x : α} {f : α → β} : map f (dot 
 by simp [dot]
 
 class convergence_space (α : Type u) :=
-(lim         : filter α → α → Prop)
-(dot_conv    : ∀ {x : α}, lim (dot x) x)
-(le_conv : ∀ {x : α} {F G : filter α}, F ≤ G → lim F x → lim G x)
-(sup_conv  : ∀ {x : α} {F G : filter α}, lim F x → lim G x → lim (F ⊔ G) x)
+(lim       : filter α → α → Prop)
+(dot_conv  : ∀ {x : α}, lim (dot x) x)
+(le_conv   : ∀ {x : α} {F G : filter α} (h0 : F ≤ G) (h1 : lim F x), lim G x)
+(sup_conv  : ∀ {x : α} {F G : filter α} (h0 : lim F x) (h1 : lim G x), lim (F ⊔ G) x)
 
 open convergence_space
 
@@ -36,12 +36,12 @@ def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space �
   end,
   le_conv := begin
     intros,
-    have h : map f F ≤ map f G, apply map_mono ᾰ,
-    apply le_conv h ᾰ_1
+    have h : map f F ≤ map f G, apply map_mono h0,
+    apply le_conv h h1
   end,
   sup_conv := begin
     intros,
     simp [map_sup],
-    apply sup_conv ᾰ ᾰ_1
+    apply sup_conv h0 h1
   end
 }
