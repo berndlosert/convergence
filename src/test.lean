@@ -7,10 +7,11 @@ open set filter classical
 open_locale classical filter
 
 universes u v w
+variables {α β : Type*}
 
-def dot {α : Type u} (x : α) : filter α := principal {x}
+def dot (x : α) : filter α := principal {x}
 
-lemma map_dot {α : Type u} {β : Type v} {x : α} {f : α → β} : map f (dot x) = dot (f x) :=
+lemma map_dot {x : α} {f : α → β} : map f (dot x) = dot (f x) :=
 by simp [dot]
 
 class convergence_space (α : Type u) :=
@@ -21,15 +22,15 @@ class convergence_space (α : Type u) :=
 
 open convergence_space
 
-def lim {α : Type u} [convergence_space α] (F : filter α) : set α := set_of (conv F)
+def lim [convergence_space α] (F : filter α) : set α := set_of (conv F)
 
-structure continuous {α β : Type*} (f : α → β) [convergence_space α] [convergence_space β] : Prop :=
+structure continuous [convergence_space α] [convergence_space β] (f : α → β) : Prop :=
 (filter_conv : ∀ {x : α} {F : filter α}, conv F x → conv (map f F) (f x))
 
-class hausdorff_space (α : Type u) [convergence_space α] : Prop :=
+class hausdorff_space [convergence_space α] : Prop :=
 (hausdorff_pred : ∀ (F : filter α), subsingleton (lim F))
 
-def induced {α : Type u} {β : Type v} (f : α → β) (t : convergence_space β) : convergence_space α := {
+def induced (f : α → β) (t : convergence_space β) : convergence_space α := {
   conv := λ F x, conv (map f F) (f x),
   dot_conv := begin
     intro,
