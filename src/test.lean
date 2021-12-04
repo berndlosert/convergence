@@ -53,9 +53,8 @@ def induced (f : α → β) (t : convergence_space β) : convergence_space α :=
 }
 
 def coinduced (f : α → β) (t : convergence_space α) : convergence_space β := {
-  conv := λ l y, ∃ x ∈ preimage f {y}, conv (comap f l) x,
+  conv := λ l' y, l' = dot y ∨ ∃ x l, l' = map f l ∧ y = f x ∧ conv l x,
   dot_conv := sorry,
   le_conv := sorry,
   sup_conv := sorry
 }
-
