@@ -14,10 +14,10 @@ lemma map_dot {α : Type u} {β : Type v} {x : α} {f : α → β} : map f (dot 
 by simp [dot]
 
 class convergence_space (α : Type u) :=
-(conv       : filter α → α → Prop)
-(dot_conv  : ∀ {x : α}, conv (dot x) x)
-(le_conv   : ∀ {x : α} {F G : filter α}, F ≤ G → conv F x → conv G x)
-(sup_conv  : ∀ {x : α} {F G : filter α}, conv F x → conv G x → conv (F ⊔ G) x)
+(conv : filter α → α → Prop)
+(dot_conv : ∀ {x : α}, conv (dot x) x)
+(le_conv : ∀ {x : α} {F G : filter α}, F ≤ G → conv F x → conv G x)
+(sup_conv : ∀ {x : α} {F G : filter α}, conv F x → conv G x → conv (F ⊔ G) x)
 
 open convergence_space
 
