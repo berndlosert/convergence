@@ -41,23 +41,23 @@ def induced (f : α → β) (t : convergence_space β) : convergence_space α :=
   sup_conv := begin
     intros x l l' h₀ h₁,
     simp [map_sup],
-    apply sup_conv h₀ h₁
+    apply sup_conv h₀ h₁,
   end
 }
 
-/-
 def coinduced (f : α → β) (t : convergence_space α) : convergence_space β := {
-  conv := λ l' y, l' = pure y ∨ (∃ x l, l' = map f l ∧ y = f x ∧ conv l x),
+  conv := λ l' y, l' ≤ pure y ∨ (∃ x l, l' ≤ map f l ∧ y = f x ∧ conv l x),
   pure_conv := begin
     intro,
     simp [and.left]
   end,
   le_conv := begin
     intros y l₁ l₂ h₀ h₁,
-    refine or.elim h₁
-      (assume h, _)
-      (assume h, _)
+    exact or.elim h₁
+      (assume h, or.inl (trans h₀ h))
+      (assume h, match h with ⟨x, l, hm, hf, hc⟩ :=
+        or.inr ⟨x, l, trans h₀ hm, hf, hc⟩
+      end)
   end,
   sup_conv := sorry
 }
--/
