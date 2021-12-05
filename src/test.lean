@@ -9,16 +9,11 @@ open_locale classical filter
 universes u v w
 variables {α β : Type*}
 
-def dot (x : α) : filter α := principal {x}
-
-lemma map_dot {x : α} {f : α → β} : map f (dot x) = dot (f x) :=
-by simp [dot]
-
 class convergence_space (α : Type u) :=
 (conv : filter α → α → Prop)
-(dot_conv : ∀ {x : α}, conv (dot x) x)
-(le_conv : ∀ {x : α} {l l' : filter α}, l ≤ l' → conv l x → conv l' x)
-(sup_conv : ∀ {x : α} {l l' : filter α}, conv l x → conv l' x → conv (l ⊔ l') x)
+(pure_conv : ∀ {x : α}, conv (pure x) x)
+(le_conv : ∀ {x : α} {l l' : filter α}, l ≤ l' → conv l' x → conv l x) -- l ≤ l' means l' ⊆ l
+(sup_conv : ∀ {x : α} {l l' : filter α}, conv l x → conv l' x → conv (l ⊔ l') x) -- l ⊔ l' means l ∩ l'
 
 open convergence_space
 
@@ -28,21 +23,19 @@ structure continuous [convergence_space α] [convergence_space β] (f : α → �
 (filter_conv : ∀ {x : α} {l : filter α}, conv l x → conv (map f l) (f x))
 
 class hausdorff_space [convergence_space α] : Prop :=
-(hausdorff_pred : ∀ (l : filter α), subsingleton (lim l))
+(hausdorff_prop : ∀ (l : filter α) [ne_bot l], subsingleton (lim l))
 
 def induced (f : α → β) (t : convergence_space β) : convergence_space α := {
   conv := λ l x, conv (map f l) (f x),
-  dot_conv := begin
+  pure_conv := begin
     intro,
-    simp [map_dot],
-    apply dot_conv
+    simp [filter.map_pure],
+    apply pure_conv
   end,
   le_conv := begin
-    assume x : α,
-    assume l l' : filter α,
-    assume h₀ : l ≤ l',
-    assume h₁ : conv (map f l) (f x),
-    have h₂ : map f l ≤ map f l', apply map_mono h₀,
+    intros x l l' h₀ h₁,
+    have h₂ : map f l ≤ map f l',
+      apply map_mono h₀,
     apply le_conv h₂ h₁
   end,
   sup_conv := begin
@@ -52,9 +45,19 @@ def induced (f : α → β) (t : convergence_space β) : convergence_space α :=
   end
 }
 
+/-
 def coinduced (f : α → β) (t : convergence_space α) : convergence_space β := {
-  conv := λ l' y, l' = dot y ∨ ∃ x l, l' = map f l ∧ y = f x ∧ conv l x,
-  dot_conv := sorry,
-  le_conv := sorry,
+  conv := λ l' y, l' = pure y ∨ (∃ x l, l' = map f l ∧ y = f x ∧ conv l x),
+  pure_conv := begin
+    intro,
+    simp [and.left]
+  end,
+  le_conv := begin
+    intros y l₁ l₂ h₀ h₁,
+    refine or.elim h₁
+      (assume h, _)
+      (assume h, _)
+  end,
   sup_conv := sorry
 }
+-/
