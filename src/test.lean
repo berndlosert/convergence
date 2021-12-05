@@ -59,5 +59,16 @@ def coinduced (f : α → β) (t : convergence_space α) : convergence_space β 
         or.inr ⟨x, l, trans h₀ hm, hf, hc⟩
       end)
   end,
-  sup_conv := sorry
+  sup_conv := begin
+    intros y l₁ l₂ h₀ h₁,
+    exact or.elim h₀
+      (or.elim h₁
+        (assume ha hb, or.inl (sup_le_iff.mpr ⟨hb, ha⟩))
+	(sorry))
+      (or.elim h₁ sorry sorry)
+    --  (or.elim h₁
+    --    (assume ha hb, or.inl (sup_lt_iff.mpr (ha, hb)))
+    --    _)
+    --  (or.elim h₁ _ _)
+  end
 }
