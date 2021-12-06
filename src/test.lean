@@ -10,22 +10,22 @@ universes u v w
 variables {α β : Type*}
 
 class convergence_space (α : Type u) :=
-(conv : filter α → α → Prop)
-(pure_conv : ∀ {x : α}, conv (pure x) x)
-(le_conv : ∀ {x : α} {l l' : filter α}, l ≤ l' → conv l' x → conv l x) -- l ≤ l' means l' ⊆ l
-(sup_conv : ∀ {x : α} {l l' : filter α}, conv l x → conv l' x → conv (l ⊔ l') x) -- l ⊔ l' means l ∩ l'
+(conv : filter α -> α -> Prop)
+(pure_conv : forall {x : α}, conv (pure x) x)
+(le_conv : forall {x : α} {l l' : filter α}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
+(sup_conv : forall {x : α} {l l' : filter α}, conv l x -> conv l' x -> conv (l ⊔ l') x) -- l ⊔ l' means l ∩ l'
 
 open convergence_space
 
 def lim [convergence_space α] (l : filter α) : set α := set_of (conv l)
 
-structure continuous [convergence_space α] [convergence_space β] (f : α → β) : Prop :=
-(filter_conv : ∀ {x : α} {l : filter α}, conv l x → conv (map f l) (f x))
+structure continuous [convergence_space α] [convergence_space β] (f : α -> β) : Prop :=
+(filter_conv : forall {x : α} {l : filter α}, conv l x -> conv (map f l) (f x))
 
 class hausdorff_space [convergence_space α] : Prop :=
-(hausdorff_prop : ∀ (l : filter α) [ne_bot l], subsingleton (lim l))
+(hausdorff_prop : forall (l : filter α) [ne_bot l], subsingleton (lim l))
 
-def induced (f : α → β) (t : convergence_space β) : convergence_space α := {
+def induced (f : α -> β) (t : convergence_space β) : convergence_space α := {
   conv := λ l x, conv (map f l) (f x),
   pure_conv := begin
     intro,
@@ -34,7 +34,7 @@ def induced (f : α → β) (t : convergence_space β) : convergence_space α :=
   end,
   le_conv := begin
     intros x l l' h₀ h₁,
-    have h₂ : map f l ≤ map f l',
+    have h₂ : map f l <= map f l',
       apply map_mono h₀,
     apply le_conv h₂ h₁
   end,
@@ -45,8 +45,9 @@ def induced (f : α → β) (t : convergence_space β) : convergence_space α :=
   end
 }
 
-def coinduced (f : α → β) (t : convergence_space α) : convergence_space β := {
-  conv := λ l' y, l' ≤ pure y ∨ (∃ x l, l' ≤ map f l ∧ y = f x ∧ conv l x),
+/-
+def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β := {
+  conv := λ l' y, l' <= pure y ∨ (∃ x l, l' <= map f l ∧ y = f x ∧ conv l x),
   pure_conv := begin
     intro,
     simp [and.left]
@@ -64,7 +65,7 @@ def coinduced (f : α → β) (t : convergence_space α) : convergence_space β 
     exact or.elim h₀
       (or.elim h₁
         (assume ha hb, or.inl (sup_le_iff.mpr ⟨hb, ha⟩))
-	(sorry))
+	(assume ha hb, _))
       (or.elim h₁ sorry sorry)
     --  (or.elim h₁
     --    (assume ha hb, or.inl (sup_lt_iff.mpr (ha, hb)))
@@ -72,3 +73,4 @@ def coinduced (f : α → β) (t : convergence_space α) : convergence_space β 
     --  (or.elim h₁ _ _)
   end
 }
+-/
