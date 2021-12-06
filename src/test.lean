@@ -26,7 +26,7 @@ class hausdorff_space [convergence_space α] : Prop :=
 (hausdorff_prop : forall (l : filter α) [ne_bot l], subsingleton (lim l))
 
 def induced (f : α -> β) (t : convergence_space β) : convergence_space α := {
-  conv := λ l x, conv (map f l) (f x),
+  conv := fun l x, conv (map f l) (f x),
   pure_conv := begin
     intro,
     simp [filter.map_pure],
@@ -47,7 +47,7 @@ def induced (f : α -> β) (t : convergence_space β) : convergence_space α := 
 
 /-
 def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β := {
-  conv := λ l' y, l' <= pure y ∨ (∃ x l, l' <= map f l ∧ y = f x ∧ conv l x),
+  conv := fun l' y, l' <= pure y ∨ (∃ x l, l' <= map f l ∧ y = f x ∧ conv l x),
   pure_conv := begin
     intro,
     simp [and.left]
