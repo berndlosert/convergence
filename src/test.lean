@@ -88,35 +88,25 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
 	  (by assumption : l1' <= pure y)
 	  (by assumption : l2' <= pure y))),
      -- case l1' ≤ pure y, l2' ≤ map f l2
+     have : l1' <= map f (pure x2), begin
+       rw map_pure f x2,
+       rw <- (by assumption : y = f x2),
+       exact pure_case1,
+     end,
+     let l : filter a := sup (pure x2) l2,
+     have : sup l1' l2' <= map f l, begin
+       exact sup_le_sup
+         (by assumption : l1' <= map f (pure x2))
+	 (by assumption : l2' <= map f l2),
+     end,
+     have : conv l x2, begin
+       exact sup_conv
+         pure_conv
+	 (by assumption : conv l2 x2),
+     end,
+     exact coinduced_conv.other_case l x2
+       (by assumption : sup l1' l2' <= map f l)
+       (by assumption : y = f x2)
+       (by assumption : conv l x2),
   end
 }
-
-/-
-def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
-  conv := fun l' y, (l' <= pure y) \/ (exists x l, l' <= map f l /\ y = f x /\ conv l x),
-  pure_conv := begin
-    intro,
-    simp [and.left]
-  end,
-  le_conv := begin
-    intros y l1 l2 h0 h1,
-    exact or.elim h1
-      (assume h, or.inl (trans h0 h))
-      (assume h, match h with ⟨x, l, hm, hf, hc⟩ :=
-        or.inr ⟨x, l, trans h0 hm, hf, hc⟩
-      end)
-  end,
-  sup_conv := begin
-    intros y l1 l2 h0 h1,
-    exact or.elim h0
-      (or.elim h1
-        (assume ha hb, or.inl (sup_le_iff.mpr ⟨hb, ha⟩))
-	(assume ha hb, sorry))
-      (or.elim h1 sorry sorry)
-    --  (or.elim h1
-    --    (assume ha hb, or.inl (sup_lt_iff.mpr (ha, hb)))
-    --    _)
-    --  (or.elim h1 _ _)
-  end
-}
--/
