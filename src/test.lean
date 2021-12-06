@@ -5,6 +5,7 @@ import algebra.support
 noncomputable theory
 open set filter classical
 open_locale classical filter
+open has_sup
 
 universes u v w
 variables {α β : Type*}
@@ -13,7 +14,7 @@ class convergence_space (α : Type u) :=
 (conv : filter α -> α -> Prop)
 (pure_conv : forall {x : α}, conv (pure x) x)
 (le_conv : forall {x : α} {l l' : filter α}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
-(sup_conv : forall {x : α} {l l' : filter α}, conv l x -> conv l' x -> conv (l ⊔ l') x) -- l ⊔ l' means l ∩ l'
+(sup_conv : forall {x : α} {l l' : filter α}, conv l x -> conv l' x -> conv (sup l l') x) -- l ⊔ l' means l ∩ l'
 
 open convergence_space
 
