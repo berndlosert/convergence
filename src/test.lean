@@ -27,11 +27,7 @@ class hausdorff_space [convergence_space a] : Prop :=
 
 def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
   conv := fun l x, conv (map f l) (f x),
-  pure_conv := begin
-    intro,
-    simp [filter.map_pure],
-    apply pure_conv
-  end,
+  pure_conv := by simp [filter.map_pure, pure_conv],
   le_conv := begin
     intros x l l' h0 h1,
     have h2 : map f l <= map f l',
