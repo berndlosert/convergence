@@ -7,10 +7,9 @@ open set filter classical
 open_locale classical filter
 open has_sup
 
-universes u v w
 variables {a b : Type*}
 
-class convergence_space (a : Type u) :=
+class convergence_space (a : Type*) :=
 (conv : filter a -> a -> Prop)
 (pure_conv : forall {x : a}, conv (pure x) x)
 (le_conv : forall {x : a} {l l' : filter a}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
