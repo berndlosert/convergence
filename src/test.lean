@@ -19,35 +19,37 @@ open convergence_space
 
 def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
 
+infix `converges_to`:100 := conv
+
 structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
-(filter_conv : forall {x : a} {l : filter a}, conv l x -> conv (map f l) (f x))
+(filter_conv : forall {x : a} {l : filter a}, l converges_to x -> map f l converges_to f x)
 
 class hausdorff_space [convergence_space a] : Prop :=
 (hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
 
 def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
-  conv := fun l x, conv (map f l) (f x),
+  conv := fun l x, map f l converges_to f x,
   pure_conv := by simp [filter.map_pure, pure_conv],
   le_conv := begin
     assume x : a,
     assume l l' : filter a,
     assume : l <= l',
-    assume : conv (map f l') (f x),
+    assume : map f l' converges_to f x,
     have : map f l <= map f l',
       apply map_mono (by assumption : l <= l'),
     apply le_conv
-      (by assumption :  map f l <= map f l')
-      (by assumption : conv (map f l') (f x))
+      (by assumption : map f l <= map f l')
+      (by assumption : map f l' converges_to f x)
   end,
   sup_conv := begin
     assume x : a,
     assume l l' : filter a,
-    assume : conv (map f l) (f x),
-    assume : conv (map f l') (f x),
+    assume : map f l converges_to f x,
+    assume : map f l' converges_to f x,
     simp [map_sup],
     apply sup_conv
-      (by assumption : conv (map f l) (f x))
-      (by assumption : conv (map f l') (f x))
+      (by assumption : map f l converges_to f x)
+      (by assumption : map f l' converges_to f x)
   end
 }
 
