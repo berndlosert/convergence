@@ -46,9 +46,8 @@ def induced (f : α -> β) (t : convergence_space β) : convergence_space α := 
   end
 }
 
-/-
 def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β := {
-  conv := fun l' y, l' <= pure y or (exists x l, l' <= map f l and y = f x and conv l x),
+  conv := fun l' y, l' <= pure y \/ (exists x l, l' <= map f l /\ y = f x /\ conv l x),
   pure_conv := begin
     intro,
     simp [and.left]
@@ -66,7 +65,7 @@ def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β :
     exact or.elim h₀
       (or.elim h₁
         (assume ha hb, or.inl (sup_le_iff.mpr ⟨hb, ha⟩))
-	(assume ha hb, _))
+	(assume ha hb, sorry))
       (or.elim h₁ sorry sorry)
     --  (or.elim h₁
     --    (assume ha hb, or.inl (sup_lt_iff.mpr (ha, hb)))
@@ -74,4 +73,3 @@ def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β :
     --  (or.elim h₁ _ _)
   end
 }
--/
