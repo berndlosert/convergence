@@ -8,25 +8,25 @@ open_locale classical filter
 open has_sup
 
 universes u v w
-variables {α β : Type*}
+variables {a b : Type*}
 
-class convergence_space (α : Type u) :=
-(conv : filter α -> α -> Prop)
-(pure_conv : forall {x : α}, conv (pure x) x)
-(le_conv : forall {x : α} {l l' : filter α}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
-(sup_conv : forall {x : α} {l l' : filter α}, conv l x -> conv l' x -> conv (sup l l') x) -- l ⊔ l' means l ∩ l'
+class convergence_space (a : Type u) :=
+(conv : filter a -> a -> Prop)
+(pure_conv : forall {x : a}, conv (pure x) x)
+(le_conv : forall {x : a} {l l' : filter a}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
+(sup_conv : forall {x : a} {l l' : filter a}, conv l x -> conv l' x -> conv (sup l l') x) -- l ⊔ l' means l ∩ l'
 
 open convergence_space
 
-def lim [convergence_space α] (l : filter α) : set α := set_of (conv l)
+def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
 
-structure continuous [convergence_space α] [convergence_space β] (f : α -> β) : Prop :=
-(filter_conv : forall {x : α} {l : filter α}, conv l x -> conv (map f l) (f x))
+structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
+(filter_conv : forall {x : a} {l : filter a}, conv l x -> conv (map f l) (f x))
 
-class hausdorff_space [convergence_space α] : Prop :=
-(hausdorff_prop : forall (l : filter α) [ne_bot l], subsingleton (lim l))
+class hausdorff_space [convergence_space a] : Prop :=
+(hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
 
-def induced (f : α -> β) (t : convergence_space β) : convergence_space α := {
+def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
   conv := fun l x, conv (map f l) (f x),
   pure_conv := begin
     intro,
@@ -46,7 +46,7 @@ def induced (f : α -> β) (t : convergence_space β) : convergence_space α := 
   end
 }
 
-def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β := {
+def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
   conv := fun l' y, l' <= pure y \/ (exists x l, l' <= map f l /\ y = f x /\ conv l x),
   pure_conv := begin
     intro,
