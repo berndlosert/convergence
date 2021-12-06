@@ -80,14 +80,16 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
     assume h1 : coinduced_conv f l1' y,
     assume h2 : coinduced_conv f l2' y,
     cases h1 with pure_case1 l1 x1 _ _ _,
-    cases h2 with pure_case2 l2 x2 _ _ _,
+
     -- case l1' <= pure y, l2' <= pure y
+    cases h2 with pure_case2 l2 x2 _ _ _,
     exact coinduced_conv.pure_case
       (sup_le_iff.mpr
         (and.intro
 	  (by assumption : l1' <= pure y)
 	  (by assumption : l2' <= pure y))),
-     -- case l1' ≤ pure y, l2' ≤ map f l2
+
+     -- case l1' <= pure y, l2' <= map f l2
      have : l1' <= map f (pure x2), begin
        rw map_pure f x2,
        rw <- (by assumption : y = f x2),
@@ -103,6 +105,46 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
        exact sup_conv
          pure_conv
 	 (by assumption : conv l2 x2),
+     end,
+     exact coinduced_conv.other_case l x2
+       (by assumption : sup l1' l2' <= map f l)
+       (by assumption : y = f x2)
+       (by assumption : conv l x2),
+
+     -- case l1' <= map f l1, l2' <= pure x2
+     cases h2 with pure_case2 l2 x2 _ _ _,
+     have : l2' <= map f (pure x1), begin
+       rw map_pure f x1,
+       rw <- (by assumption : y = f x1),
+       exact pure_case2,
+     end,
+     let l : filter a := sup l1 (pure x1),
+     have : sup l1' l2' <= map f l, begin
+       exact sup_le_sup
+         (by assumption : l1' <= map f l1)
+         (by assumption : l2' <= map f (pure x1)),
+     end,
+     have : conv l x1, begin
+       exact sup_conv
+         (by assumption : conv l1 x1)
+         pure_conv,
+     end,
+     exact coinduced_conv.other_case l x1
+       (by assumption : sup l1' l2' <= map f l)
+       (by assumption : y = f x1)
+       (by assumption : conv l x1),
+
+     -- case l1' <= map f l1, l2' <= map f l2
+     let l : filter a := sup l1 l2,
+     have : sup l1' l2' <= map f l, begin
+       exact sup_le_sup
+         (by assumption : l1' <= map f l1)
+         (by assumption : l2' <= map f l2),
+     end,
+     have : conv l x2, begin
+       exact sup_conv
+         (by assumption : conv l1 x1)
+         (by assumption : conv l2 x1),
      end,
      exact coinduced_conv.other_case l x2
        (by assumption : sup l1' l2' <= map f l)
