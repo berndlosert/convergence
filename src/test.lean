@@ -29,10 +29,17 @@ def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
   conv := fun l x, conv (map f l) (f x),
   pure_conv := by simp [filter.map_pure, pure_conv],
   le_conv := begin
-    intros x l l' h0 h1,
-    have h2 : map f l <= map f l',
-      apply map_mono h0,
-    apply le_conv h2 h1
+    assume x : a,
+    assume l l' : filter a,
+    --assume h0 : l <= l',
+    assume : l <= l',
+    --assume h1 : conv (map f l') (f x),
+    assume : conv (map f l') (f x),
+    --have h2 : map f l <= map f l',
+    have : map f l <= map f l',
+      apply map_mono (by assumption : l <= l'),
+    --apply le_conv h2 h1
+    apply le_conv (by assumption :  map f l <= map f l') (by assumption : conv (map f l') (f x))
   end,
   sup_conv := begin
     intros x l l' h0 h1,
