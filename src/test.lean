@@ -53,20 +53,24 @@ def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
   end
 }
 
-inductive coinduced_conv (f : a -> b) (l' : filter b) (y : b) : Prop
+inductive coinduced_conv [convergence_space a] (f : a -> b) (l' : filter b) (y : b) : Prop
 | pure_case (_ : l' <= pure y) : coinduced_conv
-| other_case [convergence_space a] (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : conv l x) : coinduced_conv
+| other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : conv l x) : coinduced_conv
 
 def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
   conv := coinduced_conv f,
   pure_conv := fun y, coinduced_conv.pure_case (le_refl (pure y)),
   le_conv := begin
     assume y : b,
-    assume l l' : filter b,
-    assume : l <= l',
-    assume h : coinduced_conv f l' y,
-    cases h with pure_case other_case,
-    exact coinduced_conv.pure_case (trans (from assumption : l <= l') pure_case),
+    assume l1 l2 : filter b,
+    assume : l1 <= l2,
+    assume h : coinduced_conv f l2 y,
+    cases h with pure_case l x _ _ _,
+    exact coinduced_conv.pure_case (trans (by assumption : l1 <= l2) pure_case),
+    exact coinduced_conv.other_case l x
+      (trans (by assumption : l1 <= l2) (by assumption : l2 ≤ map f l))
+      (by assumption : y = f x)
+      (by assumption : conv l x)
   end,
   sup_conv := sorry,
 }
