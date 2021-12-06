@@ -47,7 +47,7 @@ def induced (f : α -> β) (t : convergence_space β) : convergence_space α := 
 
 /-
 def coinduced (f : α -> β) (t : convergence_space α) : convergence_space β := {
-  conv := fun l' y, l' <= pure y ∨ (exists x l, l' <= map f l ∧ y = f x ∧ conv l x),
+  conv := fun l' y, l' <= pure y or (exists x l, l' <= map f l and y = f x and conv l x),
   pure_conv := begin
     intro,
     simp [and.left]
