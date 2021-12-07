@@ -55,27 +55,26 @@ let ind := induced f in {
       assume h : conv l' y,
       rw induced_def at *,
       simp [kent_conv h],
-      --exact kent_conv (by assumption : conv l' y),
     end,
   ..ind
 }
 
-/-
-def induced_limit (f : a -> b) (t : limit_space b) : limit_space a := {
+def induced_limit (f : a -> b) (t : limit_space b) : limit_space a :=
+let ind := induced_kent f in {
   sup_conv := begin
     assume x : a,
     assume l l' : filter a,
     assume : conv (map f l) (f x),
     assume : conv (map f l') (f x),
+    rw induced_def at *,
     simp [map_sup],
     apply sup_conv
       (by assumption : conv (map f l) (f x))
       (by assumption : conv (map f l') (f x))
   end,
-  ..induced_kent f t.to_kent_convergence_space
+  ..ind
 }
--/
-
+/-
 inductive coinduced_conv [convergence_space a] (f : a -> b) (l' : filter b) (y : b) : Prop
 | pure_case (_ : l' <= pure y) : coinduced_conv
 | other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : conv l x) : coinduced_conv
@@ -99,7 +98,6 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
   end,
 }
 
-/-
 def coinduced_kent (f : a -> b) (t : kent_convergence_space a) : kent_convergence_space b := {
   conv := (coinduced f t.to_convergence_space).conv,
   pure_conv := (coinduced f t.to_convergence_space).pure_conv,
