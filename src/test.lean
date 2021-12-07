@@ -13,45 +13,68 @@ class convergence_space (a : Type*) :=
 (conv : filter a -> a -> Prop)
 (pure_conv : forall {x : a}, conv (pure x) x)
 (le_conv : forall {x : a} {l l' : filter a}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
+
+class kent_convergence_space (a : Type*) extends convergence_space a :=
+(kent_conv : forall {x : a} {l : filter a}, conv l x -> conv (sup l (pure x)) x)
+
+class limit_space (a : Type*) extends kent_convergence_space a :=
 (sup_conv : forall {x : a} {l l' : filter a}, conv l x -> conv l' x -> conv (sup l l') x) -- l ⊔ l' means l ∩ l'
 
 open convergence_space
+open kent_convergence_space
+open limit_space
 
-def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
-
-infix `converges_to`:100 := conv
-
-structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
-(filter_conv : forall {x : a} {l : filter a}, l converges_to x -> map f l converges_to f x)
-
-class hausdorff_space [convergence_space a] : Prop :=
-(hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
-
-def induced (f : a -> b) (t : convergence_space b) : convergence_space a := {
-  conv := fun l x, map f l converges_to f x,
+def induced (f : a -> b) [convergence_space b] : convergence_space a := {
+  conv := fun l x, conv (map f l) (f x),
   pure_conv := by simp [filter.map_pure, pure_conv],
   le_conv := begin
     assume x : a,
     assume l l' : filter a,
     assume : l <= l',
-    assume : map f l' converges_to f x,
+    assume : conv (map f l') (f x),
     have : map f l <= map f l',
       apply map_mono (by assumption : l <= l'),
     apply le_conv
       (by assumption : map f l <= map f l')
-      (by assumption : map f l' converges_to f x)
+      (by assumption : conv (map f l') (f x))
   end,
+}
+
+lemma induced_def (f : a -> b) [convergence_space b] {l : filter a} {x : a} :
+  @convergence_space.conv a (induced f) l x <-> conv (map f l) (f x) :=
+iff.rfl
+
+def induced_kent (f : a -> b) [kent_convergence_space b] : kent_convergence_space a :=
+let ind := induced f in {
+  kent_conv :=
+    begin
+      assume x : a,
+      assume l : filter a,
+      let l' := map f l,
+      let y := f x,
+      assume h : conv l' y,
+      rw induced_def at *,
+      simp [kent_conv h],
+      --exact kent_conv (by assumption : conv l' y),
+    end,
+  ..ind
+}
+
+/-
+def induced_limit (f : a -> b) (t : limit_space b) : limit_space a := {
   sup_conv := begin
     assume x : a,
     assume l l' : filter a,
-    assume : map f l converges_to f x,
-    assume : map f l' converges_to f x,
+    assume : conv (map f l) (f x),
+    assume : conv (map f l') (f x),
     simp [map_sup],
     apply sup_conv
-      (by assumption : map f l converges_to f x)
-      (by assumption : map f l' converges_to f x)
-  end
+      (by assumption : conv (map f l) (f x))
+      (by assumption : conv (map f l') (f x))
+  end,
+  ..induced_kent f t.to_kent_convergence_space
 }
+-/
 
 inductive coinduced_conv [convergence_space a] (f : a -> b) (l' : filter b) (y : b) : Prop
 | pure_case (_ : l' <= pure y) : coinduced_conv
@@ -74,6 +97,12 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
       (by assumption : y = f x)
       (by assumption : conv l x)
   end,
+}
+
+/-
+def coinduced_kent (f : a -> b) (t : kent_convergence_space a) : kent_convergence_space b := {
+  conv := (coinduced f t.to_convergence_space).conv,
+  pure_conv := (coinduced f t.to_convergence_space).pure_conv,
   sup_conv := begin
     assume y : b,
     assume l1' l2' : filter b,
@@ -152,3 +181,14 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
        (by assumption : conv l x2),
   end
 }
+-/
+
+def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
+
+structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
+(filter_conv : forall {x : a} {l : filter a}, conv l x -> conv (map f l) (f x))
+
+class hausdorff_space [convergence_space a] : Prop :=
+(hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
+
+
