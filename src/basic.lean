@@ -144,5 +144,3 @@ structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : 
 
 class hausdorff_space [convergence_space a] : Prop :=
 (hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
-
-
