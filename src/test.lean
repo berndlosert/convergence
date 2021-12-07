@@ -74,7 +74,7 @@ let ind := induced_kent f in {
   end,
   ..ind
 }
-/-
+
 inductive coinduced_conv [convergence_space a] (f : a -> b) (l' : filter b) (y : b) : Prop
 | pure_case (_ : l' <= pure y) : coinduced_conv
 | other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : conv l x) : coinduced_conv
@@ -97,7 +97,7 @@ def coinduced (f : a -> b) (t : convergence_space a) : convergence_space b := {
       (by assumption : conv l x)
   end,
 }
-
+/-
 def coinduced_kent (f : a -> b) (t : kent_convergence_space a) : kent_convergence_space b := {
   conv := (coinduced f t.to_convergence_space).conv,
   pure_conv := (coinduced f t.to_convergence_space).pure_conv,
