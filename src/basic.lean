@@ -116,6 +116,7 @@ let coind := coinduced f in {
     assume h : coinduced_conv f l' y,
     rw coinduced_def at *,
     cases h with pure_case l x _ _ _,
+
     -- case l' <= pure y
     have : sup l' (pure y) = pure y, from calc
       sup l' (pure y) = sup (pure y) l' : sup_comm
