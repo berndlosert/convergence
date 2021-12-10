@@ -117,26 +117,30 @@ let coind := coinduced f in {
     rw coinduced_def at *,
     cases h with pure_case l x _ _ _,
     -- case l' <= pure y
-    have h' : sup l' (pure y) = pure y, from calc
+    have : sup l' (pure y) = pure y, from calc
       sup l' (pure y) = sup (pure y) l' : sup_comm
                   ... = pure y          : by rw sup_of_le_left pure_case,
-    rw h',
-    rw <- coinduced_def,
-    apply @pure_conv b coind y,
-    -- case l' <= map f l
-    let l'' := sup l (pure x),
-    have hlt : sup l' (pure y) <= map f l'', begin
-      rw (by assumption : y = f x),
-      have : l' <= sup (map f l) (pure (f x)),
-        from le_sup_of_le_left (by assumption : l' <= map f l),
-      simp,
+    have : coinduced_conv f (pure y) y, from @pure_conv b coind y,
+    show coinduced_conv f (sup l' (pure y)) y, begin
+      rw (by assumption : sup l' (pure y) = pure y),
       assumption,
     end,
-    have hconv : conv l'' x, begin
+
+    -- case l' <= map f l
+    let l'' := sup l (pure x),
+    have : sup l' (pure y) <= map f l'', from calc
+      sup l' (pure y) <= sup (map f l) (pure y)         : sup_le_sup_right (by assumption : l' <= map f l) (pure y)
+                  ...  = sup (map f l) (pure (f x))     : by rw (by assumption : y = f x)
+                  ...  = sup (map f l) (map f (pure x)) : by rw filter.map_pure
+                  ...  = map f (sup l (pure x))         : map_sup,
+    have : conv l'' x, begin
       apply kent_conv,
       assumption
     end,
-    apply coinduced_conv.other_case l'' x hlt (by assumption : y = f x) hconv
+    apply coinduced_conv.other_case l'' x
+      (by assumption : sup l' (pure y) <= map f l'')
+      (by assumption : y = f x)
+      (by assumption : conv l'' x)
   end,
   ..coind
 }
