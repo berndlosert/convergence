@@ -87,20 +87,22 @@ def coinduced (f : a -> b) [convergence_space a] : convergence_space b := {
     assume l1 l2 : filter b,
     assume : l1 <= l2,
     assume h : coinduced_conv f l2 y,
-    cases h with pure_case l x _ _ _,
-    -- pure_case
-    have : l1 <= pure y, from calc
-      l1  <= l2     : (by assumption : l1 <= l2)
-      ... <= pure y : pure_case,
-    exact coinduced_conv.pure_case (by assumption : l1 <= pure y),
-    -- other_case
-    have : l1 <= map f l, from calc
-      l1  <= l2      :  (by assumption : l1 <= l2)
-      ... <= map f l :  (by assumption : l2 <= map f l),
-    exact coinduced_conv.other_case l x
-      (by assumption : l1 <= map f l)
-      (by assumption : y = f x)
-      (by assumption : conv l x)
+    cases h,
+      case pure_case begin
+        have : l1 <= pure y, from calc
+          l1  <= l2     : (by assumption : l1 <= l2)
+          ... <= pure y : (by assumption : l2 <= pure y),
+        exact coinduced_conv.pure_case (by assumption : l1 <= pure y),
+        end,
+      case other_case : l x _ _ _ begin
+        have : l1 <= map f l, from calc
+          l1  <= l2      :  (by assumption : l1 <= l2)
+          ... <= map f l :  (by assumption : l2 <= map f l),
+        exact coinduced_conv.other_case l x
+          (by assumption : l1 <= map f l)
+          (by assumption : y = f x)
+          (by assumption : conv l x)
+        end
   end,
 }
 
