@@ -22,6 +22,9 @@ class limit_space (a : Type*) extends kent_convergence_space a :=
 
 open convergence_space kent_convergence_space limit_space
 
+@[ext] theorem convergence_space_eq : forall {p q : convergence_space a}, p.conv = q.conv -> p = q
+| (convergence_space.mk pconv _ _) (convergence_space.mk qconv _ _) rfl := rfl
+
 def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
 
 structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
