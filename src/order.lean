@@ -12,6 +12,10 @@ namespace convergence_space
 
 variables {a b : Type*}
 
+instance : has_le (convergence_space a) := {
+  le := fun p q, forall {l : filter a} {x : a}, @conv a q l x -> @conv a p l x
+}
+
 def induced (f : a -> b) [convergence_space b] : convergence_space a := {
   conv := fun l x, conv (map f l) (f x),
   pure_conv := by simp [filter.map_pure, pure_conv],
