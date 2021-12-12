@@ -16,6 +16,19 @@ instance : has_le (convergence_space a) := {
   le := fun p q, forall {l : filter a} {x : a}, @conv a q l x -> @conv a p l x
 }
 
+instance : partial_order (convergence_space a) := {
+  le_refl := sorry,
+  le_trans := sorry,
+  le_antisymm := begin --λ p q h h', by { ext, exact iff.intro h' h },
+    assume p q : convergence_space a,
+    assume h : p <= q,
+    assume h' : q <= p,
+    ext l x,
+    exact iff.intro h' h,
+  end,
+  ..convergence_space.has_le
+}
+
 def induced (f : a -> b) [convergence_space b] : convergence_space a := {
   conv := fun l x, conv (map f l) (f x),
   pure_conv := by simp [filter.map_pure, pure_conv],
