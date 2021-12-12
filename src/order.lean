@@ -17,7 +17,7 @@ instance : has_le (convergence_space a) := {
 }
 
 instance : partial_order (convergence_space a) := {
-  le_refl := sorry,
+  le_refl := refl,
   le_trans := sorry,
   le_antisymm := begin
     assume p q : convergence_space a,
