@@ -17,14 +17,28 @@ instance : has_le (convergence_space a) := {
 }
 
 instance : partial_order (convergence_space a) := {
-  le_refl := refl,
-  le_trans := sorry,
+  le_refl := begin
+    assume p : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : @conv a p l x,
+    exact h,
+  end,
+  le_trans := begin
+    assume p q r : convergence_space a,
+    assume le1 : p <= q,
+    assume le2 : q <= r,
+    assume l : filter a,
+    assume x : a,
+    assume h : @conv a r l x,
+    exact (@le1 l x (@le2 l x h))
+  end,
   le_antisymm := begin
     assume p q : convergence_space a,
-    assume h : p <= q,
-    assume h' : q <= p,
+    assume le1 : p <= q,
+    assume le2 : q <= p,
     ext l x,
-    exact iff.intro h' h,
+    exact iff.intro le2 le1,
   end,
   ..convergence_space.has_le
 }
