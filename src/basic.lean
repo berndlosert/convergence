@@ -251,6 +251,10 @@ instance : has_bot (convergence_space a) := {
   bot := discrete
 }
 
+instance : has_top (convergence_space a) := {
+  top := indiscrete
+}
+
 end convergence_space
 
 -------------------------------------------------------------------------------
