@@ -51,7 +51,6 @@ forall {l : filter a} {x : a}, mem s l -> conv l x -> mem x s
 structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
 (filter_conv : forall {x : a} {l : filter a}, conv l x -> conv (map f l) (f x))
 
-
 -------------------------------------------------------------------------------
 -- Misc.
 -------------------------------------------------------------------------------
