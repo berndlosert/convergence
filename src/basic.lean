@@ -5,7 +5,7 @@ import algebra.support
 noncomputable theory
 open set filter classical
 open_locale classical filter
-open has_sup has_mem
+open has_sup has_inf has_mem
 
 variables {a b : Type*}
 
@@ -222,6 +222,53 @@ let ind := kent_convergence_space.induced f in {
 }
 
 end limit_space
+
+-------------------------------------------------------------------------------
+-- Discrete/indiscrete convergence spaces
+-------------------------------------------------------------------------------
+
+namespace convergence_space
+
+def discrete : convergence_space a := {
+  conv := fun l x, true,
+  pure_conv := by simp,
+  le_conv := by simp,
+}
+
+def indiscrete : convergence_space a := {
+  conv := fun l x, l <= pure x,
+  pure_conv := by simp,
+  le_conv := begin
+    assume x : a,
+    assume l l' : filter a,
+    assume h : l <= l',
+    assume h' : l' <= pure x,
+    exact le_trans h h',
+  end,
+}
+
+instance : has_bot (convergence_space a) := {
+  bot := discrete
+}
+
+end convergence_space
+
+-------------------------------------------------------------------------------
+-- Convergence spaces constructions
+-------------------------------------------------------------------------------
+
+namespace convergence_space
+
+instance {p : a -> Prop} [q : convergence_space a] : convergence_space (subtype p) :=
+@induced _ _ coe q
+
+instance {r : a -> a -> Prop} [q : convergence_space a] : convergence_space (quot r) :=
+@coinduced _ _ (quot.mk r) q
+
+--instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
+--inf (@induced _ _ prod.fst p) (@induced _ _ prod.snd q)
+
+end convergence_space
 
 -------------------------------------------------------------------------------
 -- Limits, adherence, open/closed, continuity
