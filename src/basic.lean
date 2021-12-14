@@ -1,3 +1,4 @@
+import tactic
 import order.filter.ultrafilter
 import order.filter.partial
 import algebra.support
@@ -231,20 +232,14 @@ namespace convergence_space
 
 def discrete : convergence_space a := {
   conv := fun l x, true,
-  pure_conv := by simp,
-  le_conv := by simp,
+  pure_conv := by tauto,
+  le_conv := by tauto,
 }
 
 def indiscrete : convergence_space a := {
   conv := fun l x, l <= pure x,
-  pure_conv := by simp,
-  le_conv := begin
-    assume x : a,
-    assume l l' : filter a,
-    assume h : l <= l',
-    assume h' : l' <= pure x,
-    exact le_trans h h',
-  end,
+  pure_conv := by tauto,
+  le_conv := by tauto,
 }
 
 instance : has_bot (convergence_space a) := {
