@@ -122,6 +122,25 @@ instance : has_sup (convergence_space a) := {
   }
 }
 
+instance : has_inf (convergence_space a) := {
+  inf := fun p q, {
+    conv := fun l x, or (@conv a p l x) (@conv a q l x),
+    pure_conv := begin
+      assume x : a,
+      exact or.inl (@pure_conv a p x),
+    end,
+    le_conv := begin
+      assume x : a,
+      assume l l' : filter a,
+      assume h : l <= l',
+      assume h' : or (@conv a p l' x) (@conv a q l' x),
+      exact or.elim h'
+        (assume hl, or.inl (@le_conv a p x l l' h hl))
+        (assume hr, or.inr (@le_conv a q x l l' h hr))
+    end,
+  }
+}
+
 end convergence_space
 
 -------------------------------------------------------------------------------
