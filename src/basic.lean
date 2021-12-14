@@ -72,6 +72,59 @@ instance : partial_order (convergence_space a) := {
 end convergence_space
 
 -------------------------------------------------------------------------------
+-- Discrete/indiscrete convergence spaces
+-------------------------------------------------------------------------------
+
+namespace convergence_space
+
+def discrete : convergence_space a := {
+  conv := fun l x, true,
+  pure_conv := by tauto,
+  le_conv := by tauto,
+}
+
+def indiscrete : convergence_space a := {
+  conv := fun l x, l <= pure x,
+  pure_conv := by tauto,
+  le_conv := by tauto,
+}
+
+instance : has_bot (convergence_space a) := {
+  bot := discrete
+}
+
+instance : has_top (convergence_space a) := {
+  top := indiscrete
+}
+
+end convergence_space
+
+-------------------------------------------------------------------------------
+-- Supremum and infimum of convergence spaces
+-------------------------------------------------------------------------------
+
+namespace convergence_space
+
+instance : has_sup (convergence_space a) := {
+  sup := fun p q, {
+    conv := fun l x, and (@conv a p l x) (@conv a q l x),
+    pure_conv := begin
+      assume x : a,
+      exact and.intro (@pure_conv a p x) (@pure_conv a q x),
+    end,
+    le_conv := begin
+      assume x : a,
+      assume l l' : filter a,
+      assume h : l <= l',
+      assume h' : and (@conv a p l' x) (@conv a q l' x),
+      exact and.intro (@le_conv a p x l l' h h'.left) (@le_conv a q x l l' h h'.right)
+    end,
+  }
+}
+
+end convergence_space
+
+-------------------------------------------------------------------------------
 -- Induced/coinduced convergence space
 -------------------------------------------------------------------------------
 
@@ -223,34 +276,6 @@ let ind := kent_convergence_space.induced f in {
 }
 
 end limit_space
-
--------------------------------------------------------------------------------
--- Discrete/indiscrete convergence spaces
--------------------------------------------------------------------------------
-
-namespace convergence_space
-
-def discrete : convergence_space a := {
-  conv := fun l x, true,
-  pure_conv := by tauto,
-  le_conv := by tauto,
-}
-
-def indiscrete : convergence_space a := {
-  conv := fun l x, l <= pure x,
-  pure_conv := by tauto,
-  le_conv := by tauto,
-}
-
-instance : has_bot (convergence_space a) := {
-  bot := discrete
-}
-
-instance : has_top (convergence_space a) := {
-  top := indiscrete
-}
-
-end convergence_space
 
 -------------------------------------------------------------------------------
 -- Convergence spaces constructions
