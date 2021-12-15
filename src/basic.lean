@@ -171,8 +171,8 @@ instance : semilattice_sup (convergence_space a) := {
     assume l : filter a,
     assume x : a,
     assume hr : @conv a r l x,
-    have hp : @conv a p l x, from @le1 l x hr,
-    have hq : @conv a q l x, from @le2 l x hr,
+    have hp : @conv a p l x, from le1 hr,
+    have hq : @conv a q l x, from le2 hr,
     exact and.intro hp hq
   end,
   ..convergence_space.partial_order,
