@@ -16,7 +16,7 @@ variables {a b : Type*}
 structure convergence_space (a : Type*) :=
 (converges : filter a -> a -> Prop)
 (pure_converges : forall x, converges (pure x) x)
-(le_converges : forall {x} {l l'}, l <= l' -> converges l' x -> converges l x) -- l <= l' means l' ⊆ l
+(le_converges : forall {l l'} {x}, l <= l' -> converges l' x -> converges l x) -- l <= l' means l' ⊆ l
 
 attribute [ext] convergence_space
 attribute [class] convergence_space
@@ -97,8 +97,8 @@ instance : has_sup (convergence_space a) := {
       exact and.intro (p.pure_converges x) (q.pure_converges x),
     end,
     le_converges := begin
-      assume x : a,
       assume l l' : filter a,
+      assume x : a,
       assume h : l <= l',
       assume h' : and (p.converges l' x) (q.converges l' x),
       exact and.intro (p.le_converges h h'.left) (q.le_converges h h'.right)
@@ -116,8 +116,8 @@ instance : has_Sup (convergence_space a) := {
       exact p.pure_converges x,
     end,
     le_converges := begin
-      assume x : a,
       assume l l' : filter a,
+      assume x : a,
       assume h : l <= l',
       assume f : forall {p : convergence_space a}, mem p ps -> p.converges l' x,
       assume p : convergence_space a,
@@ -135,8 +135,8 @@ instance : has_inf (convergence_space a) := {
       exact or.inl (p.pure_converges x),
     end,
     le_converges := begin
-      assume x : a,
       assume l l' : filter a,
+      assume x : a,
       assume h : l <= l',
       assume h' : or (p.converges l' x) (q.converges l' x),
       exact or.elim h'
@@ -225,8 +225,8 @@ def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
   converges := fun l x, q.converges (map f l) (f x),
   pure_converges := by simp [filter.map_pure, pure_converges],
   le_converges := begin
-    assume x : a,
     assume l l' : filter a,
+    assume x : a,
     assume le1 : l <= l',
     assume h : q.converges (map f l') (f x),
     have le2 : map f l <= map f l', apply map_mono le1,
@@ -242,8 +242,8 @@ def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
   converges := coinduced_converges f p,
   pure_converges := fun y, coinduced_converges.pure_case (le_refl (pure y)),
   le_converges := begin
-    assume y : b,
     assume l1 l2 : filter b,
+    assume y : b,
     assume : l1 <= l2,
     assume h : coinduced_converges f p l2 y,
     cases h,
