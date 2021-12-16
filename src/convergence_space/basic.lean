@@ -16,7 +16,7 @@ variables {a b : Type*}
 structure convergence_space (a : Type*) :=
 (conv : filter a -> a -> Prop)
 (pure_conv : forall x, conv (pure x) x)
-(le_conv : forall {x : a} {l l' : filter a}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
+(le_conv : forall {x} {l l'}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
 
 attribute [ext] convergence_space
 attribute [class] convergence_space
