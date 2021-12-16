@@ -235,10 +235,10 @@ def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
 --  @convergence_space.conv a (induced f) l x <-> conv (map f l) (f x) :=
 --iff.rfl
 --
---inductive coinduced_conv [convergence_space a] (f : a -> b) (l' : filter b) (y : b) : Prop
---| pure_case (_ : l' <= pure y) : coinduced_conv
---| other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : conv l x) : coinduced_conv
---
+inductive coinduced_conv (p : convergence_space a) (f : a -> b) (l' : filter b) (y : b) : Prop
+| pure_case (_ : l' <= pure y) : coinduced_conv
+| other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : p.conv l x) : coinduced_conv
+
 --def coinduced (f : a -> b) [convergence_space a] : convergence_space b := {
 --  conv := coinduced_conv f,
 --  pure_conv := fun y, coinduced_conv.pure_case (le_refl (pure y)),
