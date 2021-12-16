@@ -179,36 +179,36 @@ instance : semilattice_sup (convergence_space a) := {
   ..convergence_space.has_sup,
 }
 
---instance : semilattice_inf (convergence_space a) := {
---  inf_le_left := begin
---    assume p q : convergence_space a,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a p l x,
---    exact or.inl h,
---  end,
---  inf_le_right := begin
---    assume p q : convergence_space a,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a q l x,
---    exact or.inr h,
---  end,
---  le_inf := begin
---    assume p q r : convergence_space a,
---    assume le1 : p <= q,
---    assume le2 : p <= r,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a (inf q r) l x,
---    cases h,
---      exact le1 h,
---      exact le2 h,
---  end,
---  ..convergence_space.partial_order,
---  ..convergence_space.has_inf,
---}
---
+instance : semilattice_inf (convergence_space a) := {
+  inf_le_left := begin
+    assume p q : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : p.conv l x,
+    exact or.inl h,
+  end,
+  inf_le_right := begin
+    assume p q : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : q.conv l x,
+    exact or.inr h,
+  end,
+  le_inf := begin
+    assume p q r : convergence_space a,
+    assume le1 : p <= q,
+    assume le2 : p <= r,
+    assume l : filter a,
+    assume x : a,
+    assume h : (inf q r).conv l x,
+    cases h,
+      exact le1 h,
+      exact le2 h,
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_inf,
+}
+
 --instance : lattice (convergence_space a) := {
 --  ..convergence_space.semilattice_sup,
 --  ..convergence_space.semilattice_inf,
