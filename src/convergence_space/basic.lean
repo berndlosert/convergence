@@ -284,23 +284,23 @@ inf (induced prod.fst p) (induced prod.snd q)
 
 def lim [p : convergence_space a] (l : filter a) : set a := set_of (p.converges l)
 
---def adheres [convergence_space a] (l : filter a) (x : a) : Prop :=
---exists l' <= l, converges l' x
---
---def adh [convergence_space a] (l : filter a) : set a := set_of (adheres l)
---
---def is_open [convergence_space a] (s : set a) : Prop :=
---forall {l : filter a} {x : a}, mem x s -> converges l x -> mem s l
---
---def is_closed [convergence_space a] (s : set a) : Prop :=
---forall {l : filter a} {x : a}, mem s l -> converges l x -> mem x s
---
---structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
---(filter_converges : forall {x : a} {l : filter a}, converges l x -> converges (map f l) (f x))
---
----------------------------------------------------------------------------------
----- Misc.
----------------------------------------------------------------------------------
---
---class hausdorff_space [convergence_space a] : Prop :=
---(hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
+def adheres [p : convergence_space a] (l : filter a) (x : a) : Prop :=
+exists l' <= l, p.converges l' x
+
+def adh [convergence_space a] (l : filter a) : set a := set_of (adheres l)
+
+def is_open [p : convergence_space a] (s : set a) : Prop :=
+forall {l} {x}, mem x s -> p.converges l x -> mem s l
+
+def is_closed [p : convergence_space a] (s : set a) : Prop :=
+forall {l} {x}, mem s l -> p.converges l x -> mem x s
+
+structure continuous [p : convergence_space a] [q : convergence_space b] (f : a -> b) : Prop :=
+(filter_converges : forall {x} {l}, p.converges l x -> q.converges (map f l) (f x))
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+class hausdorff_space [convergence_space a] : Prop :=
+(hausdorff_prop : forall (l : filter a) [ne_bot l], subsingleton (lim l))
