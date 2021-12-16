@@ -14,12 +14,15 @@ variables {a b : Type*}
 -------------------------------------------------------------------------------
 
 structure convergence_space (a : Type*) :=
-(conv : filter a -> a -> Prop)
-(pure_conv : forall x, conv (pure x) x)
-(le_conv : forall {x} {l l'}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
+(converges : filter a -> a -> Prop)
+(pure_converges : forall x, converges (pure x) x)
+(le_converges : forall {x} {l l'}, l <= l' -> converges l' x -> converges l x) -- l <= l' means l' ⊆ l
 
 attribute [ext] convergence_space
 attribute [class] convergence_space
+
+def convergence_space.converges' {a : Type*} [p : convergence_space a] : filter a -> a -> Prop :=
+convergence_space.converges p
 
 open convergence_space
 
@@ -28,7 +31,7 @@ open convergence_space
 -------------------------------------------------------------------------------
 
 instance : has_le (convergence_space a) := {
-  le := fun p q, forall {l} {x}, q.conv l x -> p.conv l x
+  le := fun p q, forall {l} {x}, q.converges l x -> p.converges l x
 }
 
 instance : partial_order (convergence_space a) := {
@@ -36,7 +39,7 @@ instance : partial_order (convergence_space a) := {
     assume p : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : p.conv l x,
+    assume h : p.converges l x,
     exact h,
   end,
   le_trans := begin
@@ -45,7 +48,7 @@ instance : partial_order (convergence_space a) := {
     assume le2 : q <= r,
     assume l : filter a,
     assume x : a,
-    assume h : r.conv l x,
+    assume h : r.converges l x,
     exact (le1 (le2 h))
   end,
   le_antisymm := begin
@@ -63,15 +66,15 @@ instance : partial_order (convergence_space a) := {
 -------------------------------------------------------------------------------
 
 def discrete : convergence_space a := {
-  conv := fun l x, true,
-  pure_conv := by tauto,
-  le_conv := by tauto,
+  converges := fun l x, true,
+  pure_converges := by tauto,
+  le_converges := by tauto,
 }
 
 def indiscrete : convergence_space a := {
-  conv := fun l x, l <= pure x,
-  pure_conv := by tauto,
-  le_conv := by tauto,
+  converges := fun l x, l <= pure x,
+  pure_converges := by tauto,
+  le_converges := by tauto,
 }
 
 instance : has_bot (convergence_space a) := {
@@ -88,57 +91,57 @@ instance : has_top (convergence_space a) := {
 
 instance : has_sup (convergence_space a) := {
   sup := fun p q, {
-    conv := fun l x, and (p.conv l x) (q.conv l x),
-    pure_conv := begin
+    converges := fun l x, and (p.converges l x) (q.converges l x),
+    pure_converges := begin
       assume x : a,
-      exact and.intro (p.pure_conv x) (q.pure_conv x),
+      exact and.intro (p.pure_converges x) (q.pure_converges x),
     end,
-    le_conv := begin
+    le_converges := begin
       assume x : a,
       assume l l' : filter a,
       assume h : l <= l',
-      assume h' : and (p.conv l' x) (q.conv l' x),
-      exact and.intro (p.le_conv h h'.left) (q.le_conv h h'.right)
+      assume h' : and (p.converges l' x) (q.converges l' x),
+      exact and.intro (p.le_converges h h'.left) (q.le_converges h h'.right)
     end,
   }
 }
 
 instance : has_Sup (convergence_space a) := {
   Sup := fun ps, {
-    conv := fun l x, forall {p : convergence_space a}, mem p ps -> p.conv l x,
-    pure_conv := begin
+    converges := fun l x, forall {p : convergence_space a}, mem p ps -> p.converges l x,
+    pure_converges := begin
       assume x : a,
       assume p : convergence_space a,
       assume : mem p ps,
-      exact p.pure_conv x,
+      exact p.pure_converges x,
     end,
-    le_conv := begin
+    le_converges := begin
       assume x : a,
       assume l l' : filter a,
       assume h : l <= l',
-      assume f : forall {p : convergence_space a}, mem p ps -> p.conv l' x,
+      assume f : forall {p : convergence_space a}, mem p ps -> p.converges l' x,
       assume p : convergence_space a,
       assume h' : mem p ps,
-      exact p.le_conv h (f h')
+      exact p.le_converges h (f h')
     end,
   }
 }
 
 instance : has_inf (convergence_space a) := {
   inf := fun p q, {
-    conv := fun l x, or (p.conv l x) (q.conv l x),
-    pure_conv := begin
+    converges := fun l x, or (p.converges l x) (q.converges l x),
+    pure_converges := begin
       assume x : a,
-      exact or.inl (p.pure_conv x),
+      exact or.inl (p.pure_converges x),
     end,
-    le_conv := begin
+    le_converges := begin
       assume x : a,
       assume l l' : filter a,
       assume h : l <= l',
-      assume h' : or (p.conv l' x) (q.conv l' x),
+      assume h' : or (p.converges l' x) (q.converges l' x),
       exact or.elim h'
-        (assume hl, or.inl (p.le_conv h hl))
-        (assume hr, or.inr (q.le_conv h hr))
+        (assume hl, or.inl (p.le_converges h hl))
+        (assume hr, or.inr (q.le_converges h hr))
     end,
   }
 }
@@ -154,14 +157,14 @@ instance : semilattice_sup (convergence_space a) := {
     assume p q : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : (sup p q).conv l x,
+    assume h : (sup p q).converges l x,
     exact h.left,
   end,
   le_sup_right := begin
     assume p q : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : (sup p q).conv l x,
+    assume h : (sup p q).converges l x,
     exact h.right,
   end,
   sup_le := begin
@@ -170,9 +173,9 @@ instance : semilattice_sup (convergence_space a) := {
     assume le2 : q <= r,
     assume l : filter a,
     assume x : a,
-    assume hr : r.conv l x,
-    have hp : p.conv l x, from le1 hr,
-    have hq : q.conv l x, from le2 hr,
+    assume hr : r.converges l x,
+    have hp : p.converges l x, from le1 hr,
+    have hq : q.converges l x, from le2 hr,
     exact and.intro hp hq
   end,
   ..convergence_space.partial_order,
@@ -184,14 +187,14 @@ instance : semilattice_inf (convergence_space a) := {
     assume p q : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : p.conv l x,
+    assume h : p.converges l x,
     exact or.inl h,
   end,
   inf_le_right := begin
     assume p q : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : q.conv l x,
+    assume h : q.converges l x,
     exact or.inr h,
   end,
   le_inf := begin
@@ -200,7 +203,7 @@ instance : semilattice_inf (convergence_space a) := {
     assume le2 : p <= r,
     assume l : filter a,
     assume x : a,
-    assume h : (inf q r).conv l x,
+    assume h : (inf q r).converges l x,
     cases h,
       exact le1 h,
       exact le2 h,
@@ -219,45 +222,45 @@ instance : lattice (convergence_space a) := {
 -------------------------------------------------------------------------------
 
 def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
-  conv := fun l x, q.conv (map f l) (f x),
-  pure_conv := by simp [filter.map_pure, pure_conv],
-  le_conv := begin
+  converges := fun l x, q.converges (map f l) (f x),
+  pure_converges := by simp [filter.map_pure, pure_converges],
+  le_converges := begin
     assume x : a,
     assume l l' : filter a,
     assume le1 : l <= l',
-    assume h : q.conv (map f l') (f x),
+    assume h : q.converges (map f l') (f x),
     have le2 : map f l <= map f l', apply map_mono le1,
-    apply q.le_conv le2 h
+    apply q.le_converges le2 h
   end,
 }
 
-inductive coinduced_conv (f : a -> b) (p : convergence_space a) (l' : filter b) (y : b) : Prop
-| pure_case (_ : l' <= pure y) : coinduced_conv
-| other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : p.conv l x) : coinduced_conv
+inductive coinduced_converges (f : a -> b) (p : convergence_space a) (l' : filter b) (y : b) : Prop
+| pure_case (_ : l' <= pure y) : coinduced_converges
+| other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : p.converges l x) : coinduced_converges
 
 def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
-  conv := coinduced_conv f p,
-  pure_conv := fun y, coinduced_conv.pure_case (le_refl (pure y)),
-  le_conv := begin
+  converges := coinduced_converges f p,
+  pure_converges := fun y, coinduced_converges.pure_case (le_refl (pure y)),
+  le_converges := begin
     assume y : b,
     assume l1 l2 : filter b,
     assume : l1 <= l2,
-    assume h : coinduced_conv f p l2 y,
+    assume h : coinduced_converges f p l2 y,
     cases h,
       case pure_case begin
         have : l1 <= pure y, from calc
           l1  <= l2     : (by assumption : l1 <= l2)
           ... <= pure y : (by assumption : l2 <= pure y),
-        exact coinduced_conv.pure_case (by assumption : l1 <= pure y),
+        exact coinduced_converges.pure_case (by assumption : l1 <= pure y),
       end,
       case other_case : l x _ _ _ begin
         have : l1 <= map f l, from calc
           l1  <= l2      :  (by assumption : l1 <= l2)
           ... <= map f l :  (by assumption : l2 <= map f l),
-        exact coinduced_conv.other_case l x
+        exact coinduced_converges.other_case l x
           (by assumption : l1 <= map f l)
           (by assumption : y = f x)
-          (by assumption : p.conv l x)
+          (by assumption : p.converges l x)
         end
   end,
 }
@@ -275,25 +278,25 @@ coinduced (quot.mk r) q
 instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
 inf (induced prod.fst p) (induced prod.snd q)
 
----------------------------------------------------------------------------------
----- Limits, adherence, open/closed, continuity
----------------------------------------------------------------------------------
---
---def lim [convergence_space a] (l : filter a) : set a := set_of (conv l)
---
+-------------------------------------------------------------------------------
+-- Limits, adherence, open/closed, continuity
+-------------------------------------------------------------------------------
+
+def lim [convergence_space a] (l : filter a) : set a := set_of (converges' l)
+
 --def adheres [convergence_space a] (l : filter a) (x : a) : Prop :=
---exists l' <= l, conv l' x
+--exists l' <= l, converges l' x
 --
 --def adh [convergence_space a] (l : filter a) : set a := set_of (adheres l)
 --
 --def is_open [convergence_space a] (s : set a) : Prop :=
---forall {l : filter a} {x : a}, mem x s -> conv l x -> mem s l
+--forall {l : filter a} {x : a}, mem x s -> converges l x -> mem s l
 --
 --def is_closed [convergence_space a] (s : set a) : Prop :=
---forall {l : filter a} {x : a}, mem s l -> conv l x -> mem x s
+--forall {l : filter a} {x : a}, mem s l -> converges l x -> mem x s
 --
 --structure continuous [convergence_space a] [convergence_space b] (f : a -> b) : Prop :=
---(filter_conv : forall {x : a} {l : filter a}, conv l x -> conv (map f l) (f x))
+--(filter_converges : forall {x : a} {l : filter a}, converges l x -> converges (map f l) (f x))
 --
 ---------------------------------------------------------------------------------
 ---- Misc.
