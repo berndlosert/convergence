@@ -143,42 +143,42 @@ instance : has_inf (convergence_space a) := {
   }
 }
 
----------------------------------------------------------------------------------
----- Lattice of convergence spaces
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---instance : semilattice_sup (convergence_space a) := {
---  le_sup_left := begin
---    assume p q : convergence_space a,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a (sup p q) l x,
---    exact h.left,
---  end,
---  le_sup_right := begin
---    assume p q : convergence_space a,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a (sup p q) l x,
---    exact h.right,
---  end,
---  sup_le := begin
---    assume p q r : convergence_space a,
---    assume le1 : p <= r,
---    assume le2 : q <= r,
---    assume l : filter a,
---    assume x : a,
---    assume hr : @conv a r l x,
---    have hp : @conv a p l x, from le1 hr,
---    have hq : @conv a q l x, from le2 hr,
---    exact and.intro hp hq
---  end,
---  ..convergence_space.partial_order,
---  ..convergence_space.has_sup,
---}
---
+-- TODO: has_Inf
+
+-------------------------------------------------------------------------------
+-- Lattice of convergence spaces
+-------------------------------------------------------------------------------
+
+instance : semilattice_sup (convergence_space a) := {
+  le_sup_left := begin
+    assume p q : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : (sup p q).conv l x,
+    exact h.left,
+  end,
+  le_sup_right := begin
+    assume p q : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : (sup p q).conv l x,
+    exact h.right,
+  end,
+  sup_le := begin
+    assume p q r : convergence_space a,
+    assume le1 : p <= r,
+    assume le2 : q <= r,
+    assume l : filter a,
+    assume x : a,
+    assume hr : r.conv l x,
+    have hp : p.conv l x, from le1 hr,
+    have hq : q.conv l x, from le2 hr,
+    exact and.intro hp hq
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_sup,
+}
+
 --instance : semilattice_inf (convergence_space a) := {
 --  inf_le_left := begin
 --    assume p q : convergence_space a,
