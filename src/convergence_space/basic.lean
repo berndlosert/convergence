@@ -260,6 +260,39 @@ instance : semilattice_inf (convergence_space a) := {
   ..convergence_space.has_inf,
 }
 
+instance : complete_semilattice_Inf (convergence_space a) := {
+  Inf_le := begin
+    assume ps : set (convergence_space a),
+    assume p : convergence_space a,
+    assume h : mem p ps,
+    assume l : filter a,
+    assume x : a,
+    assume h' : p.converges l x,
+    exact or.inr (exists.intro p (and.intro h h')),
+  end,
+  le_Inf := begin
+    assume qs : set (convergence_space a),
+    assume p : convergence_space a,
+    assume f : forall q : convergence_space a, mem q qs -> p <= q,
+    assume l : filter a,
+    assume x : a,
+    assume h : (Inf qs).converges l x,
+    cases h,
+      case or.inl : le1 begin
+        exact p.le_converges le1 (p.pure_converges x)
+      end,
+      case or.inr : ex begin
+        exact exists.elim ex begin
+          assume q : convergence_space a,
+          assume h' : and (mem q qs) (q.converges l x),
+          exact (f q h'.left) h'.right
+        end,
+      end,
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_Inf,
+}
+
 instance : lattice (convergence_space a) := {
   ..convergence_space.semilattice_sup,
   ..convergence_space.semilattice_inf,
