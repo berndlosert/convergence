@@ -205,6 +205,31 @@ instance : semilattice_sup (convergence_space a) := {
   ..convergence_space.has_sup,
 }
 
+instance : complete_semilattice_Sup (convergence_space a) := {
+  le_Sup := begin
+    assume ps : set (convergence_space a),
+    assume p : convergence_space a,
+    assume h : mem p ps,
+    assume l : filter a,
+    assume x : a,
+    assume h' : (Sup ps).converges l x,
+    exact h' h,
+  end,
+  Sup_le := begin
+    assume ps : set (convergence_space a),
+    assume q : convergence_space a,
+    assume f : forall p : convergence_space a, mem p ps -> p <= q,
+    assume l : filter a,
+    assume x : a,
+    assume h : q.converges l x,
+    assume p : convergence_space a,
+    assume h' : mem p ps,
+    exact (f p h') h,
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_Sup,
+}
+
 instance : semilattice_inf (convergence_space a) := {
   inf_le_left := begin
     assume p q : convergence_space a,
