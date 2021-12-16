@@ -58,34 +58,30 @@ instance : partial_order (convergence_space a) := {
   ..convergence_space.has_le
 }
 
----------------------------------------------------------------------------------
----- Discrete/indiscrete convergence spaces
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---def discrete : convergence_space a := {
---  conv := fun l x, true,
---  pure_conv := by tauto,
---  le_conv := by tauto,
---}
---
---def indiscrete : convergence_space a := {
---  conv := fun l x, l <= pure x,
---  pure_conv := by tauto,
---  le_conv := by tauto,
---}
---
---instance : has_bot (convergence_space a) := {
---  bot := discrete
---}
---
---instance : has_top (convergence_space a) := {
---  top := indiscrete
---}
---
---end convergence_space
---
+-------------------------------------------------------------------------------
+-- Discrete/indiscrete convergence spaces
+-------------------------------------------------------------------------------
+
+def discrete : convergence_space a := {
+  conv := fun l x, true,
+  pure_conv := by tauto,
+  le_conv := by tauto,
+}
+
+def indiscrete : convergence_space a := {
+  conv := fun l x, l <= pure x,
+  pure_conv := by tauto,
+  le_conv := by tauto,
+}
+
+instance : has_bot (convergence_space a) := {
+  bot := discrete
+}
+
+instance : has_top (convergence_space a) := {
+  top := indiscrete
+}
+
 ---------------------------------------------------------------------------------
 ---- Supremum and infimum of convergence spaces
 ---------------------------------------------------------------------------------
