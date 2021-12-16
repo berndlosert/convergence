@@ -231,47 +231,37 @@ def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
   end,
 }
 
---lemma induced_def (f : a -> b) [convergence_space b] {l : filter a} {x : a} :
---  @convergence_space.conv a (induced f) l x <-> conv (map f l) (f x) :=
---iff.rfl
---
-inductive coinduced_conv (p : convergence_space a) (f : a -> b) (l' : filter b) (y : b) : Prop
+inductive coinduced_conv (f : a -> b) (p : convergence_space a) (l' : filter b) (y : b) : Prop
 | pure_case (_ : l' <= pure y) : coinduced_conv
 | other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : p.conv l x) : coinduced_conv
 
---def coinduced (f : a -> b) [convergence_space a] : convergence_space b := {
---  conv := coinduced_conv f,
---  pure_conv := fun y, coinduced_conv.pure_case (le_refl (pure y)),
---  le_conv := begin
---    assume y : b,
---    assume l1 l2 : filter b,
---    assume : l1 <= l2,
---    assume h : coinduced_conv f l2 y,
---    cases h,
---      case pure_case begin
---        have : l1 <= pure y, from calc
---          l1  <= l2     : (by assumption : l1 <= l2)
---          ... <= pure y : (by assumption : l2 <= pure y),
---        exact coinduced_conv.pure_case (by assumption : l1 <= pure y),
---      end,
---      case other_case : l x _ _ _ begin
---        have : l1 <= map f l, from calc
---          l1  <= l2      :  (by assumption : l1 <= l2)
---          ... <= map f l :  (by assumption : l2 <= map f l),
---        exact coinduced_conv.other_case l x
---          (by assumption : l1 <= map f l)
---          (by assumption : y = f x)
---          (by assumption : conv l x)
---        end
---  end,
---}
---
---lemma coinduced_def (f : a -> b) [convergence_space a] {l' : filter b} {y : b} :
---  @convergence_space.conv b (coinduced f) l' y <-> coinduced_conv f l' y :=
---iff.rfl
---
---end convergence_space
---
+def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
+  conv := coinduced_conv f p,
+  pure_conv := fun y, coinduced_conv.pure_case (le_refl (pure y)),
+  le_conv := begin
+    assume y : b,
+    assume l1 l2 : filter b,
+    assume : l1 <= l2,
+    assume h : coinduced_conv f p l2 y,
+    cases h,
+      case pure_case begin
+        have : l1 <= pure y, from calc
+          l1  <= l2     : (by assumption : l1 <= l2)
+          ... <= pure y : (by assumption : l2 <= pure y),
+        exact coinduced_conv.pure_case (by assumption : l1 <= pure y),
+      end,
+      case other_case : l x _ _ _ begin
+        have : l1 <= map f l, from calc
+          l1  <= l2      :  (by assumption : l1 <= l2)
+          ... <= map f l :  (by assumption : l2 <= map f l),
+        exact coinduced_conv.other_case l x
+          (by assumption : l1 <= map f l)
+          (by assumption : y = f x)
+          (by assumption : p.conv l x)
+        end
+  end,
+}
+
 ---------------------------------------------------------------------------------
 ---- Induced/coinduced Kent convergence space
 ---------------------------------------------------------------------------------
