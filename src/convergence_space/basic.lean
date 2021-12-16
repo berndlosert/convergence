@@ -162,7 +162,8 @@ instance : has_Inf (convergence_space a) := {
         end,
         case or.inr : ex begin
           exact exists.elim ex begin
-            assume p h',
+            assume p : convergence_space a,
+            assume h' : and (mem p ps) (p.converges l' x),
             exact or.inr (exists.intro p (and.intro h'.left (p.le_converges le1 h'.right)))
           end,
         end,
