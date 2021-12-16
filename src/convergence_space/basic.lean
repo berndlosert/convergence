@@ -23,45 +23,41 @@ attribute [class] convergence_space
 
 open convergence_space
 
----------------------------------------------------------------------------------
----- Parital ordering
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---instance : has_le (convergence_space a) := {
---  le := fun p q, forall {l : filter a} {x : a}, @conv a q l x -> @conv a p l x
---}
---
---instance : partial_order (convergence_space a) := {
---  le_refl := begin
---    assume p : convergence_space a,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a p l x,
---    exact h,
---  end,
---  le_trans := begin
---    assume p q r : convergence_space a,
---    assume le1 : p <= q,
---    assume le2 : q <= r,
---    assume l : filter a,
---    assume x : a,
---    assume h : @conv a r l x,
---    exact (@le1 l x (@le2 l x h))
---  end,
---  le_antisymm := begin
---    assume p q : convergence_space a,
---    assume le1 : p <= q,
---    assume le2 : q <= p,
---    ext l x,
---    exact iff.intro le2 le1,
---  end,
---  ..convergence_space.has_le
---}
---
---end convergence_space
---
+-------------------------------------------------------------------------------
+-- Parital ordering
+-------------------------------------------------------------------------------
+
+instance : has_le (convergence_space a) := {
+  le := fun p q, forall {l : filter a} {x : a}, q.conv l x -> p.conv l x
+}
+
+instance : partial_order (convergence_space a) := {
+  le_refl := begin
+    assume p : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : p.conv l x,
+    exact h,
+  end,
+  le_trans := begin
+    assume p q r : convergence_space a,
+    assume le1 : p <= q,
+    assume le2 : q <= r,
+    assume l : filter a,
+    assume x : a,
+    assume h : r.conv l x,
+    exact (le1 (le2 h))
+  end,
+  le_antisymm := begin
+    assume p q : convergence_space a,
+    assume le1 : p <= q,
+    assume le2 : q <= p,
+    ext l x,
+    exact iff.intro le2 le1,
+  end,
+  ..convergence_space.has_le
+}
+
 ---------------------------------------------------------------------------------
 ---- Discrete/indiscrete convergence spaces
 ---------------------------------------------------------------------------------
