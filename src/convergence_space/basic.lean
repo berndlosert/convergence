@@ -262,113 +262,19 @@ def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
   end,
 }
 
----------------------------------------------------------------------------------
----- Induced/coinduced Kent convergence space
----------------------------------------------------------------------------------
---
---namespace kent_convergence_space
---
---open convergence_space
---
---def induced (f : a -> b) [inst : kent_convergence_space b] : kent_convergence_space a :=
---let ind := convergence_space.induced f in {
---  kent_conv :=
---    begin
---      assume x : a,
---      assume l : filter a,
---      let l' := map f l,
---      let y := f x,
---      assume h : conv l' y,
---      rw induced_def at *,
---      simp [kent_conv h],
---    end,
---  ..ind
---}
---
---def coinduced (f : a -> b) [kent_convergence_space a] : kent_convergence_space b :=
---let coind := convergence_space.coinduced f in {
---  kent_conv := begin
---    assume y : b,
---    assume l' : filter b,
---    assume h : coinduced_conv f l' y,
---    rw coinduced_def at *,
---    cases h,
---      case pure_case begin
---        have : sup l' (pure y) = pure y, from calc
---          sup l' (pure y) = sup (pure y) l' : sup_comm
---                      ... = pure y          : by rw sup_of_le_left h,
---        have : coinduced_conv f (pure y) y, from @pure_conv b coind y,
---        show coinduced_conv f (sup l' (pure y)) y, begin
---          rw (by assumption : sup l' (pure y) = pure y),
---          assumption,
---        end,
---      end,
---      case other_case : l x _ _ _ begin
---        let l'' := sup l (pure x),
---        have : sup l' (pure y) <= map f l'', from calc
---          sup l' (pure y) <= sup (map f l) (pure y)         : sup_le_sup_right (by assumption : l' <= map f l) (pure y)
---                      ...  = sup (map f l) (pure (f x))     : by rw (by assumption : y = f x)
---                      ...  = sup (map f l) (map f (pure x)) : by rw filter.map_pure
---                      ...  = map f (sup l (pure x))         : map_sup,
---        have : conv l'' x, begin
---          apply kent_conv,
---          assumption
---        end,
---        apply coinduced_conv.other_case l'' x
---          (by assumption : sup l' (pure y) <= map f l'')
---          (by assumption : y = f x)
---          (by assumption : conv l'' x)
---      end,
---  end,
---  ..coind
---}
---
---end kent_convergence_space
---
----------------------------------------------------------------------------------
----- Induced/coinduced limit space
----------------------------------------------------------------------------------
---
---namespace limit_space
---
---open convergence_space
---open kent_convergence_space
---
---def induced (f : a -> b) [limit_space b] : limit_space a :=
---let ind := kent_convergence_space.induced f in {
---  sup_conv := begin
---    assume x : a,
---    assume l l' : filter a,
---    assume : conv (map f l) (f x),
---    assume : conv (map f l') (f x),
---    rw induced_def at *,
---    simp [map_sup],
---    apply sup_conv
---      (by assumption : conv (map f l) (f x))
---      (by assumption : conv (map f l') (f x))
---  end,
---  ..ind
---}
---
---end limit_space
---
----------------------------------------------------------------------------------
----- Convergence spaces constructions
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---instance {p : a -> Prop} [q : convergence_space a] : convergence_space (subtype p) :=
---@induced _ _ coe q
---
---instance {r : a -> a -> Prop} [q : convergence_space a] : convergence_space (quot r) :=
---@coinduced _ _ (quot.mk r) q
---
-----instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
-----inf (@induced _ _ prod.fst p) (@induced _ _ prod.snd q)
---
---end convergence_space
---
+-------------------------------------------------------------------------------
+-- Convergence spaces constructions
+-------------------------------------------------------------------------------
+
+instance {p : a -> Prop} [q : convergence_space a] : convergence_space (subtype p) :=
+induced coe q
+
+instance {r : a -> a -> Prop} [q : convergence_space a] : convergence_space (quot r) :=
+coinduced (quot.mk r) q
+
+instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
+inf (induced prod.fst p) (induced prod.snd q)
+
 ---------------------------------------------------------------------------------
 ---- Limits, adherence, open/closed, continuity
 ---------------------------------------------------------------------------------
