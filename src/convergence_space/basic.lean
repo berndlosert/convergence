@@ -28,7 +28,7 @@ open convergence_space
 -------------------------------------------------------------------------------
 
 instance : has_le (convergence_space a) := {
-  le := fun p q, forall {l : filter a} {x : a}, q.conv l x -> p.conv l x
+  le := fun p q, forall {l} {x}, q.conv l x -> p.conv l x
 }
 
 instance : partial_order (convergence_space a) := {
