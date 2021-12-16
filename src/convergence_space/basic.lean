@@ -62,24 +62,24 @@ instance : partial_order (convergence_space a) := {
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
-def discrete : convergence_space a := {
+def indiscrete : convergence_space a := {
   converges := fun l x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
 
-def indiscrete : convergence_space a := {
+def discrete : convergence_space a := {
   converges := fun l x, l <= pure x,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
 
 instance : has_bot (convergence_space a) := {
-  bot := discrete
+  bot := indiscrete
 }
 
 instance : has_top (convergence_space a) := {
-  top := indiscrete
+  top := discrete
 }
 
 -------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ instance : complete_lattice (convergence_space a) := {
     assume p : convergence_space a,
     assume l : filter a,
     assume x : a,
-    assume h : indiscrete.converges l x,
+    assume h : discrete.converges l x,
     exact p.le_converges h (p.pure_converges x),
   end,
   bot_le := begin
