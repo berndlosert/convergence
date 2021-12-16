@@ -103,27 +103,27 @@ instance : has_sup (convergence_space a) := {
   }
 }
 
---instance : has_Sup (convergence_space a) := {
---  Sup := fun ps, {
---    conv := fun l x, forall {p : convergence_space a}, mem p ps -> @conv a p l x,
---    pure_conv := begin
---      assume x : a,
---      assume p : convergence_space a,
---      assume : mem p ps,
---      exact @pure_conv a p x,
---    end,
---    le_conv := begin
---      assume x : a,
---      assume l l' : filter a,
---      assume h : l <= l',
---      assume f : forall {p : convergence_space a}, mem p ps -> @conv a p l' x,
---      assume p : convergence_space a,
---      assume h' : mem p ps,
---      exact @le_conv a p x l l' h (f h')
---    end,
---  }
---}
---
+instance : has_Sup (convergence_space a) := {
+  Sup := fun ps, {
+    conv := fun l x, forall {p : convergence_space a}, mem p ps -> p.conv l x,
+    pure_conv := begin
+      assume x : a,
+      assume p : convergence_space a,
+      assume : mem p ps,
+      exact p.pure_conv x,
+    end,
+    le_conv := begin
+      assume x : a,
+      assume l l' : filter a,
+      assume h : l <= l',
+      assume f : forall {p : convergence_space a}, mem p ps -> p.conv l' x,
+      assume p : convergence_space a,
+      assume h' : mem p ps,
+      exact p.le_conv h (f h')
+    end,
+  }
+}
+
 --instance : has_inf (convergence_space a) := {
 --  inf := fun p q, {
 --    conv := fun l x, or (@conv a p l x) (@conv a q l x),
