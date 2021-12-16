@@ -15,7 +15,7 @@ variables {a b : Type*}
 
 structure convergence_space (a : Type*) :=
 (conv : filter a -> a -> Prop)
-(pure_conv : forall {x : a}, conv (pure x) x)
+(pure_conv : forall x, conv (pure x) x)
 (le_conv : forall {x : a} {l l' : filter a}, l <= l' -> conv l' x -> conv l x) -- l <= l' means l' ⊆ l
 
 attribute [ext] convergence_space
@@ -82,29 +82,27 @@ instance : has_top (convergence_space a) := {
   top := indiscrete
 }
 
----------------------------------------------------------------------------------
----- Supremum and infimum of convergence spaces
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---instance : has_sup (convergence_space a) := {
---  sup := fun p q, {
---    conv := fun l x, and (@conv a p l x) (@conv a q l x),
---    pure_conv := begin
---      assume x : a,
---      exact and.intro (@pure_conv a p x) (@pure_conv a q x),
---    end,
---    le_conv := begin
---      assume x : a,
---      assume l l' : filter a,
---      assume h : l <= l',
---      assume h' : and (@conv a p l' x) (@conv a q l' x),
---      exact and.intro (@le_conv a p x l l' h h'.left) (@le_conv a q x l l' h h'.right)
---    end,
---  }
---}
---
+-------------------------------------------------------------------------------
+-- Supremum and infimum of convergence spaces
+-------------------------------------------------------------------------------
+
+instance : has_sup (convergence_space a) := {
+  sup := fun p q, {
+    conv := fun l x, and (p.conv l x) (q.conv l x),
+    pure_conv := begin
+      assume x : a,
+      exact and.intro (p.pure_conv x) (q.pure_conv x),
+    end,
+    le_conv := begin
+      assume x : a,
+      assume l l' : filter a,
+      assume h : l <= l',
+      assume h' : and (p.conv l' x) (q.conv l' x),
+      exact and.intro (p.le_conv h h'.left) (q.le_conv h h'.right)
+    end,
+  }
+}
+
 --instance : has_Sup (convergence_space a) := {
 --  Sup := fun ps, {
 --    conv := fun l x, forall {p : convergence_space a}, mem p ps -> @conv a p l x,
@@ -144,9 +142,7 @@ instance : has_top (convergence_space a) := {
 --    end,
 --  }
 --}
---
---end convergence_space
---
+
 ---------------------------------------------------------------------------------
 ---- Lattice of convergence spaces
 ---------------------------------------------------------------------------------
