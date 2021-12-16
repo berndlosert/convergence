@@ -21,9 +21,6 @@ structure convergence_space (a : Type*) :=
 attribute [ext] convergence_space
 attribute [class] convergence_space
 
-def convergence_space.converges' {a : Type*} [p : convergence_space a] : filter a -> a -> Prop :=
-convergence_space.converges p
-
 open convergence_space
 
 -------------------------------------------------------------------------------
@@ -146,7 +143,32 @@ instance : has_inf (convergence_space a) := {
   }
 }
 
--- TODO: has_Inf
+instance : has_Inf (convergence_space a) := {
+  Inf := fun ps, {
+    converges := fun l x, or
+      (l <= pure x)
+      (exists p : convergence_space a, and (mem p ps) (p.converges l x)),
+    pure_converges := by tauto,
+    le_converges := begin
+      assume l l' : filter a,
+      assume le1 : l <= l',
+      assume x : a,
+      assume h : or
+        (l' <= pure x)
+        (exists p : convergence_space a, and (mem p ps) (p.converges l' x)),
+      cases h,
+        case or.inl : le2 begin
+          exact or.inl (le_trans le1 le2)
+        end,
+        case or.inr : ex begin
+          exact exists.elim ex begin
+            assume p h',
+            exact or.inr (exists.intro p (and.intro h'.left (p.le_converges le1 h'.right)))
+          end,
+        end,
+    end,
+  }
+}
 
 -------------------------------------------------------------------------------
 -- Lattice of convergence spaces
