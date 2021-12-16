@@ -209,35 +209,28 @@ instance : semilattice_inf (convergence_space a) := {
   ..convergence_space.has_inf,
 }
 
---instance : lattice (convergence_space a) := {
---  ..convergence_space.semilattice_sup,
---  ..convergence_space.semilattice_inf,
---}
---
---end convergence_space
---
----------------------------------------------------------------------------------
----- Induced/coinduced convergence space
----------------------------------------------------------------------------------
---
---namespace convergence_space
---
---def induced (f : a -> b) [convergence_space b] : convergence_space a := {
---  conv := fun l x, conv (map f l) (f x),
---  pure_conv := by simp [filter.map_pure, pure_conv],
---  le_conv := begin
---    assume x : a,
---    assume l l' : filter a,
---    assume : l <= l',
---    assume : conv (map f l') (f x),
---    have : map f l <= map f l',
---      apply map_mono (by assumption : l <= l'),
---    apply le_conv
---      (by assumption : map f l <= map f l')
---      (by assumption : conv (map f l') (f x))
---  end,
---}
---
+instance : lattice (convergence_space a) := {
+  ..convergence_space.semilattice_sup,
+  ..convergence_space.semilattice_inf,
+}
+
+-------------------------------------------------------------------------------
+-- Induced/coinduced convergence space
+-------------------------------------------------------------------------------
+
+def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
+  conv := fun l x, q.conv (map f l) (f x),
+  pure_conv := by simp [filter.map_pure, pure_conv],
+  le_conv := begin
+    assume x : a,
+    assume l l' : filter a,
+    assume le1 : l <= l',
+    assume h : q.conv (map f l') (f x),
+    have le2 : map f l <= map f l', apply map_mono le1,
+    apply q.le_conv le2 h
+  end,
+}
+
 --lemma induced_def (f : a -> b) [convergence_space b] {l : filter a} {x : a} :
 --  @convergence_space.conv a (induced f) l x <-> conv (map f l) (f x) :=
 --iff.rfl
