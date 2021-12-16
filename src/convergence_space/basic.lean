@@ -5,7 +5,7 @@ import algebra.support
 noncomputable theory
 open set filter classical
 open_locale classical filter
-open has_sup has_inf has_mem
+open has_sup has_inf has_mem has_top has_bot
 
 variables {a b : Type*}
 
@@ -296,6 +296,28 @@ instance : complete_semilattice_Inf (convergence_space a) := {
 instance : lattice (convergence_space a) := {
   ..convergence_space.semilattice_sup,
   ..convergence_space.semilattice_inf,
+}
+
+instance : complete_lattice (convergence_space a) := {
+  le_top := begin
+    assume p : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : indiscrete.converges l x,
+    exact p.le_converges h (p.pure_converges x),
+  end,
+  bot_le := begin
+    assume p : convergence_space a,
+    assume l : filter a,
+    assume x : a,
+    assume h : p.converges l x,
+    tauto,
+  end,
+  ..convergence_space.lattice,
+  ..convergence_space.complete_semilattice_Sup,
+  ..convergence_space.complete_semilattice_Inf,
+  ..convergence_space.has_top,
+  ..convergence_space.has_bot,
 }
 
 -------------------------------------------------------------------------------
