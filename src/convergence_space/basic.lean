@@ -282,7 +282,7 @@ inf (induced prod.fst p) (induced prod.snd q)
 -- Limits, adherence, open/closed, continuity
 -------------------------------------------------------------------------------
 
-def lim [convergence_space a] (l : filter a) : set a := set_of (converges' l)
+def lim [p : convergence_space a] (l : filter a) : set a := set_of (p.converges l)
 
 --def adheres [convergence_space a] (l : filter a) (x : a) : Prop :=
 --exists l' <= l, converges l' x
