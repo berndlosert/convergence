@@ -58,7 +58,7 @@ let coind := convergence_space.coinduced f p in {
       case pure_case begin
         have : sup l' (pure y) = pure y, from calc
           sup l' (pure y) = sup (pure y) l' : sup_comm
-                      ... = pure y : by rw sup_of_le_left h,
+          ... = pure y : by rw sup_of_le_left h,
         have : coind.converges (pure y) y, from coind.pure_converges y,
         show coind.converges (sup l' (pure y)) y, begin
           rw (by assumption : sup l' (pure y) = pure y),
@@ -69,9 +69,9 @@ let coind := convergence_space.coinduced f p in {
         let l'' := sup l (pure x),
         have : sup l' (pure y) <= map f l'', from calc
           sup l' (pure y) <= sup (map f l) (pure y) : sup_le_sup_right (by assumption : l' <= map f l) (pure y)
-                      ...  = sup (map f l) (pure (f x)) : by rw (by assumption : y = f x)
-                      ...  = sup (map f l) (map f (pure x)) : by rw filter.map_pure
-                      ...  = map f (sup l (pure x)) : map_sup,
+          ... = sup (map f l) (pure (f x)) : by rw (by assumption : y = f x)
+          ... = sup (map f l) (map f (pure x)) : by rw filter.map_pure
+          ... = map f (sup l (pure x)) : map_sup,
         have : p.converges l'' x, begin
           apply p.kent_converges,
           assumption
