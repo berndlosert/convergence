@@ -44,21 +44,19 @@ let ind := convergence_space.induced f q.to_convergence_space in {
   ..ind
 }
 
-/-
-def coinduced (f : a -> b) [kent_convergence_space a] : kent_convergence_space b :=
-let coind := convergence_space.coinduced f in {
-  kent_conv := begin
+def coinduced (f : a -> b) [p : kent_convergence_space a] : kent_convergence_space b :=
+let coind := convergence_space.coinduced f p.to_convergence_space in {
+  kent_converges := begin
     assume y : b,
     assume l' : filter b,
-    assume h : coinduced_conv f l' y,
-    rw coinduced_def at *,
+    assume h : coind.converges l' y,
     cases h,
       case pure_case begin
         have : sup l' (pure y) = pure y, from calc
           sup l' (pure y) = sup (pure y) l' : sup_comm
                       ... = pure y          : by rw sup_of_le_left h,
-        have : coinduced_conv f (pure y) y, from @pure_conv b coind y,
-        show coinduced_conv f (sup l' (pure y)) y, begin
+        have : coind.converges (pure y) y, from coind.pure_converges y,
+        show coind.converges (sup l' (pure y)) y, begin
           rw (by assumption : sup l' (pure y) = pure y),
           assumption,
         end,
@@ -70,16 +68,15 @@ let coind := convergence_space.coinduced f in {
                       ...  = sup (map f l) (pure (f x))     : by rw (by assumption : y = f x)
                       ...  = sup (map f l) (map f (pure x)) : by rw filter.map_pure
                       ...  = map f (sup l (pure x))         : map_sup,
-        have : conv l'' x, begin
-          apply kent_conv,
+        have : p.converges l'' x, begin
+          apply p.kent_converges,
           assumption
         end,
-        apply coinduced_conv.other_case l'' x
+        apply coinduced_converges.other_case l'' x
           (by assumption : sup l' (pure y) <= map f l'')
           (by assumption : y = f x)
-          (by assumption : conv l'' x)
+          (by assumption : p.converges l'' x)
       end,
   end,
   ..coind
 }
--/
