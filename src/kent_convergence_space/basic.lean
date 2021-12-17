@@ -33,10 +33,13 @@ let ind := convergence_space.induced f q.to_convergence_space in {
       assume x : a,
       assume l : filter a,
       assume h : q.converges (map f l) (f x),
-      have h' : map f (sup l (pure x)) = sup (map f l) (pure (f x)), from calc
-        map f (sup l (pure x)) = sup (map f l) (map f (pure x)) : by rw [filter.map_sup]
-                           ... = sup (map f l) (pure (f x))     : by rw [filter.map_pure],
-      have h'' : q.converges (map f (sup l (pure x))) (f x), begin
+      let l1 := map f l,
+      let l2 := sup l (pure x),
+      let y := f x,
+      have h' : map f l2 = sup l1 (pure y), from calc
+        map f l2 = sup l1 (map f (pure x)) : by rw [filter.map_sup]
+             ... = sup l1 (pure y)         : by rw [filter.map_pure],
+      have h'' : q.converges (map f l2) y, begin
         rw [h'],
         simp [q.kent_converges h],
       end,
