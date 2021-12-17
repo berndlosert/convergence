@@ -31,7 +31,7 @@ instance : has_coe (kent_convergence_space a) (convergence_space a) := {
 -------------------------------------------------------------------------------
 
 def kent_convergence_space.induced (f : a -> b) (q : kent_convergence_space b) : kent_convergence_space a :=
-let ind := convergence_space.induced f q.to_convergence_space in {
+let ind := convergence_space.induced f q in {
   kent_converges :=
     begin
       assume x : a,
@@ -49,7 +49,7 @@ let ind := convergence_space.induced f q.to_convergence_space in {
 }
 
 def kent_convergence_space.coinduced (f : a -> b) (p : kent_convergence_space a) : kent_convergence_space b :=
-let coind := convergence_space.coinduced f p.to_convergence_space in {
+let coind := convergence_space.coinduced f p in {
   kent_converges := begin
     assume y : b,
     assume l' : filter b,
