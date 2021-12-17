@@ -36,11 +36,8 @@ let ind := convergence_space.induced f q.to_convergence_space in {
       let l1 := map f l,
       let l2 := sup l (pure x),
       let y := f x,
-      have h' : map f l2 = sup l1 (pure y), from calc
-        map f l2 = sup l1 (map f (pure x)) : by rw [filter.map_sup]
-             ... = sup l1 (pure y)         : by rw [filter.map_pure],
       show q.converges (map f l2) y, begin
-        rw [h'],
+        rw [filter.map_sup, filter.map_pure],
         simp [q.kent_converges h],
       end,
     end,
