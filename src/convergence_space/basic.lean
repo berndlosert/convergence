@@ -352,14 +352,14 @@ def convergence_space.coinduced (f : a -> b) (p : convergence_space a) : converg
     cases h,
       case pure_case begin
         have : l1 <= pure y, from calc
-          l1  <= l2     : (by assumption : l1 <= l2)
+          l1  <= l2 : (by assumption : l1 <= l2)
           ... <= pure y : (by assumption : l2 <= pure y),
         exact coinduced_converges.pure_case (by assumption : l1 <= pure y),
       end,
       case other_case : l x _ _ _ begin
         have : l1 <= map f l, from calc
-          l1  <= l2      :  (by assumption : l1 <= l2)
-          ... <= map f l :  (by assumption : l2 <= map f l),
+          l1  <= l2 : (by assumption : l1 <= l2)
+          ... <= map f l : (by assumption : l2 <= map f l),
         exact coinduced_converges.other_case l x
           (by assumption : l1 <= map f l)
           (by assumption : y = f x)
