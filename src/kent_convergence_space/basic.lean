@@ -51,9 +51,9 @@ let ind := convergence_space.induced f q in {
 def kent_convergence_space.coinduced (f : a -> b) (p : kent_convergence_space a) : kent_convergence_space b :=
 let coind := convergence_space.coinduced f p in {
   kent_converges := begin
-    assume y : b,
+    assume y  : b,
     assume l' : filter b,
-    assume h : coind.converges l' y,
+    assume h  : coind.converges l' y,
     cases h,
       case pure_case begin
         have : sup l' (pure y) = pure y, from calc
