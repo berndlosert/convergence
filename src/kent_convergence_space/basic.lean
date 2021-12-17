@@ -22,6 +22,10 @@ attribute [class] kent_convergence_space
 
 open kent_convergence_space
 
+instance : has_coe (kent_convergence_space a) (convergence_space a) := {
+  coe := fun p, p.to_convergence_space,
+}
+
 -------------------------------------------------------------------------------
 -- Induced/coinduced Kent convergence space
 -------------------------------------------------------------------------------
