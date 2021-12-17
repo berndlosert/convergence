@@ -324,7 +324,7 @@ instance : complete_lattice (convergence_space a) := {
 -- Induced/coinduced convergence space
 -------------------------------------------------------------------------------
 
-def induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
+def convergence_space.induced (f : a -> b) (q : convergence_space b) : convergence_space a := {
   converges := fun l x, q.converges (map f l) (f x),
   pure_converges := by simp [filter.map_pure, pure_converges],
   le_converges := begin
@@ -373,13 +373,13 @@ def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
 -------------------------------------------------------------------------------
 
 instance {p : a -> Prop} [q : convergence_space a] : convergence_space (subtype p) :=
-induced coe q
+convergence_space.induced coe q
 
 instance {r : a -> a -> Prop} [q : convergence_space a] : convergence_space (quot r) :=
 coinduced (quot.mk r) q
 
 instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
-inf (induced prod.fst p) (induced prod.snd q)
+inf (convergence_space.induced prod.fst p) (convergence_space.induced prod.snd q)
 
 -------------------------------------------------------------------------------
 -- Limits, adherence, open/closed, continuity
