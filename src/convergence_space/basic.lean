@@ -341,7 +341,7 @@ inductive coinduced_converges (f : a -> b) (p : convergence_space a) (l' : filte
 | pure_case (_ : l' <= pure y) : coinduced_converges
 | other_case (l : filter a) (x : a) (_ : l' <= map f l) (_ : y = f x) (_ : p.converges l x) : coinduced_converges
 
-def coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
+def convergence_space.coinduced (f : a -> b) (p : convergence_space a) : convergence_space b := {
   converges := coinduced_converges f p,
   pure_converges := fun y, coinduced_converges.pure_case (le_refl (pure y)),
   le_converges := begin
@@ -376,7 +376,7 @@ instance {p : a -> Prop} [q : convergence_space a] : convergence_space (subtype 
 convergence_space.induced coe q
 
 instance {r : a -> a -> Prop} [q : convergence_space a] : convergence_space (quot r) :=
-coinduced (quot.mk r) q
+convergence_space.coinduced (quot.mk r) q
 
 instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
 inf (convergence_space.induced prod.fst p) (convergence_space.induced prod.snd q)
