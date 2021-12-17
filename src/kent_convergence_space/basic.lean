@@ -26,7 +26,7 @@ open kent_convergence_space
 -- Induced/coinduced Kent convergence space
 -------------------------------------------------------------------------------
 
-def induced (f : a -> b) (q : kent_convergence_space b) : kent_convergence_space a :=
+def kent_convergence_space.induced (f : a -> b) (q : kent_convergence_space b) : kent_convergence_space a :=
 let ind := convergence_space.induced f q.to_convergence_space in {
   kent_converges :=
     begin
@@ -44,7 +44,7 @@ let ind := convergence_space.induced f q.to_convergence_space in {
   ..ind
 }
 
-def coinduced (f : a -> b) [p : kent_convergence_space a] : kent_convergence_space b :=
+def kent_convergence_space.coinduced (f : a -> b) [p : kent_convergence_space a] : kent_convergence_space b :=
 let coind := convergence_space.coinduced f p.to_convergence_space in {
   kent_converges := begin
     assume y : b,
