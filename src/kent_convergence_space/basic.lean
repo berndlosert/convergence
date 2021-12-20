@@ -6,7 +6,6 @@ import convergence_space.basic
 noncomputable theory
 open set filter classical
 open_locale classical filter
-open has_sup has_inf has_mem has_top has_bot
 
 variables {X Y : Type*}
 
@@ -101,7 +100,7 @@ let coind := convergence_space.coinduced f p in {
           assumption
         end,
         apply coinduced_converges.other_case ℱ' x
-          (by assumption : sup 𝒢 (pure y) <= map f ℱ')
+          (by assumption : 𝒢 ⊔ pure y <= map f ℱ')
           (by assumption : y = f x)
           (by assumption : p.converges ℱ' x)
       end,
