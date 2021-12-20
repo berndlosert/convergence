@@ -8,7 +8,6 @@ open_locale classical filter
 open has_sup has_inf has_mem has_top has_bot
 
 variables {X Y : Type*}
-variables {a b : Type*}
 
 -------------------------------------------------------------------------------
 -- Definition
