@@ -90,8 +90,8 @@ let coind := convergence_space.coinduced f p in {
       end,
       case other_case : ℱ x _ _ _ begin
         let ℱ' := ℱ ⊔ pure x,
-        have : 𝒢 ⊔ pure y <= map f ℱ', from calc
-          𝒢 ⊔ pure y <= map f ℱ ⊔ pure y : sup_le_sup_right (by assumption : 𝒢 ≤ map f ℱ) (pure y)
+        have : 𝒢 ⊔ pure y ≤ map f ℱ', from calc
+          𝒢 ⊔ pure y ≤ map f ℱ ⊔ pure y : sup_le_sup_right (by assumption : 𝒢 ≤ map f ℱ) (pure y)
           ... = map f ℱ ⊔ pure (f x) : by rw (by assumption : y = f x)
           ... = map f ℱ ⊔ map f (pure x) : by rw filter.map_pure
           ... = map f (ℱ ⊔ pure x) : map_sup,
@@ -100,7 +100,7 @@ let coind := convergence_space.coinduced f p in {
           assumption
         end,
         apply coinduced_converges.other_case ℱ' x
-          (by assumption : 𝒢 ⊔ pure y <= map f ℱ')
+          (by assumption : 𝒢 ⊔ pure y ≤ map f ℱ')
           (by assumption : y = f x)
           (by assumption : p.converges ℱ' x)
       end,
