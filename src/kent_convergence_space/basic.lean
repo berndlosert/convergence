@@ -28,6 +28,30 @@ instance : has_coe (kent_convergence_space X) (convergence_space X) := {
 }
 
 -------------------------------------------------------------------------------
+-- Supremum and infimum of Kent convergence spaces
+-------------------------------------------------------------------------------
+
+instance : has_inf (kent_convergence_space X) := {
+  inf := λ p q, let super : convergence_space X := p ⊓ q in {
+    converges := super.converges,
+    pure_converges := super.pure_converges,
+    le_converges := super.le_converges,
+    kent_converges := begin
+      assume x : X,
+      assume ℱ : filter X,
+      assume h : super.converges ℱ x,
+      cases h,
+        case or.inl : hp begin
+          exact or.inl (p.kent_converges hp),
+        end,
+        case or.inr : hq begin
+          exact or.inr (q.kent_converges hq),
+        end,
+    end,
+  }
+}
+
+-------------------------------------------------------------------------------
 -- Induced/coinduced Kent convergence space
 -------------------------------------------------------------------------------
 
@@ -96,5 +120,5 @@ kent_convergence_space.induced coe q
 instance {r : X → X → Prop} [q : kent_convergence_space X] : kent_convergence_space (quot r) :=
 kent_convergence_space.coinduced (quot.mk r) q
 
---instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
---inf (convergence_space.induced prod.fst p) (convergence_space.induced prod.snd q)
+instance [p : kent_convergence_space X] [q : kent_convergence_space Y] : kent_convergence_space (X × Y) :=
+kent_convergence_space.induced prod.fst p ⊓ kent_convergence_space.induced prod.snd q
