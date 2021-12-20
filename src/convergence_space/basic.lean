@@ -5,7 +5,6 @@ import algebra.support
 noncomputable theory
 open set filter classical
 open_locale classical filter
-open has_sup has_inf has_mem has_top has_bot
 
 variables {X Y : Type*}
 
@@ -154,7 +153,7 @@ instance : has_Inf (convergence_space X) := {
       assume le₁ : ℱ ≤ 𝒢,
       assume x : X,
       assume h : or
-        (𝒢 <= pure x)
+        (𝒢 ≤ pure x)
         (∃ p : convergence_space X, p ∈ ps ∧ p.converges 𝒢 x),
       cases h,
         case or.inl : le₂ begin
@@ -180,7 +179,7 @@ instance : semilattice_sup (convergence_space X) := {
     assume p q : convergence_space X,
     assume ℱ : filter X,
     assume x : X,
-    assume h : (sup p q).converges ℱ x,
+    assume h : (p ⊔ q).converges ℱ x,
     exact h.left,
   end,
   le_sup_right := begin
