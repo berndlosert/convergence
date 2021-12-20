@@ -16,7 +16,7 @@ variables {a b : Type*}
 -------------------------------------------------------------------------------
 
 structure kent_convergence_space (X : Type*) extends convergence_space X :=
-(kent_converges : ∀ {x} {ℱ}, converges ℱ x -> converges (ℱ ⊔ pure x) x)
+(kent_converges : ∀ {x} {ℱ}, converges ℱ x → converges (ℱ ⊔ pure x) x)
 
 attribute [ext] kent_convergence_space
 attribute [class] kent_convergence_space
@@ -31,7 +31,7 @@ instance : has_coe (kent_convergence_space X) (convergence_space X) := {
 -- Induced/coinduced Kent convergence space
 -------------------------------------------------------------------------------
 
-def kent_convergence_space.induced (f : X -> Y) (q : kent_convergence_space Y) : kent_convergence_space X :=
+def kent_convergence_space.induced (f : X → Y) (q : kent_convergence_space Y) : kent_convergence_space X :=
 let ind := convergence_space.induced f q in {
   kent_converges :=
     begin
@@ -49,7 +49,7 @@ let ind := convergence_space.induced f q in {
   ..ind
 }
 
-def kent_convergence_space.coinduced (f : X -> Y) (p : kent_convergence_space X) : kent_convergence_space Y :=
+def kent_convergence_space.coinduced (f : X → Y) (p : kent_convergence_space X) : kent_convergence_space Y :=
 let coind := convergence_space.coinduced f p in {
   kent_converges := begin
     assume y  : Y,
@@ -90,10 +90,10 @@ let coind := convergence_space.coinduced f p in {
 -- Convergence spaces constructions
 -------------------------------------------------------------------------------
 
-instance {p : X -> Prop} [q : kent_convergence_space X] : kent_convergence_space (subtype p) :=
+instance {p : X → Prop} [q : kent_convergence_space X] : kent_convergence_space (subtype p) :=
 kent_convergence_space.induced coe q
 
-instance {r : X -> X -> Prop} [q : kent_convergence_space X] : kent_convergence_space (quot r) :=
+instance {r : X → X → Prop} [q : kent_convergence_space X] : kent_convergence_space (quot r) :=
 kent_convergence_space.coinduced (quot.mk r) q
 
 --instance [p : convergence_space a] [q : convergence_space b] : convergence_space (prod a b) :=
