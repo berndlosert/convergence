@@ -3,7 +3,7 @@ import order.filter.partial
 import algebra.support
 
 noncomputable theory
-open set filter classical
+open set filter classical option
 open_locale classical filter
 
 variables {X Y : Type*}
@@ -379,6 +379,9 @@ convergence_space.coinduced (quot.mk r) q
 
 instance [p : convergence_space X] [q : convergence_space Y] : convergence_space (X × Y) :=
 convergence_space.induced prod.fst p ⊓ convergence_space.induced prod.snd q
+
+instance [p : convergence_space X] : convergence_space (option X) :=
+convergence_space.coinduced some p
 
 -------------------------------------------------------------------------------
 -- Limits, adherence, open/closed, continuity
