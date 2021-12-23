@@ -34,7 +34,10 @@ class continuous_partial_group_action
 (continuity : continuous (λ p : G × X, act p.1 p.2))
 
 
-def envelope (G X : Type*) [group G] [partial_group_action G X] (gx hy : G × X) : Prop := uncurry act gx = uncurry act hy
+def envelope (G X : Type*) [group G] [partial_group_action G X] (p p' : G × X) : Prop := uncurry act p = uncurry act p'
+
+def phi (g h : G) (y : X) : option (quot (envelope G X)) :=
+some (quot.mk (envelope G X) (g * h, y))
 
 /-
 instance {G X : Type*} [group G] [partial_group_action G X] : partial_group_action G (quot (envelope G X)) := {
