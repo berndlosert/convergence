@@ -29,7 +29,7 @@ class continuous_partial_group_action
   [group G]
   [convergence_space G]
   [convergence_group G]
-  [inst : partial_group_action G X]
+  [partial_group_action G X]
   [convergence_space X] :=
 (continuity : continuous (λ p : G × X, act p.1 p.2))
 
