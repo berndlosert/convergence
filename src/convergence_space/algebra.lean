@@ -48,6 +48,21 @@ theorem envelope_reflexive : reflexive (envelope G X) := begin
   simp [identity],
 end
 
+theorem envelope_symmetric : symmetric (envelope G X) := begin
+  intros,
+  unfold symmetric,
+  rintro (⟨g, x⟩ : G × X) (⟨h, y⟩ : G × X),
+  unfold envelope,
+  intro heq,
+  have heq' : is_some (act (h⁻¹ * g) x), simp [heq],
+  show act (g⁻¹ * h) y = some x, from calc
+    act (g⁻¹ * h) y = some y >>= act (g⁻¹ * h) : by simp [is_lawful_monad.pure_bind]
+    ... = act (h⁻¹ * g) x >>= act (g⁻¹ * h) : by rw ←heq
+    ... = act ((g⁻¹ * h) * (h⁻¹ * g)) x : by rw ←(compatibility heq')
+    ... = act (1 : G) x : by simp [mul_assoc]
+    ... = some x : by exact identity
+end
+
 def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
 some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
