@@ -34,29 +34,22 @@ class continuous_partial_group_action
 (continuity : continuous (λ p : G × X, act p.1 p.2))
 
 
-def envelope (G X : Type*) [group G] [partial_group_action G X] (g : G) (x : X) (h : G) (y : X) : Prop :=
-  act (h⁻¹ * g) x = some y
-
-def envelope_r (G X : Type*) [group G] [partial_group_action G X] (gx hy : G × X) : Prop :=
-  envelope G X gx.1 gx.2 hy.1 hy.2
+def envelope (G X : Type*) [group G] [partial_group_action G X] : G × X → G × X → Prop :=
+ λ ⟨g, x⟩ ⟨h, y⟩, act (h⁻¹ * g) x = some y
 
 variables {G : Type*} [group G]
 variables {X : Type*} [partial_group_action G X]
 
-theorem envelope_reflexive : reflexive (envelope_r G X) := begin
+theorem envelope_reflexive : reflexive (envelope G X) := begin
   intros,
   unfold reflexive,
-  assume gx : G × X,
-  let g := gx.1,
-  let x := gx.2,
-  unfold envelope_r,
+  rintro (⟨g, x⟩ : G × X),
   unfold envelope,
-  simp [g, x],
-  exact identity,
+  simp [identity],
 end
 
-def envelope_act (g : G) (hy : G × X) : option (quot (envelope_r G X)) :=
-some (quot.mk (envelope_r G X) (g * hy.1, hy.2))
+def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
+some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
 --theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : envelope G X h₁y₁ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := begin
 --  intros g h₁y₁ h₂y₂ h,
