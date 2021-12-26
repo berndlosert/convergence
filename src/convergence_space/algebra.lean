@@ -51,7 +51,7 @@ end
 theorem envelope_symmetric : symmetric (envelope G X) := begin
   intros,
   unfold symmetric,
-  rintro (⟨g, x⟩ : G × X) (⟨h, y⟩ : G × X),
+  rintro ⟨g, x⟩ ⟨h, y⟩ : G × X,
   unfold envelope,
   intro heq,
   have heq' : is_some (act (h⁻¹ * g) x), simp [heq],
@@ -61,6 +61,24 @@ theorem envelope_symmetric : symmetric (envelope G X) := begin
     ... = act ((g⁻¹ * h) * (h⁻¹ * g)) x : by rw ←(compatibility heq')
     ... = act (1 : G) x : by simp [mul_assoc]
     ... = some x : by exact identity
+end
+
+theorem envelope_transitive : transitive (envelope G X) := begin
+  intros,
+  unfold transitive,
+  rintro ⟨g, x⟩ ⟨h, y⟩ ⟨k, z⟩ : G × X,
+  unfold envelope,
+  assume heq₁ : act (h⁻¹ * g) x = some y,
+  assume heq₂ : act (k⁻¹ * h) y = some z,
+  have hsome₁ : is_some (act (h⁻¹ * g) x), simp *,
+  have hsome₂ : is_some (act (k⁻¹ * h) y), simp *,
+  show act (k⁻¹ * g) x = some z, from calc
+    act (k⁻¹ * g) x = act (k⁻¹ * 1 * g) x : by simp
+    ... = act (k⁻¹ * h * h⁻¹ * g) x : by simp
+    ... = act (h⁻¹ * g) x >>= act (k⁻¹ * h) : by rw [mul_assoc, ←(compatibility hsome₁)]
+    ... = some y >>= act (k⁻¹ * h) : by rw heq₁
+    ... = act (k⁻¹ * h) y : by simp [is_lawful_monad.pure_bind]
+    ... = some z : by rw heq₂
 end
 
 def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
