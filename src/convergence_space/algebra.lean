@@ -83,32 +83,19 @@ end
 
 theorem envelope_equivalence : equivalence (envelope G X) := ⟨envelope_reflexive, envelope_symmetric, envelope_transitive⟩
 
+instance : setoid (G × X) := {
+  r := envelope G X,
+  iseqv := envelope_equivalence,
+}
+
 def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
 some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
---theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : envelope G X h₁y₁ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := begin
---  intros g h₁y₁ h₂y₂ h,
---  unfold envelope at h,
---  unfold envelope_act,
---  rw [some_inj]
---end
+theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := sorry
 
-
-/-
 instance {G X : Type*} [group G] [partial_group_action G X] : partial_group_action G (quot (envelope G X)) := {
-  α := λ input, match input with
-    | (g, none) := none
-    | (g, some val) := quot.hrec_on val
-      (λ ⟨h, y⟩, some (quot.mk (envelope G X) (g * h, y)))
-      begin
-        assume a b : G × option X,
-	assume h : envelope G X a b,
-	simp,
-      end
-    end,
-  partial := sorry,
+  act := λ g x, quotient.lift (envelope_act g) (envelope_act_congr g) x,
   identity := sorry,
   compatibility := sorry,
   injective := sorry,
 }
--/
