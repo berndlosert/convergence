@@ -7,6 +7,10 @@ noncomputable theory
 open set filter classical option function
 open_locale classical filter
 
+-------------------------------------------------------------------------------
+-- Convergence semigroups, monoids, groups
+-------------------------------------------------------------------------------
+
 class has_continuous_mul (X : Type*) [convergence_space X] [has_mul X] : Prop :=
 (continuous_mul : continuous (λ p : X × X, p.1 * p.2))
 
@@ -15,6 +19,10 @@ class has_continuous_smul (S X : Type*) [has_scalar S X] [convergence_space S] [
 
 class convergence_group (G : Type*) [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
+
+-------------------------------------------------------------------------------
+-- Partial group actions
+-------------------------------------------------------------------------------
 
 class partial_group_action (G X : Type*) [group G] :=
 (act : G → X → option X)
@@ -33,6 +41,9 @@ class continuous_partial_group_action
   [convergence_space X] :=
 (continuity : continuous (λ p : G × X, act p.1 p.2))
 
+-------------------------------------------------------------------------------
+-- Enveloping action
+-------------------------------------------------------------------------------
 
 def envelope (G X : Type*) [group G] [partial_group_action G X] : G × X → G × X → Prop :=
  λ ⟨g, x⟩ ⟨h, y⟩, act (h⁻¹ * g) x = some y
@@ -93,7 +104,7 @@ some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
 theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := sorry
 
-instance {G X : Type*} [group G] [partial_group_action G X] : partial_group_action G (quot (envelope G X)) := {
+instance : partial_group_action G (quot (envelope G X)) := {
   act := λ g x, quotient.lift (envelope_act g) (envelope_act_congr g) x,
   identity := sorry,
   compatibility := sorry,
