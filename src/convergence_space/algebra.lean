@@ -81,6 +81,8 @@ theorem envelope_transitive : transitive (envelope G X) := begin
     ... = some z : by rw heq₂
 end
 
+theorem envelope_equivalence : equivalence (envelope G X) := ⟨envelope_reflexive, envelope_symmetric, envelope_transitive⟩
+
 def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
 some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
