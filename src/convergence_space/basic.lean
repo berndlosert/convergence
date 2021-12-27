@@ -1,9 +1,10 @@
 import tactic
 import order.filter.partial
 import algebra.support
+import category_theory.concrete_category.bundled
 
 noncomputable theory
-open set filter classical option
+open set filter classical option category_theory
 open_locale classical filter
 
 variables {X Y : Type*}
@@ -403,9 +404,21 @@ def is_closed [p : convergence_space X] (A : set X) : Prop :=
 structure continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
 (filter_converges : ∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x))
 
+structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
+(continuous_to_fun : continuous to_fun)
+(continuous_inv_fun : continuous inv_fun)
+
 -------------------------------------------------------------------------------
 -- Misc.
 -------------------------------------------------------------------------------
 
 class hausdorff_space [convergence_space X] : Prop :=
 (hausdorff_prop : ∀ (ℱ : filter X) [ne_bot ℱ], subsingleton (lim ℱ))
+
+-------------------------------------------------------------------------------
+-- Category Conv of convergence spaces
+-------------------------------------------------------------------------------
+
+universe u
+
+def Conv : Type (u+1) := bundled convergence_space
