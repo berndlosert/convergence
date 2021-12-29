@@ -444,7 +444,7 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
     have h' : map continuous_map.eval (pure f ×ᶠ 𝒢) = map f 𝒢, from calc
       map continuous_map.eval (pure f ×ᶠ 𝒢) = map continuous_map.eval (map (prod.mk f) 𝒢) : by simp [filter.pure_prod]
       ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
-      ... = map f 𝒢 : by sorry,
+      --... = map f 𝒢 : by sorry,
     rw h',
     exact f.continuous_to_fun.filter_converges h
   end,
