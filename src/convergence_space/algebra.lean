@@ -2,10 +2,16 @@ import tactic
 import order.filter.partial
 import algebra.support
 import convergence_space.basic
+import category_theory.concrete_category.bundled
 
 noncomputable theory
-open set filter classical option function
+open set filter classical option function open category_theory
 open_locale classical filter
+
+-- For multiple inheritance used by cont_monoid_hom
+set_option old_structure_cmd true
+
+universe u
 
 -------------------------------------------------------------------------------
 -- Convergence semigroups, monoids, groups
@@ -19,6 +25,15 @@ class has_continuous_smul (S X : Type*) [has_scalar S X] [convergence_space S] [
 
 class convergence_group (G : Type*) [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
+
+structure cont_monoid_hom (M N : Type*) [mul_one_class M] [mul_one_class N] [convergence_space M] [convergence_space N] extends one_hom M N, mul_hom M N :=
+(to_fun_continuous : continuous to_fun)
+
+structure ConvGroup :=
+(carrier : Type*)
+[is_group : group carrier]
+[is_convergence_space : convergence_space carrier]
+[is_convergence_group : convergence_group carrier]
 
 -------------------------------------------------------------------------------
 -- Partial group actions
@@ -99,6 +114,8 @@ instance : setoid (G × X) := {
   iseqv := envelope_equivalence,
 }
 
+def envelope_pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
+
 def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
 some (quot.mk (envelope G X) (g * hy.1, hy.2))
 
@@ -109,4 +126,10 @@ instance : partial_group_action G (quot (envelope G X)) := {
   identity := sorry,
   compatibility := sorry,
   injective := sorry,
+}
+
+variables [convergence_space G] [convergence_group G] [convergence_space X] [continuous_partial_group_action G X]
+
+instance : continuous_partial_group_action G (quot (envelope G X)) := {
+  continuity := sorry,
 }
