@@ -4,7 +4,7 @@ import algebra.support
 import category_theory.concrete_category.bundled
 
 noncomputable theory
-open set filter classical option category_theory
+open set function filter classical option category_theory
 open_locale classical filter
 
 variables {X Y : Type*}
@@ -369,22 +369,6 @@ def convergence_space.coinduced (f : X → Y) (p : convergence_space X) : conver
 }
 
 -------------------------------------------------------------------------------
--- Convergence spaces constructions
--------------------------------------------------------------------------------
-
-instance {p : X → Prop} [q : convergence_space X] : convergence_space (subtype p) :=
-convergence_space.induced coe q
-
-instance {r : X → X → Prop} [q : convergence_space X] : convergence_space (quot r) :=
-convergence_space.coinduced (quot.mk r) q
-
-instance [p : convergence_space X] [q : convergence_space Y] : convergence_space (X × Y) :=
-convergence_space.induced prod.fst p ⊓ convergence_space.induced prod.snd q
-
-instance [p : convergence_space X] : convergence_space (option X) :=
-convergence_space.coinduced some p
-
--------------------------------------------------------------------------------
 -- Limits, adherence, open/closed, continuity
 -------------------------------------------------------------------------------
 
@@ -407,6 +391,65 @@ structure continuous [p : convergence_space X] [q : convergence_space Y] (f : X 
 structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
 (continuous_to_fun : continuous to_fun)
 (continuous_inv_fun : continuous inv_fun)
+
+-------------------------------------------------------------------------------
+-- Convergence spaces constructions
+-------------------------------------------------------------------------------
+
+instance {p : X → Prop} [q : convergence_space X] : convergence_space (subtype p) :=
+convergence_space.induced coe q
+
+instance {r : X → X → Prop} [q : convergence_space X] : convergence_space (quot r) :=
+convergence_space.coinduced (quot.mk r) q
+
+instance [p : convergence_space X] [q : convergence_space Y] : convergence_space (X × Y) :=
+convergence_space.induced prod.fst p ⊓ convergence_space.induced prod.snd q
+
+instance [p : convergence_space X] : convergence_space (option X) :=
+convergence_space.coinduced some p
+
+-------------------------------------------------------------------------------
+-- The convergence space C(X,Y)
+-------------------------------------------------------------------------------
+
+structure continuous_map (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] :=
+(to_fun : X → Y)
+(continuous_to_fun : continuous to_fun)
+
+notation `C(` X `, ` Y `)` := continuous_map X Y
+
+namespace continuous_map
+
+variables [convergence_space X] [convergence_space Y]
+
+instance : has_coe_to_fun (C(X, Y)) (λ _, X → Y) := ⟨continuous_map.to_fun⟩
+
+@[simp] lemma to_fun_eq_coe {f : C(X, Y)} : f.to_fun = (f : X → Y) := rfl
+
+def eval (fx : C(X,Y) × X) : Y := fx.1 fx.2
+
+variables {X Y} {f g : continuous_map X Y}
+
+protected lemma continuous (f : C(X, Y)) : continuous f := f.continuous_to_fun
+
+end continuous_map
+
+instance [p : convergence_space X] [q : convergence_space Y] : convergence_space C(X, Y) := {
+  converges := λ ℱ f, ∀ (x : X) (𝒢 : filter X), p.converges 𝒢 x → q.converges (map continuous_map.eval (ℱ ×ᶠ 𝒢)) (f x),
+  pure_converges := begin
+    assume f : C(X, Y),
+    assume x : X,
+    assume 𝒢 : filter X,
+    assume h : p.converges 𝒢 x,
+    have h' : map continuous_map.eval (pure f ×ᶠ 𝒢) = map f 𝒢, from calc
+      map continuous_map.eval (pure f ×ᶠ 𝒢) = map continuous_map.eval (map (prod.mk f) 𝒢) : by simp [filter.pure_prod]
+      ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
+      ... = map f 𝒢 : by sorry,
+    rw h',
+    exact f.continuous_to_fun.filter_converges h
+  end,
+  le_converges := sorry,
+}
 
 -------------------------------------------------------------------------------
 -- Misc.
