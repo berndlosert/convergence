@@ -455,7 +455,16 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
     exact f.continuous_to_fun.filter_converges h
   end,
   le_converges := begin
-
+    assume ℱ 𝒢 : filter C(X, Y),
+    assume le₁ : ℱ ≤ 𝒢,
+    assume f : C(X, Y),
+    intro h, -- h : converges 𝒢 f,
+    assume x : X,
+    assume 𝒢' : filter X,
+    assume h' : p.converges 𝒢' x,
+    have le₂ : ℱ ×ᶠ 𝒢' ≤ 𝒢 ×ᶠ 𝒢', from filter.prod_mono le₁ (partial_order.le_refl 𝒢'),
+    have le₃ : map continuous_map.eval (ℱ ×ᶠ 𝒢') ≤ map continuous_map.eval (𝒢 ×ᶠ 𝒢'), from filter.map_mono le₂,
+    exact q.le_converges le₃ (h x 𝒢' h'),
   end,
 }
 
