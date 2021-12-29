@@ -454,7 +454,9 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
     rw h',
     exact f.continuous_to_fun.filter_converges h
   end,
-  le_converges := sorry,
+  le_converges := begin
+
+  end,
 }
 
 -------------------------------------------------------------------------------
