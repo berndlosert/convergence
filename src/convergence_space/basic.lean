@@ -430,6 +430,12 @@ def eval (fx : C(X,Y) × X) : Y := fx.1 fx.2
 
 variables {X Y} {f g : continuous_map X Y}
 
+@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := begin
+  apply funext,
+  assume x : X,
+  apply comp_apply,
+end
+
 protected lemma continuous (f : C(X, Y)) : continuous f := f.continuous_to_fun
 
 end continuous_map
@@ -444,7 +450,7 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
     have h' : map continuous_map.eval (pure f ×ᶠ 𝒢) = map f 𝒢, from calc
       map continuous_map.eval (pure f ×ᶠ 𝒢) = map continuous_map.eval (map (prod.mk f) 𝒢) : by simp [filter.pure_prod]
       ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
-      --... = map f 𝒢 : by sorry,
+      ... = map f 𝒢 : by simp [continuous_map.eval_comp_prod],
     rw h',
     exact f.continuous_to_fun.filter_converges h
   end,
