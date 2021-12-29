@@ -3,6 +3,7 @@ import order.filter.partial
 import algebra.support
 import convergence_space.basic
 import category_theory.concrete_category.bundled
+import deprecated.group
 
 noncomputable theory
 open set filter classical option function open category_theory
@@ -34,6 +35,35 @@ structure ConvGroup :=
 [is_group : group carrier]
 [is_convergence_space : convergence_space carrier]
 [is_convergence_group : convergence_group carrier]
+
+instance (G : ConvGroup) : group G.carrier := G.is_group
+instance (G : ConvGroup) : convergence_space G.carrier := G.is_convergence_space
+instance : has_coe_to_sort ConvGroup Type* := ⟨ConvGroup.carrier⟩
+
+namespace ConvGroup
+
+structure hom (G H : ConvGroup) :=
+(to_fun : G → H)
+(to_fun_continuous : continuous to_fun)
+(to_fun_group_hom : is_monoid_hom to_fun)
+
+instance (G H : ConvGroup) : has_coe_to_fun (hom G H) (λ _, G → H) := ⟨hom.to_fun⟩
+
+end ConvGroup
+
+instance : category ConvGroup := {
+  hom := ConvGroup.hom,
+  comp := λ _ _ _ f g, {
+    to_fun := g ∘ f,
+    to_fun_continuous := sorry,
+    to_fun_group_hom := sorry,
+  },
+  id := λ G, {
+    to_fun := λ x, x,
+    to_fun_continuous := sorry,
+    to_fun_group_hom := sorry,
+  },
+}
 
 -------------------------------------------------------------------------------
 -- Partial group actions
