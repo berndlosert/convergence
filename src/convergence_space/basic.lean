@@ -400,9 +400,9 @@ continuous (g ∘ f) := {
     assume x : X,
     assume ℱ : filter X,
     assume h : p.converges ℱ x,
-    have h' : q.converges (map f ℱ) (f x), from hf.filter_converges h,
-    have h'' : r.converges (map g (map f ℱ)) (g (f x)), from hg.filter_converges h',
-    convert h'',
+    have : q.converges (map f ℱ) (f x), from hf.filter_converges h,
+    have : r.converges (map g (map f ℱ)) (g (f x)), from hg.filter_converges this,
+    convert this,
   end,
 }
 
