@@ -402,9 +402,7 @@ continuous (g ∘ f) := {
     assume h : p.converges ℱ x,
     have h' : q.converges (map f ℱ) (f x), from hf.filter_converges h,
     have h'' : r.converges (map g (map f ℱ)) (g (f x)), from hg.filter_converges h',
-    rw filter.map_map at h'',
-    simp,
-    exact h'',
+    convert h'',
   end,
 }
 
