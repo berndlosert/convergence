@@ -389,31 +389,27 @@ def is_closed [p : convergence_space X] (A : set X) : Prop :=
 -- Continuity
 -------------------------------------------------------------------------------
 
-structure continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
-(filter_converges : ∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x))
+def continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
+∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x)
 
 lemma continuous.comp
 [p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z] {g : Y → Z} {f : X → Y}
-(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := {
-  filter_converges := begin
-    assume x : X,
-    assume ℱ : filter X,
-    assume h : p.converges ℱ x,
-    have : q.converges (map f ℱ) (f x), from hf.filter_converges h,
-    have : r.converges (map g (map f ℱ)) (g (f x)), from hg.filter_converges this,
-    convert this,
-  end,
-}
+(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume h : p.converges ℱ x,
+  have : q.converges (map f ℱ) (f x), from hf h,
+  have : r.converges (map g (map f ℱ)) (g (f x)), from hg this,
+  convert this,
+end
 
-lemma continuous_id [p : convergence_space X] : continuous (id : X → X) := {
-  filter_converges := begin
-    assume x : X,
-    assume ℱ : filter X,
-    assume : p.converges ℱ x,
-    simp [filter.map_id],
-    exact this,
-  end
-}
+lemma continuous_id [p : convergence_space X] : continuous (id : X → X) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : p.converges ℱ x,
+  simp [filter.map_id],
+  exact this,
+end
 
 structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
 (continuous_to_fun : continuous to_fun)
@@ -479,7 +475,7 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
       ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
       ... = map f 𝒢 : by simp [continuous_map.eval_comp_prod],
     rw h',
-    exact f.continuous_to_fun.filter_converges h
+    exact f.continuous_to_fun h
   end,
   le_converges := begin
     assume ℱ 𝒢 : filter C(X, Y),
