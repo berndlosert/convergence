@@ -397,8 +397,8 @@ lemma continuous.comp
 (hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
   assume x : X,
   assume ℱ : filter X,
-  assume h : p.converges ℱ x,
-  have : q.converges (map f ℱ) (f x), from hf h,
+  assume : p.converges ℱ x,
+  have : q.converges (map f ℱ) (f x), from hf this,
   have : r.converges (map g (map f ℱ)) (g (f x)), from hg this,
   convert this,
 end
