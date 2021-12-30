@@ -7,7 +7,7 @@ noncomputable theory
 open set function filter classical option category_theory
 open_locale classical filter
 
-variables {X Y : Type*}
+variables {X Y Z : Type*}
 
 -------------------------------------------------------------------------------
 -- Definition
@@ -369,7 +369,7 @@ def convergence_space.coinduced (f : X → Y) (p : convergence_space X) : conver
 }
 
 -------------------------------------------------------------------------------
--- Limits, adherence, open/closed, continuity
+-- Limits, adherence, open/closed
 -------------------------------------------------------------------------------
 
 def lim [p : convergence_space X] (ℱ : filter X) : set X := { x | p.converges ℱ x }
@@ -385,8 +385,28 @@ def is_open [p : convergence_space X] (A : set X) : Prop :=
 def is_closed [p : convergence_space X] (A : set X) : Prop :=
 ∀ {ℱ} {x}, A ∈ ℱ → p.converges ℱ x → x ∈ A
 
+-------------------------------------------------------------------------------
+-- Continuity
+-------------------------------------------------------------------------------
+
 structure continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
 (filter_converges : ∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x))
+
+lemma continuous.comp
+[p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z]
+{g : Y → Z} {f : X → Y} (hg : continuous g) (hf : continuous f) :
+continuous (g ∘ f) := {
+  filter_converges := begin
+    assume x : X,
+    assume ℱ : filter X,
+    assume h : p.converges ℱ x,
+    have h' : q.converges (map f ℱ) (f x), from hf.filter_converges h,
+    have h'' : r.converges (map g (map f ℱ)) (g (f x)), from hg.filter_converges h',
+    rw filter.map_map at h'',
+    simp,
+    exact h'',
+  end,
+}
 
 structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
 (continuous_to_fun : continuous to_fun)
