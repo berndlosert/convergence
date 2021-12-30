@@ -393,9 +393,8 @@ structure continuous [p : convergence_space X] [q : convergence_space Y] (f : X 
 (filter_converges : ∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x))
 
 lemma continuous.comp
-[p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z]
-{g : Y → Z} {f : X → Y} (hg : continuous g) (hf : continuous f) :
-continuous (g ∘ f) := {
+[p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z] {g : Y → Z} {f : X → Y}
+(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := {
   filter_converges := begin
     assume x : X,
     assume ℱ : filter X,
