@@ -390,7 +390,7 @@ def is_closed [p : convergence_space X] (A : set X) : Prop :=
 -------------------------------------------------------------------------------
 
 def continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
-∀ {x} {ℱ}, p.converges ℱ x → q.converges (map f ℱ) (f x)
+∀ ⦃x ℱ⦄, p.converges ℱ x → q.converges (map f ℱ) (f x)
 
 lemma continuous.comp
 [p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z] {g : Y → Z} {f : X → Y}

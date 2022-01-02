@@ -53,9 +53,11 @@ end ConvGroup
 
 instance : category ConvGroup := {
   hom := ConvGroup.hom,
-  comp := λ _ _ _ f g, {
+  comp := λ X Y Z f g, {
     to_fun := g ∘ f,
-    to_fun_continuous := sorry,
+    to_fun_continuous := begin
+      exact continuous.comp (g.to_fun_continuous) (f.to_fun_continuous),
+    end,
     to_fun_group_hom := sorry,
   },
   id := λ G, {
