@@ -62,7 +62,7 @@ instance : category ConvGroup := {
   },
   id := λ G, {
     to_fun := λ x, x,
-    to_fun_continuous := sorry,
+    to_fun_continuous := continuous_id,
     to_fun_group_hom := sorry,
   },
 }
