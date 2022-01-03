@@ -88,6 +88,22 @@ class continuous_partial_group_action
   [convergence_space X] :=
 (continuity : continuous (λ p : G × X, act p.1 p.2))
 
+structure PartAct :=
+(G X : Type*)
+[group_is_group : group G]
+[the_action : partial_group_action G X]
+
+def the_group (action : PartAct) : Type* := action.G
+def the_set (action : PartAct) : Type* := action.X
+
+instance : has_coe_to_fun (PartAct) (λ action, action.G × action.X → action.X) := ⟨action.the_action.act⟩
+
+structure ContPartAct extends PartAct :=
+[group_is_convergence_space : convergence_space G]
+[group_is_convergence_group : convergence_group G]
+[set_is_convergence_space : convergence_space X]
+(action_is_continuous :  continuous (λ p : G × X, act p.1 p.2))
+
 -------------------------------------------------------------------------------
 -- Enveloping action
 -------------------------------------------------------------------------------
