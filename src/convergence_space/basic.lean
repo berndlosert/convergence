@@ -385,6 +385,8 @@ def is_open [p : convergence_space X] (A : set X) : Prop :=
 def is_closed [p : convergence_space X] (A : set X) : Prop :=
 ∀ {ℱ} {x}, A ∈ ℱ → p.converges ℱ x → x ∈ A
 
+def nhds [convergence_space X] (x : X) : filter X := (⨅ s ∈ {U : set X | x ∈ U ∧ is_open U}, 𝓟 s)
+
 -------------------------------------------------------------------------------
 -- Continuity
 -------------------------------------------------------------------------------
