@@ -383,7 +383,7 @@ def interior [p : convergence_space X] (A : set X) : set X := { x ∈ A | ∀ �
 
 def is_open [p : convergence_space X] (A : set X) : Prop := A = interior A
 
-def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ ℱ, p.converges ℱ x ∧ A ∈ ℱ }
+def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ A ∈ ℱ }
 
 def is_closed [p : convergence_space X] (A : set X) : Prop := A = cl A
 
@@ -513,6 +513,9 @@ class r1_space [p : convergence_space X] : Prop :=
 
 class t2_space [p : convergence_space X] : Prop :=
 (t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → x = y)
+
+class r2_space [p : convergence_space X] : Prop :=
+(r2_prop : ∀ x ℱ, p.converges ℱ x → p.converges (filter.generate (cl '' ℱ.sets)) x)
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
