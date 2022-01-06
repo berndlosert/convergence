@@ -369,7 +369,7 @@ def convergence_space.coinduced (f : X → Y) (p : convergence_space X) : conver
 }
 
 -------------------------------------------------------------------------------
--- Limits, adherence, open/closed
+-- Limits, adherence, interior, closure, open, closed, neighborhoods
 -------------------------------------------------------------------------------
 
 def lim [p : convergence_space X] (ℱ : filter X) : set X := { x | p.converges ℱ x }
@@ -379,11 +379,13 @@ def adheres [p : convergence_space X] (ℱ : filter X) (x : X) : Prop :=
 
 def adh [convergence_space X] (ℱ : filter X) : set X := { x | adheres ℱ x }
 
-def is_open [p : convergence_space X] (A : set X) : Prop :=
-∀ {ℱ} {x}, x ∈ A → p.converges ℱ x → A ∈ ℱ
+def interior [p : convergence_space X] (A : set X) : set X := { x ∈ A | ∀ ℱ, p.converges ℱ x → A ∈ ℱ }
 
-def is_closed [p : convergence_space X] (A : set X) : Prop :=
-∀ {ℱ} {x}, A ∈ ℱ → p.converges ℱ x → x ∈ A
+def is_open [p : convergence_space X] (A : set X) : Prop := A = interior A
+
+def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ ℱ, p.converges ℱ x ∧ A ∈ ℱ }
+
+def is_closed [p : convergence_space X] (A : set X) : Prop := A = cl A
 
 def nhds [convergence_space X] (x : X) : filter X := (⨅ s ∈ {U : set X | x ∈ U ∧ is_open U}, 𝓟 s)
 
@@ -497,7 +499,6 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
 -- Separation axioms
 -------------------------------------------------------------------------------
 
-
 class t0_space [p : convergence_space X] : Prop :=
 (t0_prop : ∀ x y, p.converges (pure x) y → p.converges (pure y) x → x = y)
 
@@ -511,7 +512,7 @@ class r1_space [p : convergence_space X] : Prop :=
 (r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X) [ne_bot 𝒢], p.converges 𝒢 x ↔ p.converges 𝒢 y)
 
 class t2_space [p : convergence_space X] : Prop :=
-(t2_prop : ∀ (ℱ : filter X) [ne_bot ℱ], ∀ x y, p.converges ℱ x ∧ p.converges ℱ y → x = y)
+(t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → x = y)
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
