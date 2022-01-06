@@ -511,7 +511,7 @@ class r1_space [p : convergence_space X] : Prop :=
 (r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X) [ne_bot 𝒢], p.converges 𝒢 x ↔ p.converges 𝒢 y)
 
 class t2_space [p : convergence_space X] : Prop :=
-(t2_prop : ∀ (ℱ : filter X) [ne_bot ℱ], ∀ x y, p.converges ℱ x → p.converges ℱ y → x = y)
+(t2_prop : ∀ (ℱ : filter X) [ne_bot ℱ], ∀ x y, p.converges ℱ x ∧ p.converges ℱ y → x = y)
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
