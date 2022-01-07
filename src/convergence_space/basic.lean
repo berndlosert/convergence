@@ -503,13 +503,13 @@ class t0_space (X : Type*) [p : convergence_space X] : Prop :=
 (t0_prop : ∀ x y, p.converges (pure x) y → p.converges (pure y) x → x = y)
 
 class r0_space (X : Type*) [p : convergence_space X] : Prop :=
-(r0_prop : ∀ x y, p.converges (pure x) y → ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ↔ p.converges ℱ y)
+(r0_prop : ∀ x y, p.converges (pure x) y → ∀ (ℱ : filter X), p.converges ℱ x ↔ p.converges ℱ y)
 
 class t1_space (X : Type*) [p : convergence_space X] : Prop :=
 (t1_prop : ∀ x y, p.converges (pure x) y → x = y)
 
 class r1_space (X : Type*) [p : convergence_space X] : Prop :=
-(r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X) [ne_bot 𝒢], p.converges 𝒢 x ↔ p.converges 𝒢 y)
+(r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X), p.converges 𝒢 x ↔ p.converges 𝒢 y)
 
 class t2_space (X : Type*) [p : convergence_space X] : Prop :=
 (t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → x = y)
