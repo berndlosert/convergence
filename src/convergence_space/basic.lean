@@ -499,23 +499,25 @@ instance [p : convergence_space X] [q : convergence_space Y] : convergence_space
 -- Separation axioms
 -------------------------------------------------------------------------------
 
-class t0_space [p : convergence_space X] : Prop :=
+class t0_space (X : Type*) [p : convergence_space X] : Prop :=
 (t0_prop : ∀ x y, p.converges (pure x) y → p.converges (pure y) x → x = y)
 
-class r0_space [p : convergence_space X] : Prop :=
+class r0_space (X : Type*) [p : convergence_space X] : Prop :=
 (r0_prop : ∀ x y, p.converges (pure x) y → ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ↔ p.converges ℱ y)
 
-class t1_space [p : convergence_space X] : Prop :=
+class t1_space (X : Type*) [p : convergence_space X] : Prop :=
 (t1_prop : ∀ x y, p.converges (pure x) y → x = y)
 
-class r1_space [p : convergence_space X] : Prop :=
+class r1_space (X : Type*) [p : convergence_space X] : Prop :=
 (r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X) [ne_bot 𝒢], p.converges 𝒢 x ↔ p.converges 𝒢 y)
 
-class t2_space [p : convergence_space X] : Prop :=
+class t2_space (X : Type*) [p : convergence_space X] : Prop :=
 (t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → x = y)
 
-class r2_space [p : convergence_space X] : Prop :=
+class r2_space (X : Type*) [p : convergence_space X] : Prop :=
 (r2_prop : ∀ x ℱ, p.converges ℱ x → p.converges (filter.generate (cl '' ℱ.sets)) x)
+
+class t3_space (X : Type*) [p : convergence_space X] extends t0_space X, r2_space X.
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
