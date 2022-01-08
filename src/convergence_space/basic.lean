@@ -1,5 +1,6 @@
 import tactic
 import order.filter.partial
+import order.filter.ultrafilter
 import algebra.support
 import category_theory.concrete_category.bundled
 
@@ -518,6 +519,15 @@ class r2_space (X : Type*) [p : convergence_space X] : Prop :=
 (r2_prop : ∀ x ℱ, p.converges ℱ x → p.converges (filter.generate (cl '' ℱ.sets)) x)
 
 class t3_space (X : Type*) [p : convergence_space X] extends t0_space X, r2_space X.
+
+-------------------------------------------------------------------------------
+-- Compact space
+-------------------------------------------------------------------------------
+
+def is_compact [p : convergence_space X] (A : set X) := ∀ ⦃ℱ : ultrafilter X⦄, A ∈ ℱ → ∃ x, p.converges ℱ x
+
+class compact_space (X : Type*) [convergence_space X] : Prop :=
+(compact_prop : is_compact (univ : set X))
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
