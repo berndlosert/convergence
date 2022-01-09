@@ -521,13 +521,30 @@ class r2_space (X : Type*) [p : convergence_space X] : Prop :=
 class t3_space (X : Type*) [p : convergence_space X] extends t0_space X, r2_space X.
 
 -------------------------------------------------------------------------------
--- Compact space
+-- Compact sets/spaces
 -------------------------------------------------------------------------------
 
 def is_compact [p : convergence_space X] (A : set X) := ∀ ⦃ℱ : ultrafilter X⦄, A ∈ ℱ → ∃ x, p.converges ℱ x
 
 class compact_space (X : Type*) [convergence_space X] : Prop :=
 (compact_prop : is_compact (univ : set X))
+
+lemma ultrafilter_comap_set (f : X → Y) (A : set X) (𝒱 : ultrafilter Y) (h : f '' A ∈ 𝒱) :
+∃ 𝒰 : ultrafilter X, 𝒰.map f = 𝒱 ∧ A ∈ 𝒰 := sorry
+
+theorem is_compact.image {f : X → Y} {A : set X} [p : convergence_space X] [q : convergence_space Y]
+  (h₀ : is_compact A) (h₁ : continuous f) : is_compact (f '' A) :=
+begin
+  unfold is_compact,
+  assume 𝒱 : ultrafilter Y,
+  assume h₂ : f '' A ∈ 𝒱,
+  obtain ⟨𝒰, h₃ : ultrafilter.map f 𝒰 = 𝒱, h₄ : A ∈ 𝒰⟩ := ultrafilter_comap_set f A 𝒱 h₂,
+  obtain ⟨x, h₅ : p.converges 𝒰 x⟩ := h₀ h₄,
+  have : q.converges (map f 𝒰) (f x) := h₁ h₅,
+  rw [← h₃, ultrafilter.coe_map f 𝒰],
+  use f x,
+  tauto,
+end
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
