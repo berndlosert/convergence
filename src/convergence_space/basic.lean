@@ -530,7 +530,20 @@ class compact_space (X : Type*) [convergence_space X] : Prop :=
 (compact_prop : is_compact (univ : set X))
 
 lemma ultrafilter_comap_set (f : X → Y) (A : set X) (𝒱 : ultrafilter Y) (h : f '' A ∈ 𝒱) :
-∃ 𝒰 : ultrafilter X, 𝒰.map f = 𝒱 ∧ A ∈ 𝒰 := sorry
+∃ 𝒰 : ultrafilter X, 𝒰.map f = 𝒱 ∧ A ∈ 𝒰 := begin
+  let ℱ := comap f 𝒱,
+  haveI : ℱ.ne_bot := filter.ne_bot.comap_of_image_mem 𝒱.ne_bot h,
+  let 𝒰 := ultrafilter.of ℱ,
+  use 𝒰,
+  have : range f ∈ 𝒱, from 𝒱.sets_of_superset h (image_subset_range f A),
+  have : map f 𝒰 ≤ 𝒱, from calc
+    map f 𝒰 ≤ map f ℱ : by sorry
+    ... = 𝒱 : by rw (filter.map_comap_of_mem this),
+  have : map f 𝒰 = 𝒱, from 𝒱.unique this,
+  have h : 𝒰.map f = 𝒱, from ultrafilter.coe_inj.mp this,
+  have h' : A ∈ 𝒰, sorry,
+  exact and.intro h h',
+end
 
 theorem is_compact.image {f : X → Y} {A : set X} [p : convergence_space X] [q : convergence_space Y]
   (h₀ : is_compact A) (h₁ : continuous f) : is_compact (f '' A) :=
