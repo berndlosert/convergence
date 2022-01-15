@@ -382,6 +382,8 @@ def is_open [p : convergence_space X] (A : set X) : Prop := A = interior A
 def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ A ∈ ℱ }
 def is_closed [p : convergence_space X] (A : set X) : Prop := A = cl A
 def is_dense [p : convergence_space X] (A : set X) : Prop := ∀ x, x ∈ cl A
+def is_strictly_dense [p : convergence_space X] (A : set X) : Prop :=
+∀ {x} {ℱ}, p.converges ℱ x → ∃ 𝒢, (A ∈ 𝒢) ∧ (p.converges 𝒢 x) ∧ (ℱ ≤ filter.generate (cl '' ℱ.sets))
 def nhds [convergence_space X] (x : X) : filter X := (⨅ s ∈ {U : set X | x ∈ U ∧ is_open U}, 𝓟 s)
 
 -------------------------------------------------------------------------------
