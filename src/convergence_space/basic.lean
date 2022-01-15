@@ -375,20 +375,13 @@ def convergence_space.coinduced (f : X → Y) (p : convergence_space X) : conver
 -------------------------------------------------------------------------------
 
 def lim [p : convergence_space X] (ℱ : filter X) : set X := { x | p.converges ℱ x }
-
-def adheres [p : convergence_space X] (ℱ : filter X) (x : X) : Prop :=
-∃ 𝒢 ≤ ℱ, p.converges 𝒢 x
-
+def adheres [p : convergence_space X] (ℱ : filter X) (x : X) : Prop := ∃ 𝒢 ≤ ℱ, p.converges 𝒢 x
 def adh [convergence_space X] (ℱ : filter X) : set X := { x | adheres ℱ x }
-
 def interior [p : convergence_space X] (A : set X) : set X := { x ∈ A | ∀ ℱ, p.converges ℱ x → A ∈ ℱ }
-
 def is_open [p : convergence_space X] (A : set X) : Prop := A = interior A
-
 def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ A ∈ ℱ }
-
 def is_closed [p : convergence_space X] (A : set X) : Prop := A = cl A
-
+def is_dense [p : convergence_space X] (A : set X) : Prop := ∀ x, x ∈ cl A
 def nhds [convergence_space X] (x : X) : filter X := (⨅ s ∈ {U : set X | x ∈ U ∧ is_open U}, 𝓟 s)
 
 -------------------------------------------------------------------------------
