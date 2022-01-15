@@ -19,10 +19,10 @@ universe u
 -------------------------------------------------------------------------------
 
 class has_continuous_mul (X : Type*) [convergence_space X] [has_mul X] : Prop :=
-(continuous_mul : continuous (λ p : X × X, p.1 * p.2))
+(continuous_mul : continuous (uncurry (*) : X × X → X))
 
 class has_continuous_smul (S X : Type*) [has_scalar S X] [convergence_space S] [convergence_space X] : Prop :=
-(continuous_smul : continuous (λ p : S × X, p.1 • p.2))
+(continuous_smul : continuous (uncurry (•) : S × X → X))
 
 class convergence_group (G : Type*) [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
@@ -84,9 +84,9 @@ class continuous_partial_group_action
   [group G]
   [convergence_space G]
   [convergence_group G]
-  [partial_group_action G X]
-  [convergence_space X] :=
-(continuity : continuous (λ p : G × X, act p.1 p.2))
+  [convergence_space X]
+  [partial_group_action G X] :=
+(continuity : continuous (uncurry act : G × X → option X))
 
 structure PartAct :=
 (G X : Type*)
@@ -164,8 +164,8 @@ instance : setoid (G × X) := {
 
 def envelope_pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
-def envelope_act (g : G) (hy : G × X) : option (quot (envelope G X)) :=
-some (quot.mk (envelope G X) (g * hy.1, hy.2))
+def envelope_act : G → G × X → option (quot (envelope G X)) :=
+λ g ⟨h, y⟩, some (quot.mk (envelope G X) (g * h, y))
 
 theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := sorry
 
@@ -176,8 +176,16 @@ instance : partial_group_action G (quot (envelope G X)) := {
   injective := sorry,
 }
 
-variables [convergence_space G] [convergence_group G] [convergence_space X] [continuous_partial_group_action G X]
+instance
+[p : convergence_space G]
+[convergence_group G]
+[q : convergence_space X]
+[continuous_partial_group_action G X] :
+continuous_partial_group_action G (quot (envelope G X)) := sorry
 
-instance : continuous_partial_group_action G (quot (envelope G X)) := {
-  continuity := sorry,
-}
+-------------------------------------------------------------------------------
+-- Adherence restrictive
+-------------------------------------------------------------------------------
+
+--def adh_restrictive : Prop := ∀ {ℱ 𝒢}, adh ℱ = ∅ → ∃ g ∈ G, p.converges 𝒢 g → adh (map act (𝒢 ×ᶠ ℱ)) ≠ ∅
+
