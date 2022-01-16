@@ -187,5 +187,12 @@ continuous_partial_group_action G (quot (envelope G X)) := sorry
 -- Adherence restrictive
 -------------------------------------------------------------------------------
 
---def adh_restrictive : Prop := ∀ {ℱ 𝒢}, adh ℱ = ∅ → ∃ g ∈ G, p.converges 𝒢 g → adh (map act (𝒢 ×ᶠ ℱ)) ≠ ∅
-
+def adh_restrictive
+  [group G]
+  [p : convergence_space G]
+  [convergence_group G]
+  [convergence_space X]
+  [partial_group_action G X]
+  [continuous_partial_group_action G X] :
+  Prop :=
+∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
