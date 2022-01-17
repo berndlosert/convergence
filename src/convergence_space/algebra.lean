@@ -96,7 +96,7 @@ structure PartAct :=
 def the_group (action : PartAct) : Type* := action.G
 def the_set (action : PartAct) : Type* := action.X
 
-instance : has_coe_to_fun (PartAct) (λ action, action.G × action.X → action.X) := ⟨action.the_action.act⟩
+--instance : has_coe_to_fun (PartAct) (λ action, action.G × action.X → action.X) := ⟨action.the_action.act⟩
 
 structure ContPartAct extends PartAct :=
 [group_is_convergence_space : convergence_space G]
@@ -111,10 +111,11 @@ structure ContPartAct extends PartAct :=
 def envelope (G X : Type*) [group G] [partial_group_action G X] : G × X → G × X → Prop :=
  λ ⟨g, x⟩ ⟨h, y⟩, act (h⁻¹ * g) x = some y
 
-variables {G : Type*} [group G]
-variables {X : Type*} [partial_group_action G X]
+namespace envelope
 
-theorem envelope_reflexive : reflexive (envelope G X) := begin
+variables {G X : Type*} [group G] [partial_group_action G X]
+
+theorem is_reflexive : reflexive (envelope G X) := begin
   intros,
   unfold reflexive,
   rintro (⟨g, x⟩ : G × X),
@@ -122,7 +123,7 @@ theorem envelope_reflexive : reflexive (envelope G X) := begin
   simp [identity],
 end
 
-theorem envelope_symmetric : symmetric (envelope G X) := begin
+theorem is_symmetric : symmetric (envelope G X) := begin
   intros,
   unfold symmetric,
   rintro ⟨g, x⟩ ⟨h, y⟩ : G × X,
@@ -137,7 +138,7 @@ theorem envelope_symmetric : symmetric (envelope G X) := begin
     ... = some x : by exact identity
 end
 
-theorem envelope_transitive : transitive (envelope G X) := begin
+theorem is_transitive : transitive (envelope G X) := begin
   intros,
   unfold transitive,
   rintro ⟨g, x⟩ ⟨h, y⟩ ⟨k, z⟩ : G × X,
@@ -155,22 +156,22 @@ theorem envelope_transitive : transitive (envelope G X) := begin
     ... = some z : by rw heq₂
 end
 
-theorem envelope_equivalence : equivalence (envelope G X) := ⟨envelope_reflexive, envelope_symmetric, envelope_transitive⟩
+theorem is_equivalence : equivalence (envelope G X) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 
 instance : setoid (G × X) := {
   r := envelope G X,
-  iseqv := envelope_equivalence,
+  iseqv := is_equivalence,
 }
 
-def envelope_pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
+def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
-def envelope_act : G → G × X → option (quot (envelope G X)) :=
+def act : G → G × X → option (quot (envelope G X)) :=
 λ g ⟨h, y⟩, some (quot.mk (envelope G X) (g * h, y))
 
-theorem envelope_act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope_act g h₁y₁ = envelope_act g h₂y₂ := sorry
+theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := sorry
 
 instance : partial_group_action G (quot (envelope G X)) := {
-  act := λ g x, quotient.lift (envelope_act g) (envelope_act_congr g) x,
+  act := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
   identity := sorry,
   compatibility := sorry,
   injective := sorry,
@@ -183,16 +184,17 @@ instance
 [continuous_partial_group_action G X] :
 continuous_partial_group_action G (quot (envelope G X)) := sorry
 
+end envelope
+
 -------------------------------------------------------------------------------
 -- Adherence restrictive
 -------------------------------------------------------------------------------
 
-def adh_restrictive
-  [group G]
-  [p : convergence_space G]
-  [convergence_group G]
-  [convergence_space X]
-  [partial_group_action G X]
-  [continuous_partial_group_action G X] :
-  Prop :=
+variables {G : Type*} [group G] [p : convergence_space G] [convergence_group G]
+variables {X : Type*} [convergence_space X] [partial_group_action G X] [continuous_partial_group_action G X]
+
+def adh_restrictive : Prop :=
 ∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+
+def weakly_adh_restrictive : Prop :=
+∀ {𝒢 : filter G} {ℱ : filter X}, adh (ℱ.map envelope.pure) = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
