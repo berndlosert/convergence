@@ -197,4 +197,4 @@ def adh_restrictive : Prop :=
 ∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
 
 def weakly_adh_restrictive : Prop :=
-∀ {𝒢 : filter G} {ℱ : filter X}, adh (ℱ.map envelope.pure) = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+∀ {𝒢 : filter G} {ℱ : filter X}, adh (map (@envelope.pure G _ _ _) ℱ) = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
