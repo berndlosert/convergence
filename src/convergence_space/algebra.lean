@@ -170,6 +170,7 @@ def act : G → G × X → quot (envelope G X) :=
 
 theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := begin
   rintros (g : G) (⟨h₁,y₁⟩ : G × X) (⟨h₂,y₂⟩ : G × X) h,
+  simp,
   --have : act (h₂⁻¹ * h₁) y₁ = some y₂, sorry,
   --unfold act,
   sorry,
