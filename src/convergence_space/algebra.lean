@@ -166,9 +166,14 @@ instance : setoid (G × X) := {
 def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
 def act : G → G × X → quot (envelope G X) :=
-λ g ⟨h, y⟩, quot.mk (envelope G X) (g * h, y)
+λ g ⟨h, y⟩, ⟦(g * h, y)⟧
 
-theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := sorry
+theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := begin
+  rintros (g : G) (⟨h₁,y₁⟩ : G × X) (⟨h₂,y₂⟩ : G × X) h,
+  --have : act (h₂⁻¹ * h₁) y₁ = some y₂, sorry,
+  --unfold act,
+  sorry,
+end
 
 instance : has_scalar G (quot (envelope G X)) := {
   smul := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
