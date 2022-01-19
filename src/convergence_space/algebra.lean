@@ -165,24 +165,21 @@ instance : setoid (G × X) := {
 
 def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
-def act : G → G × X → option (quot (envelope G X)) :=
-λ g ⟨h, y⟩, some (quot.mk (envelope G X) (g * h, y))
+def act : G → G × X → quot (envelope G X) :=
+λ g ⟨h, y⟩, quot.mk (envelope G X) (g * h, y)
 
 theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := sorry
 
-instance : partial_group_action G (quot (envelope G X)) := {
-  act := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
-  identity := sorry,
-  compatibility := sorry,
-  injective := sorry,
+instance : has_scalar G (quot (envelope G X)) := {
+  smul := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
 }
 
 instance
-[p : convergence_space G]
-[convergence_group G]
-[q : convergence_space X]
-[continuous_partial_group_action G X] :
-continuous_partial_group_action G (quot (envelope G X)) := sorry
+[convergence_space G] [convergence_group G]
+[convergence_space X] [continuous_partial_group_action G X] :
+has_continuous_smul G (quot (envelope G X)) := {
+  continuous_smul := sorry,
+}
 
 end envelope
 
