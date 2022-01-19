@@ -25,6 +25,10 @@ attribute [class] convergence_space
 
 open convergence_space
 
+theorem convergence_space_eq_iff {p q : convergence_space X} :
+p = q ↔ ∀ ℱ x, p.converges ℱ x ↔ q.converges ℱ x :=
+by simp [funext_iff, convergence_space.ext_iff p q]
+
 -------------------------------------------------------------------------------
 -- Parital ordering
 -------------------------------------------------------------------------------
@@ -545,8 +549,14 @@ end
 -- Quotient maps
 -------------------------------------------------------------------------------
 
-def is_quoteint_map [p : convergence_space X] [q : convergence_space Y] {f : X → Y} (h : surjective f) :=
-∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x)
+def quotient_map [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
+surjective f ∧ q = convergence_space.coinduced f p
+
+/-
+lemma quotient_map_iff [p : convergence_space X] [q : convergence_space Y] {f : X → Y} :
+quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) :=
+and_congr iff.rfl convergence_space_eq_iff
+-/
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
