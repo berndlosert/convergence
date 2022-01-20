@@ -552,11 +552,55 @@ end
 def quotient_map [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
 surjective f ∧ q = convergence_space.coinduced f p
 
-/-
 lemma quotient_map_iff [p : convergence_space X] [q : convergence_space Y] {f : X → Y} :
-quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) :=
-and_congr iff.rfl convergence_space_eq_iff
--/
+quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) := begin
+  split,
+  -- Proving → direction.
+  assume h : quotient_map f,
+  split,
+  exact h.1,
+  assume 𝒢 : filter Y,
+  assume y : Y,
+  split,
+  rw h.2,
+  assume h' : (convergence_space.coinduced f p).converges 𝒢 y,
+  cases h',
+    case pure_case begin
+      obtain ⟨x, hx⟩ := h.1 y,
+      rw ← hx at h',
+      rw ← filter.map_pure at h',
+      exact ⟨pure x, x, h', eq.symm hx, p.pure_converges x⟩,
+    end,
+    case other_case : ℱ x h₁ h₂ h₃ begin
+      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
+    end,
+  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : p.converges ℱ x⟩,
+  rw h.2,
+  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
+  -- Proving ← direction
+  intro h,
+  unfold quotient_map,
+  split,
+  exact h.1,
+  rw convergence_space_eq_iff,
+  assume 𝒢 : filter Y,
+  assume y : Y,
+  rw h.2,
+  split,
+  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : p.converges ℱ x⟩,
+  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
+  assume h' : (convergence_space.coinduced f p).converges 𝒢 y,
+  cases h',
+    case pure_case begin
+      obtain ⟨x, hx⟩ := h.1 y,
+      rw ← hx at h',
+      rw ← filter.map_pure at h',
+      exact ⟨pure x, x, h', eq.symm hx, p.pure_converges x⟩,
+    end,
+    case other_case : ℱ x h₁ h₂ h₃ begin
+      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
+    end,
+ end
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
