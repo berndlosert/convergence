@@ -187,7 +187,9 @@ instance
 [convergence_space G] [convergence_group G]
 [convergence_space X] [continuous_partial_group_action G X] :
 has_continuous_smul G (quot (envelope G X)) := {
-  continuous_smul := sorry,
+  continuous_smul := begin
+    unfold continuous,
+  end,
 }
 
 end envelope
