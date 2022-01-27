@@ -68,12 +68,19 @@ instance : partial_order (convergence_space X) := {
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
+/--
+ - In an indiscrete convergence space, every filter converges to every point.
+ -/
 def indiscrete : convergence_space X := {
   converges := λ ℱ x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
 
+/--
+ - In a discrete convergence space, the only proper filters than converge are
+ - the `pure x` ones.
+ -/
 def discrete : convergence_space X := {
   converges := λ ℱ x, ℱ ≤ pure x,
   pure_converges := by tauto,
@@ -330,6 +337,10 @@ instance : complete_lattice (convergence_space X) := {
 -- Induced/coinduced convergence space
 -------------------------------------------------------------------------------
 
+/--
+ - Given `f : X → Y` and a convergence on `Y`, the induced convergence on `X`
+ - is the coarsest convergence that makes `f` continuous.
+ -/
 def convergence_space.induced (f : X → Y) (q : convergence_space Y) : convergence_space X := {
   converges := λ ℱ x, q.converges (map f ℱ) (f x),
   pure_converges := by simp [filter.map_pure, pure_converges],
@@ -602,7 +613,11 @@ quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ
     end,
  end
 
-def pullback_of_along (f : X → Y) (f' : X' → Y) : { (x', x) | f' x' = f x } → X' :=
+lemma quotient_prod_map
+[p : convergence_space X] [q : convergence_space Y] {f : X → Y} (h₁ : quotient_map f)
+{X' Y' : Type*} [p' : convergence_space X'] [q' : convergence_space Y'] {f' : X' → Y'} (h' : quotient_map f')
+: quotient_map (prod.map f f') := sorry
+
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
