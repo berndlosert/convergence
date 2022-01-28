@@ -452,38 +452,38 @@ convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
 instance [convergence_space X] : convergence_space (option X) :=
 convergence_space.coinduced some
 
----------------------------------------------------------------------------------
----- The convergence space C(X,Y)
----------------------------------------------------------------------------------
---
---structure continuous_map (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] :=
---(to_fun : X → Y)
---(continuous_to_fun : continuous to_fun)
---
---notation `C(` X `, ` Y `)` := continuous_map X Y
---
---namespace continuous_map
---
---variables [convergence_space X] [convergence_space Y]
---
---instance : has_coe_to_fun (C(X, Y)) (λ _, X → Y) := ⟨continuous_map.to_fun⟩
---
---@[simp] lemma to_fun_eq_coe {f : C(X, Y)} : f.to_fun = (f : X → Y) := rfl
---
---def eval (fx : C(X,Y) × X) : Y := fx.1 fx.2
---
---variables {X Y} {f g : continuous_map X Y}
---
---@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := begin
---  apply funext,
---  assume x : X,
---  apply comp_apply,
---end
---
---protected lemma continuous (f : C(X, Y)) : continuous f := f.continuous_to_fun
---
---end continuous_map
---
+-------------------------------------------------------------------------------
+-- The convergence space C(X,Y)
+-------------------------------------------------------------------------------
+
+structure continuous_map (X Y : Type*) [convergence_space X] [convergence_space Y] :=
+(to_fun : X → Y)
+(continuous_to_fun : continuous to_fun)
+
+notation `C(` X `, ` Y `)` := continuous_map X Y
+
+namespace continuous_map
+
+variables [convergence_space X] [convergence_space Y]
+
+instance : has_coe_to_fun (C(X, Y)) (λ _, X → Y) := ⟨continuous_map.to_fun⟩
+
+@[simp] lemma to_fun_eq_coe {f : C(X, Y)} : f.to_fun = (f : X → Y) := rfl
+
+def eval (fx : C(X,Y) × X) : Y := fx.1 fx.2
+
+variables {X Y} {f g : continuous_map X Y}
+
+@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := begin
+  apply funext,
+  assume x : X,
+  apply comp_apply,
+end
+
+protected lemma continuous (f : C(X, Y)) : continuous f := f.continuous_to_fun
+
+end continuous_map
+
 --instance [p : convergence_space X] [q : convergence_space Y] : convergence_space C(X, Y) := {
 --  converges := λ ℱ f, ∀ (x : X) (𝒢 : filter X), p.converges 𝒢 x → q.converges (map continuous_map.eval (ℱ ×ᶠ 𝒢)) (f x),
 --  pure_converges := begin
