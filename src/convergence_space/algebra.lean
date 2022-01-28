@@ -163,6 +163,8 @@ instance : setoid (G × X) := {
   iseqv := is_equivalence,
 }
 
+def quotient_map : G × X → envelope G X := λ ⟨g, x⟩, ⟦(g, x)⟧
+
 def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
 def act : G → G × X → quot (envelope G X) :=
