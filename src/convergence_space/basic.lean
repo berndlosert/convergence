@@ -424,17 +424,17 @@ lemma continuous.comp
   convert this,
 end
 
---lemma continuous_id [p : convergence_space X] : continuous (id : X → X) := begin
---  assume x : X,
---  assume ℱ : filter X,
---  assume : p.converges ℱ x,
---  simp [filter.map_id],
---  exact this,
---end
---
---structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
---(continuous_to_fun : continuous to_fun)
---(continuous_inv_fun : continuous inv_fun)
+lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  simp [filter.map_id],
+  exact this,
+end
+
+structure homeomorph (X Y : Type*) [convergence_space X] [convergence_space Y] extends X ≃ Y :=
+(continuous_to_fun : continuous to_fun)
+(continuous_inv_fun : continuous inv_fun)
 
 -------------------------------------------------------------------------------
 -- Convergence spaces constructions
