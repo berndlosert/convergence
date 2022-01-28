@@ -15,6 +15,7 @@ variables {X Y Z : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
+/-- Instances of this class will be refered to as convergence structures. -/
 @[ext] class convergence_space (X : Type*) :=
 (converges : filter X → X → Prop)
 (pure_converges : ∀ x, converges (pure x) x)
@@ -38,6 +39,9 @@ by simp [funext_iff, convergence_space.ext_iff p q]
 -- Parital ordering
 -------------------------------------------------------------------------------
 
+/-- If p and q are two convergence structures on X, then p ≤ q (read "p is
+ -- coarser than q" or "q is finer than p") means that q-convergence implies
+ -- p-convergence. -/
 instance : has_le (convergence_space X) := {
   le := λ p q, ∀ {ℱ} {x}, @converges _ q ℱ x → @converges _ p ℱ x
 }
@@ -73,24 +77,26 @@ instance : partial_order (convergence_space X) := {
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
-/-- In an indiscrete convergence space, every filter converges to every
- -- point. -/
+/-- The indiscrete convergence structure is the one where every filter
+ -- converges to every point. It is the coarsest convergence structure
+ -- possible, hence it is at the bottom. -/
 def indiscrete : convergence_space X := {
   converges := λ ℱ x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
 
-/-- In a discrete convergence space, the only proper filters that converge are
- -- the `pure` ones. -/
+instance : has_bot (convergence_space X) := {
+  bot := indiscrete
+}
+
+/-- The discrete convergence structure is the one where the only proper filters
+ -- that converge are the `pure` ones. It is the finest convergence structure
+ -- possible, hence it is at the top. -/
 def discrete : convergence_space X := {
   converges := λ ℱ x, ℱ ≤ pure x,
   pure_converges := by tauto,
   le_converges := by tauto,
-}
-
-instance : has_bot (convergence_space X) := {
-  bot := indiscrete
 }
 
 instance : has_top (convergence_space X) := {
@@ -336,11 +342,42 @@ instance : complete_lattice (convergence_space X) := {
 }
 
 -------------------------------------------------------------------------------
+-- Continuity
+-------------------------------------------------------------------------------
+
+def continuous [convergence_space X] [convergence_space Y] (f : X → Y) : Prop :=
+∀ ⦃x ℱ⦄, converges ℱ x → converges (map f ℱ) (f x)
+
+lemma continuous.comp
+[convergence_space X] [convergence_space Y] [convergence_space Z] {g : Y → Z} {f : X → Y}
+(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  have : converges (map f ℱ) (f x), from hf this,
+  have : converges (map g (map f ℱ)) (g (f x)), from hg this,
+  convert this,
+end
+
+lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  simp [filter.map_id],
+  exact this,
+end
+
+structure homeomorph (X Y : Type*) [convergence_space X] [convergence_space Y] extends X ≃ Y :=
+(continuous_to_fun : continuous to_fun)
+(continuous_inv_fun : continuous inv_fun)
+
+-------------------------------------------------------------------------------
 -- Induced/coinduced convergence space
 -------------------------------------------------------------------------------
 
-/-- Given `f : X → Y` and a convergence on `Y`, the induced convergence on `X`
- -- is the coarsest convergence that makes `f` continuous. -/
+/-- Given `f : X → Y`, where `Y` is convergence space, the induced convergence
+ -- structure on `X` is the coarsest convergence structure making `f`
+ -- continuous. -/
 def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_space X := {
   converges := λ ℱ x, converges (map f ℱ) (f x),
   pure_converges := by simp [filter.map_pure, pure_converges],
@@ -353,6 +390,16 @@ def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_
     apply le_converges le₂ h
   end,
 }
+
+lemma induced_coarsest (f : X → Y) [p : convergence_space X] [convergence_space Y] (hf : continuous f)
+: convergence_space.induced f ≤ p
+:= begin
+  unfold has_le.le,
+  assume ℱ : filter X,
+  assume x : X,
+  assume h : converges_ p ℱ x,
+  exact hf h,
+end
 
 inductive coinduced_converges (f : X → Y) [convergence_space X] (𝒢 : filter Y) (y : Y) : Prop
 | pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
@@ -403,36 +450,6 @@ def is_strictly_dense (A : set X) : Prop :=
 ∀ {x : X} {ℱ : filter X}, converges ℱ x → ∃ 𝒢, (A ∈ 𝒢) ∧ (converges 𝒢 x) ∧ (ℱ ≤ filter.generate (cl '' ℱ.sets))
 def nhds (x : X) : filter X := ⨅ ℱ ∈ {𝒢 : filter X | converges 𝒢 x}, ℱ
 end
-
--------------------------------------------------------------------------------
--- Continuity
--------------------------------------------------------------------------------
-
-def continuous [convergence_space X] [convergence_space Y] (f : X → Y) : Prop :=
-∀ ⦃x ℱ⦄, converges ℱ x → converges (map f ℱ) (f x)
-
-lemma continuous.comp
-[convergence_space X] [convergence_space Y] [convergence_space Z] {g : Y → Z} {f : X → Y}
-(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
-  assume x : X,
-  assume ℱ : filter X,
-  assume : converges ℱ x,
-  have : converges (map f ℱ) (f x), from hf this,
-  have : converges (map g (map f ℱ)) (g (f x)), from hg this,
-  convert this,
-end
-
-lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
-  assume x : X,
-  assume ℱ : filter X,
-  assume : converges ℱ x,
-  simp [filter.map_id],
-  exact this,
-end
-
-structure homeomorph (X Y : Type*) [convergence_space X] [convergence_space Y] extends X ≃ Y :=
-(continuous_to_fun : continuous to_fun)
-(continuous_inv_fun : continuous inv_fun)
 
 -------------------------------------------------------------------------------
 -- Convergence spaces constructions
