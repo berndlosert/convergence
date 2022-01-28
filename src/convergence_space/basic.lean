@@ -336,28 +336,26 @@ instance : complete_lattice (convergence_space X) := {
   ..convergence_space.has_top,
   ..convergence_space.has_bot,
 }
---
----------------------------------------------------------------------------------
----- Induced/coinduced convergence space
----------------------------------------------------------------------------------
---
---/--
--- - Given `f : X → Y` and a convergence on `Y`, the induced convergence on `X`
--- - is the coarsest convergence that makes `f` continuous.
--- -/
---def convergence_space.induced (f : X → Y) (q : convergence_space Y) : convergence_space X := {
---  converges := λ ℱ x, q.converges (map f ℱ) (f x),
---  pure_converges := by simp [filter.map_pure, pure_converges],
---  le_converges := begin
---    assume ℱ 𝒢 : filter X,
---    assume le₁ : ℱ ≤ 𝒢,
---    assume x : X,
---    assume h : q.converges (map f 𝒢) (f x),
---    have le₂ : map f ℱ ≤ map f 𝒢, apply map_mono le₁,
---    apply q.le_converges le₂ h
---  end,
---}
---
+
+-------------------------------------------------------------------------------
+-- Induced/coinduced convergence space
+-------------------------------------------------------------------------------
+
+/-- Given `f : X → Y` and a convergence on `Y`, the induced convergence on `X`
+ -- is the coarsest convergence that makes `f` continuous. -/
+def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_space X := {
+  converges := λ ℱ x, converges (map f ℱ) (f x),
+  pure_converges := by simp [filter.map_pure, pure_converges],
+  le_converges := begin
+    assume ℱ 𝒢 : filter X,
+    assume le₁ : ℱ ≤ 𝒢,
+    assume x : X,
+    assume h : converges (map f 𝒢) (f x),
+    have le₂ : map f ℱ ≤ map f 𝒢, apply map_mono le₁,
+    apply le_converges le₂ h
+  end,
+}
+
 --inductive coinduced_converges (f : X → Y) (p : convergence_space X) (𝒢 : filter Y) (y : Y) : Prop
 --| pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
 --| other_case (ℱ : filter X) (x : X) (_ : 𝒢 ≤ map f ℱ) (_ : y = f x) (_ : p.converges ℱ x) : coinduced_converges
@@ -434,20 +432,20 @@ instance : complete_lattice (convergence_space X) := {
 --structure homeomorph (X Y : Type*) [p : convergence_space X] [q : convergence_space Y] extends X ≃ Y :=
 --(continuous_to_fun : continuous to_fun)
 --(continuous_inv_fun : continuous inv_fun)
---
----------------------------------------------------------------------------------
----- Convergence spaces constructions
----------------------------------------------------------------------------------
---
---instance {p : X → Prop} [q : convergence_space X] : convergence_space (subtype p) :=
---convergence_space.induced coe q
---
+
+-------------------------------------------------------------------------------
+-- Convergence spaces constructions
+-------------------------------------------------------------------------------
+
+instance {p : X → Prop} [convergence_space X] : convergence_space (subtype p) :=
+convergence_space.induced (coe : subtype p → X)
+
 --instance {r : X → X → Prop} [q : convergence_space X] : convergence_space (quot r) :=
 --convergence_space.coinduced (quot.mk r) q
---
---instance [p : convergence_space X] [q : convergence_space Y] : convergence_space (X × Y) :=
---convergence_space.induced prod.fst p ⊓ convergence_space.induced prod.snd q
---
+
+instance [convergence_space X] [convergence_space Y] : convergence_space (X × Y) :=
+convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
+
 --instance [p : convergence_space X] : convergence_space (option X) :=
 --convergence_space.coinduced some p
 --
