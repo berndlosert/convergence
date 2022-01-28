@@ -160,34 +160,34 @@ instance : has_inf (convergence_space X) := {
   }
 }
 
---instance : has_Inf (convergence_space X) := {
---  Inf := λ ps, {
---    converges := λ ℱ x, or
---      (ℱ ≤ pure x)
---      (∃ p : convergence_space X, p ∈ ps ∧ p.converges ℱ x),
---    pure_converges := by tauto,
---    le_converges := begin
---      assume ℱ 𝒢 : filter X,
---      assume le₁ : ℱ ≤ 𝒢,
---      assume x : X,
---      assume h : or
---        (𝒢 ≤ pure x)
---        (∃ p : convergence_space X, p ∈ ps ∧ p.converges 𝒢 x),
---      cases h,
---        case or.inl : le₂ begin
---          exact or.inl (le_trans le₁ le₂)
---        end,
---        case or.inr : ex begin
---          exact exists.elim ex begin
---            assume p : convergence_space X,
---            assume h' : p ∈ ps ∧ p.converges 𝒢 x,
---            exact or.inr (exists.intro p (and.intro h'.left (p.le_converges le₁ h'.right)))
---          end,
---        end,
---    end,
---  }
---}
---
+instance : has_Inf (convergence_space X) := {
+  Inf := λ ps, {
+    converges := λ ℱ x, or
+      (ℱ ≤ pure x)
+      (∃ p : convergence_space X, p ∈ ps ∧ converges_ p ℱ x),
+    pure_converges := by tauto,
+    le_converges := begin
+      assume ℱ 𝒢 : filter X,
+      assume le₁ : ℱ ≤ 𝒢,
+      assume x : X,
+      assume h : or
+        (𝒢 ≤ pure x)
+        (∃ p : convergence_space X, p ∈ ps ∧ converges_ p 𝒢 x),
+      cases h,
+        case or.inl : le₂ begin
+          exact or.inl (le_trans le₁ le₂)
+        end,
+        case or.inr : ex begin
+          exact exists.elim ex begin
+            assume p : convergence_space X,
+            assume h' : p ∈ ps ∧ converges_ p 𝒢 x,
+            exact or.inr (exists.intro p (and.intro h'.left (le_converges_ p le₁ h'.right)))
+          end,
+        end,
+    end,
+  }
+}
+
 ---------------------------------------------------------------------------------
 ---- Lattice of convergence spaces
 ---------------------------------------------------------------------------------
