@@ -112,15 +112,15 @@ let coind := convergence_space.coinduced f in {
   ..coind
 }
 
----------------------------------------------------------------------------------
----- Convergence spaces constructions
----------------------------------------------------------------------------------
---
---instance {p : X → Prop} [q : kent_convergence_space X] : kent_convergence_space (subtype p) :=
---kent_convergence_space.induced coe q
---
---instance {r : X → X → Prop} [q : kent_convergence_space X] : kent_convergence_space (quot r) :=
---kent_convergence_space.coinduced (quot.mk r) q
---
---instance [p : kent_convergence_space X] [q : kent_convergence_space Y] : kent_convergence_space (X × Y) :=
---kent_convergence_space.induced prod.fst p ⊓ kent_convergence_space.induced prod.snd q
+-------------------------------------------------------------------------------
+-- Constructions
+-------------------------------------------------------------------------------
+
+instance {p : X → Prop} [kent_convergence_space X] : kent_convergence_space (subtype p) :=
+kent_convergence_space.induced (coe : subtype p → X)
+
+instance {r : X → X → Prop} [kent_convergence_space X] : kent_convergence_space (quot r) :=
+kent_convergence_space.coinduced (quot.mk r)
+
+instance [kent_convergence_space X] [kent_convergence_space Y] : kent_convergence_space (X × Y) :=
+kent_convergence_space.induced prod.fst ⊓ kent_convergence_space.induced prod.snd
