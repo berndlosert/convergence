@@ -14,10 +14,8 @@ variables {X Y : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
-class pseudotopological_space (X : Type*) extends limit_space X :=
+@[ext] class pseudotopological_space (X : Type*) extends limit_space X :=
 (ultra_converges : ∀ {x ℱ}, (∀ {𝒢 : ultrafilter X}, ↑𝒢 ≤ ℱ → converges 𝒢 x) -> converges ℱ x)
-
-attribute [ext] pseudotopological_space
 
 open pseudotopological_space
 

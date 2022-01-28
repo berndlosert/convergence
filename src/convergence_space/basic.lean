@@ -15,12 +15,10 @@ variables {X Y Z : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
-class convergence_space (X : Type*) :=
+@[ext] class convergence_space (X : Type*) :=
 (converges : filter X → X → Prop)
 (pure_converges : ∀ x, converges (pure x) x)
 (le_converges : ∀ {ℱ 𝒢}, ℱ ≤ 𝒢 → ∀ {x}, converges 𝒢 x → converges ℱ x) -- ℱ ≤ 𝒢 means 𝒢 ⊆ ℱ
-
-attribute [ext] convergence_space
 
 open convergence_space
 

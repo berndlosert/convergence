@@ -14,7 +14,7 @@ variables {X Y : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
-class pretopological_space (X : Type*) extends pseudotopological_space X :=
+@[ext] class pretopological_space (X : Type*) extends pseudotopological_space X :=
 (nhds_converges : ∀ x, converges (nhds x) x)
 
 attribute [ext] pretopological_space

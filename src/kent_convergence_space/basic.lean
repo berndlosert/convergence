@@ -13,10 +13,8 @@ variables {X Y : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
-class kent_convergence_space (X : Type*) extends convergence_space X :=
+@[ext] class kent_convergence_space (X : Type*) extends convergence_space X :=
 (kent_converges : ∀ {x} {ℱ}, converges ℱ x → converges (ℱ ⊔ pure x) x)
-
-attribute [ext] kent_convergence_space
 
 open kent_convergence_space
 
