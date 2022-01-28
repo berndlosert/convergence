@@ -4,7 +4,7 @@ import algebra.support
 import convergence_space.basic
 
 noncomputable theory
-open set filter classical
+open set filter classical convergence_space
 open_locale classical filter
 
 variables {X Y : Type*}
@@ -29,52 +29,52 @@ instance : has_coe (kent_convergence_space X) (convergence_space X) := {
   coe := λ p, p.to_convergence_space,
 }
 
----------------------------------------------------------------------------------
----- Supremum and infimum of Kent convergence spaces
----------------------------------------------------------------------------------
---
---instance : has_inf (kent_convergence_space X) := {
---  inf := λ p q, let super : convergence_space X := p ⊓ q in {
---    converges := super.converges,
---    pure_converges := super.pure_converges,
---    le_converges := super.le_converges,
---    kent_converges := begin
---      assume x : X,
---      assume ℱ : filter X,
---      assume h : super.converges ℱ x,
---      cases h,
---        case or.inl : hp begin
---          exact or.inl (p.kent_converges hp),
---        end,
---        case or.inr : hq begin
---          exact or.inr (q.kent_converges hq),
---        end,
---    end,
---  }
---}
---
----------------------------------------------------------------------------------
----- Induced/coinduced Kent convergence space
----------------------------------------------------------------------------------
---
---def kent_convergence_space.induced (f : X → Y) (q : kent_convergence_space Y) : kent_convergence_space X :=
---let ind := convergence_space.induced f q in {
---  kent_converges :=
---    begin
---      assume x : X,
---      assume ℱ : filter X,
---      assume h : q.converges (map f ℱ) (f x),
---      let ℱ₁ := map f ℱ,
---      let ℱ₂ := ℱ ⊔ pure x,
---      let y := f x,
---      show q.converges (map f ℱ₂) y, begin
---        rw [filter.map_sup, filter.map_pure],
---        simp [q.kent_converges h],
---      end,
---    end,
---  ..ind
---}
---
+-------------------------------------------------------------------------------
+-- Supremum and infimum of Kent convergence spaces
+-------------------------------------------------------------------------------
+
+instance : has_inf (kent_convergence_space X) := {
+  inf := λ p q, let super : convergence_space X := ↑p ⊓ ↑q in {
+    converges := converges_ super,
+    pure_converges := pure_converges_ super,
+    le_converges := le_converges_ super,
+    kent_converges := begin
+      assume x : X,
+      assume ℱ : filter X,
+      assume h : converges_ super ℱ x,
+      cases h,
+        case or.inl : hp begin
+          exact or.inl (kent_converges_ p hp),
+        end,
+        case or.inr : hq begin
+          exact or.inr (kent_converges_ q hq),
+        end,
+    end,
+  }
+}
+
+-------------------------------------------------------------------------------
+-- Induced/coinduced Kent convergence space
+-------------------------------------------------------------------------------
+
+def kent_convergence_space.induced (f : X → Y) [kent_convergence_space Y] : kent_convergence_space X :=
+let ind := convergence_space.induced f in {
+  kent_converges :=
+    begin
+      assume x : X,
+      assume ℱ : filter X,
+      assume h : converges (map f ℱ) (f x),
+      let ℱ₁ := map f ℱ,
+      let ℱ₂ := ℱ ⊔ pure x,
+      let y := f x,
+      show converges (map f ℱ₂) y, begin
+        rw [filter.map_sup, filter.map_pure],
+        simp [kent_converges h],
+      end,
+    end,
+  ..ind
+}
+
 --def kent_convergence_space.coinduced (f : X → Y) (p : kent_convergence_space X) : kent_convergence_space Y :=
 --let coind := convergence_space.coinduced f p in {
 --  kent_converges := begin
