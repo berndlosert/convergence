@@ -5,7 +5,7 @@ import algebra.support
 import pseudotopological_space.basic
 
 noncomputable theory
-open set filter ultrafilter classical
+open set filter ultrafilter classical pseudotopological_space
 open_locale classical filter
 
 variables {X Y : Type*}
@@ -14,11 +14,10 @@ variables {X Y : Type*}
 -- Definition
 -------------------------------------------------------------------------------
 
-structure pretopological_space (X : Type*) extends pseudotopological_space X :=
+class pretopological_space (X : Type*) extends pseudotopological_space X :=
 (nhds_converges : ∀ x, converges (nhds x) x)
 
 attribute [ext] pretopological_space
-attribute [class] pretopological_space
 
 open pretopological_space
 

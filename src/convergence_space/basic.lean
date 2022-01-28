@@ -28,7 +28,7 @@ section
 variables (p : convergence_space X)
 def converges_ (ℱ : filter X) (x : X) : Prop := @converges _ p ℱ x
 def pure_converges_ (x : X) : converges (pure x) x := @pure_converges _ p x
-def le_converges_ {ℱ 𝒢 : filter X} (h : ℱ ≤ 𝒢) {x : X} (h' : converges 𝒢 x) : converges ℱ x
+def le_converges_ ⦃ℱ 𝒢 : filter X⦄(h : ℱ ≤ 𝒢) {x : X} (h' : converges 𝒢 x) : converges ℱ x
 := @le_converges _ p _ _ h _ h'
 end
 
