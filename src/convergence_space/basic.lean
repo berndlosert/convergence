@@ -356,37 +356,37 @@ def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_
   end,
 }
 
---inductive coinduced_converges (f : X → Y) (p : convergence_space X) (𝒢 : filter Y) (y : Y) : Prop
---| pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
---| other_case (ℱ : filter X) (x : X) (_ : 𝒢 ≤ map f ℱ) (_ : y = f x) (_ : p.converges ℱ x) : coinduced_converges
---
---def convergence_space.coinduced (f : X → Y) (p : convergence_space X) : convergence_space Y := {
---  converges := coinduced_converges f p,
---  pure_converges := λ y, coinduced_converges.pure_case (le_refl (pure y)),
---  le_converges := begin
---    assume 𝒢₁ 𝒢₂ : filter Y,
---    assume : 𝒢₁ ≤ 𝒢₂,
---    assume y : Y,
---    assume h : coinduced_converges f p 𝒢₂ y,
---    cases h,
---      case pure_case begin
---        have : 𝒢₁ ≤ pure y, from calc
---          𝒢₁ ≤ 𝒢₂ : (by assumption : 𝒢₁ ≤ 𝒢₂)
---          ... ≤ pure y : (by assumption : 𝒢₂ ≤ pure y),
---        exact coinduced_converges.pure_case (by assumption : 𝒢₁ ≤ pure y),
---      end,
---      case other_case : ℱ x _ _ _ begin
---        have : 𝒢₁ ≤ map f ℱ, from calc
---          𝒢₁ ≤ 𝒢₂ : (by assumption : 𝒢₁ ≤ 𝒢₂)
---          ... ≤ map f ℱ : (by assumption : 𝒢₂ ≤ map f ℱ),
---        exact coinduced_converges.other_case ℱ x
---          (by assumption : 𝒢₁ ≤ map f ℱ)
---          (by assumption : y = f x)
---          (by assumption : p.converges ℱ x)
---        end
---  end,
---}
---
+inductive coinduced_converges (f : X → Y) [convergence_space X] (𝒢 : filter Y) (y : Y) : Prop
+| pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
+| other_case (ℱ : filter X) (x : X) (_ : 𝒢 ≤ map f ℱ) (_ : y = f x) (_ : converges ℱ x) : coinduced_converges
+
+def convergence_space.coinduced (f : X → Y) [convergence_space X] : convergence_space Y := {
+  converges := coinduced_converges f,
+  pure_converges := λ y, coinduced_converges.pure_case (le_refl (pure y)),
+  le_converges := begin
+    assume 𝒢₁ 𝒢₂ : filter Y,
+    assume : 𝒢₁ ≤ 𝒢₂,
+    assume y : Y,
+    assume h : coinduced_converges f 𝒢₂ y,
+    cases h,
+      case pure_case begin
+        have : 𝒢₁ ≤ pure y, from calc
+          𝒢₁ ≤ 𝒢₂ : (by assumption : 𝒢₁ ≤ 𝒢₂)
+          ... ≤ pure y : (by assumption : 𝒢₂ ≤ pure y),
+        exact coinduced_converges.pure_case (by assumption : 𝒢₁ ≤ pure y),
+      end,
+      case other_case : ℱ x _ _ _ begin
+        have : 𝒢₁ ≤ map f ℱ, from calc
+          𝒢₁ ≤ 𝒢₂ : (by assumption : 𝒢₁ ≤ 𝒢₂)
+          ... ≤ map f ℱ : (by assumption : 𝒢₂ ≤ map f ℱ),
+        exact coinduced_converges.other_case ℱ x
+          (by assumption : 𝒢₁ ≤ map f ℱ)
+          (by assumption : y = f x)
+          (by assumption : converges ℱ x)
+        end
+  end,
+}
+
 ---------------------------------------------------------------------------------
 ---- Limits, adherence, interior, closure, open, closed, neighborhoods
 ---------------------------------------------------------------------------------
@@ -440,15 +440,15 @@ def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_
 instance {p : X → Prop} [convergence_space X] : convergence_space (subtype p) :=
 convergence_space.induced (coe : subtype p → X)
 
---instance {r : X → X → Prop} [q : convergence_space X] : convergence_space (quot r) :=
---convergence_space.coinduced (quot.mk r) q
+instance {r : X → X → Prop} [convergence_space X] : convergence_space (quot r) :=
+convergence_space.coinduced (quot.mk r)
 
 instance [convergence_space X] [convergence_space Y] : convergence_space (X × Y) :=
 convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
 
---instance [p : convergence_space X] : convergence_space (option X) :=
---convergence_space.coinduced some p
---
+instance [convergence_space X] : convergence_space (option X) :=
+convergence_space.coinduced some
+
 ---------------------------------------------------------------------------------
 ---- The convergence space C(X,Y)
 ---------------------------------------------------------------------------------
