@@ -387,22 +387,25 @@ def convergence_space.coinduced (f : X → Y) [convergence_space X] : convergenc
   end,
 }
 
----------------------------------------------------------------------------------
----- Limits, adherence, interior, closure, open, closed, neighborhoods
----------------------------------------------------------------------------------
---
---def lim [p : convergence_space X] (ℱ : filter X) : set X := { x | p.converges ℱ x }
---def adheres [p : convergence_space X] (ℱ : filter X) (x : X) : Prop := ∃ 𝒢 ≤ ℱ, p.converges 𝒢 x
---def adh [convergence_space X] (ℱ : filter X) : set X := { x | adheres ℱ x }
---def interior [p : convergence_space X] (A : set X) : set X := { x ∈ A | ∀ ℱ, p.converges ℱ x → A ∈ ℱ }
---def is_open [p : convergence_space X] (A : set X) : Prop := A = interior A
---def cl [p : convergence_space X] (A : set X) : set X := { x | ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ A ∈ ℱ }
---def is_closed [p : convergence_space X] (A : set X) : Prop := A = cl A
---def is_dense [p : convergence_space X] (A : set X) : Prop := ∀ x, x ∈ cl A
---def is_strictly_dense [p : convergence_space X] (A : set X) : Prop :=
---∀ {x} {ℱ}, p.converges ℱ x → ∃ 𝒢, (A ∈ 𝒢) ∧ (p.converges 𝒢 x) ∧ (ℱ ≤ filter.generate (cl '' ℱ.sets))
---def nhds [p : convergence_space X] (x : X) : filter X := ⨅ ℱ ∈ {𝒢 : filter X | p.converges 𝒢 x}, ℱ
---
+-------------------------------------------------------------------------------
+-- Limits, adherence, interior, closure, open, closed, neighborhoods
+-------------------------------------------------------------------------------
+
+section
+variables [convergence_space X]
+def lim (ℱ : filter X) : set X := { x | converges ℱ x }
+def adheres (ℱ : filter X) (x : X) : Prop := ∃ 𝒢 ≤ ℱ, converges 𝒢 x
+def adh (ℱ : filter X) : set X := { x | adheres ℱ x }
+def interior (A : set X) : set X := { x ∈ A | ∀ ℱ, converges ℱ x → A ∈ ℱ }
+def is_open (A : set X) : Prop := A = interior A
+def cl (A : set X) : set X := { x | ∃ (ℱ : filter X) [ne_bot ℱ], converges ℱ x ∧ A ∈ ℱ }
+def is_closed (A : set X) : Prop := A = cl A
+def is_dense (A : set X) : Prop := ∀ x, x ∈ cl A
+def is_strictly_dense (A : set X) : Prop :=
+∀ {x : X} {ℱ : filter X}, converges ℱ x → ∃ 𝒢, (A ∈ 𝒢) ∧ (converges 𝒢 x) ∧ (ℱ ≤ filter.generate (cl '' ℱ.sets))
+def nhds (x : X) : filter X := ⨅ ℱ ∈ {𝒢 : filter X | converges 𝒢 x}, ℱ
+end
+
 ---------------------------------------------------------------------------------
 ---- Continuity
 ---------------------------------------------------------------------------------
