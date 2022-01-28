@@ -163,7 +163,7 @@ instance : setoid (G × X) := {
   iseqv := is_equivalence,
 }
 
-def quotient_map : G × X → envelope G X := λ ⟨g, x⟩, ⟦(g, x)⟧
+def quotient_map : G × X → quote (envelope G X) := λ ⟨g, x⟩, ⟦(g, x)⟧
 
 def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
 
@@ -191,6 +191,7 @@ instance
 has_continuous_smul G (quot (envelope G X)) := {
   continuous_smul := begin
     unfold continuous,
+    sorry,
   end,
 }
 
@@ -200,11 +201,11 @@ end envelope
 -- Adherence restrictive
 -------------------------------------------------------------------------------
 
-variables {G : Type*} [group G] [p : convergence_space G] [convergence_group G]
+variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
 variables {X : Type*} [convergence_space X] [partial_group_action G X] [continuous_partial_group_action G X]
 
 def adh_restrictive : Prop :=
-∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
 
 def weakly_adh_restrictive : Prop :=
-∀ {𝒢 : filter G} {ℱ : filter X}, adh (map (@envelope.pure G _ _ _) ℱ) = ∅ → ∃ g : G, p.converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+∀ {𝒢 : filter G} {ℱ : filter X}, adh (map (@envelope.pure G _ _ _) ℱ) = ∅ → ∃ g : G, converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
