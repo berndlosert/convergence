@@ -561,93 +561,93 @@ begin
   tauto,
 end
 
----------------------------------------------------------------------------------
----- Quotient maps
----------------------------------------------------------------------------------
---
---def quotient_map [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
---surjective f ∧ q = convergence_space.coinduced f p
---
---lemma quotient_map_iff [p : convergence_space X] [q : convergence_space Y] {f : X → Y} :
---quotient_map f ↔ surjective f ∧ ∀ 𝒢 y, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) := begin
---  split,
---  -- Proving → direction.
---  assume h : quotient_map f,
---  split,
---  exact h.1,
---  assume 𝒢 : filter Y,
---  assume y : Y,
---  split,
---  rw h.2,
---  assume h' : (convergence_space.coinduced f p).converges 𝒢 y,
---  cases h',
---    case pure_case begin
---      obtain ⟨x, hx⟩ := h.1 y,
---      rw ← hx at h',
---      rw ← filter.map_pure at h',
---      exact ⟨pure x, x, h', eq.symm hx, p.pure_converges x⟩,
---    end,
---    case other_case : ℱ x h₁ h₂ h₃ begin
---      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
---    end,
---  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : p.converges ℱ x⟩,
---  rw h.2,
---  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
---  -- Proving ← direction
---  intro h,
---  unfold quotient_map,
---  split,
---  exact h.1,
---  rw convergence_space_eq_iff,
---  assume 𝒢 : filter Y,
---  assume y : Y,
---  rw h.2,
---  split,
---  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : p.converges ℱ x⟩,
---  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
---  assume h' : (convergence_space.coinduced f p).converges 𝒢 y,
---  cases h',
---    case pure_case begin
---      obtain ⟨x, hx⟩ := h.1 y,
---      rw ← hx at h',
---      rw ← filter.map_pure at h',
---      exact ⟨pure x, x, h', eq.symm hx, p.pure_converges x⟩,
---    end,
---    case other_case : ℱ x h₁ h₂ h₃ begin
---      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
---    end,
--- end
---
---/-
---lemma quotient_prod_map
---{X₁ Y₁ : Type*} [p₁ : convergence_space X₁] [q₁ : convergence_space Y₁] {f₁ : X₁ → Y₁} (h₁ : quotient_map f₁)
---{X₂ Y₂ : Type*} [p₂ : convergence_space X₂] [q₂ : convergence_space Y₂] {f₂ : X₂ → Y₂} (h₂ : quotient_map f₂)
---: quotient_map (prod.map f₁ f₂) := begin
---  rw quotient_map_iff,
---  rw quotient_map_iff at h₁,
---  rw quotient_map_iff at h₂,
---  split,
---  exact surjective.prod_map h₁.1 h₂.1,
---  rintros (𝒢 : filter (Y₁ × Y₂)) (⟨y₁, y₂⟩ : Y₁ × Y₂),
---  split,
---  assume h : prod.convergence_space.converges 𝒢 (y₁, y₂),
---  let 𝒢₁ := map prod.fst 𝒢,
---  let 𝒢₂ := map prod.snd 𝒢,
---  have hy₁ : q₁.converges 𝒢₁ y₁, sorry,
---  have hy₂ : q₂.converges 𝒢₂ y₂, sorry,
---  obtain ⟨ℱ₁, x₁, le₁, eq₁, converges₁⟩ := (h₁.2 𝒢₁ y₁).mp hy₁,
---  obtain ⟨ℱ₂, x₂, le₂, eq₂, converges₂⟩ := (h₂.2 𝒢₂ y₂).mp hy₂,
---  let ℱ := ℱ₁ ×ᶠ ℱ₂,
---  let x := (x₁, x₂),
---  use ℱ,
---  use x,
---end
----/
---
----------------------------------------------------------------------------------
----- Category Conv of convergence spaces
----------------------------------------------------------------------------------
---
---universe u
---
---def Conv : Type (u+1) := bundled convergence_space
+-------------------------------------------------------------------------------
+-- Quotient maps
+-------------------------------------------------------------------------------
+
+def quotient_map [convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
+surjective f ∧ q = convergence_space.coinduced f
+
+lemma quotient_map_iff [convergence_space X] [q : convergence_space Y] {f : X → Y} :
+quotient_map f ↔ surjective f ∧ ∀ 𝒢 y, converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (converges ℱ x) := begin
+  split,
+  -- Proving → direction.
+  assume h : quotient_map f,
+  split,
+  exact h.1,
+  assume 𝒢 : filter Y,
+  assume y : Y,
+  split,
+  rw h.2,
+  assume h' : converges_ (convergence_space.coinduced f) 𝒢 y,
+  cases h',
+    case pure_case begin
+      obtain ⟨x, hx⟩ := h.1 y,
+      rw ← hx at h',
+      rw ← filter.map_pure at h',
+      exact ⟨pure x, x, h', eq.symm hx, pure_converges x⟩,
+    end,
+    case other_case : ℱ x h₁ h₂ h₃ begin
+      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
+    end,
+  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : converges ℱ x⟩,
+  rw h.2,
+  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
+  -- Proving ← direction
+  intro h,
+  unfold quotient_map,
+  split,
+  exact h.1,
+  rw convergence_space_eq_iff,
+  assume 𝒢 : filter Y,
+  assume y : Y,
+  rw h.2,
+  split,
+  rintro ⟨ℱ : filter X, x : X, h₁ : 𝒢 ≤ map f ℱ, h₂ : y = f x, h₃ : converges ℱ x⟩,
+  exact coinduced_converges.other_case ℱ x h₁ h₂ h₃,
+  assume h' : converges_ (convergence_space.coinduced f) 𝒢 y,
+  cases h',
+    case pure_case begin
+      obtain ⟨x, hx⟩ := h.1 y,
+      rw ← hx at h',
+      rw ← filter.map_pure at h',
+      exact ⟨pure x, x, h', eq.symm hx, pure_converges x⟩,
+    end,
+    case other_case : ℱ x h₁ h₂ h₃ begin
+      exact ⟨ℱ, x, h₁, h₂, h₃⟩,
+    end,
+ end
+
+/-
+lemma quotient_prod_map
+{X₁ Y₁ : Type*} [p₁ : convergence_space X₁] [q₁ : convergence_space Y₁] {f₁ : X₁ → Y₁} (h₁ : quotient_map f₁)
+{X₂ Y₂ : Type*} [p₂ : convergence_space X₂] [q₂ : convergence_space Y₂] {f₂ : X₂ → Y₂} (h₂ : quotient_map f₂)
+: quotient_map (prod.map f₁ f₂) := begin
+  rw quotient_map_iff,
+  rw quotient_map_iff at h₁,
+  rw quotient_map_iff at h₂,
+  split,
+  exact surjective.prod_map h₁.1 h₂.1,
+  rintros (𝒢 : filter (Y₁ × Y₂)) (⟨y₁, y₂⟩ : Y₁ × Y₂),
+  split,
+  assume h : prod.convergence_space.converges 𝒢 (y₁, y₂),
+  let 𝒢₁ := map prod.fst 𝒢,
+  let 𝒢₂ := map prod.snd 𝒢,
+  have hy₁ : q₁.converges 𝒢₁ y₁, sorry,
+  have hy₂ : q₂.converges 𝒢₂ y₂, sorry,
+  obtain ⟨ℱ₁, x₁, le₁, eq₁, converges₁⟩ := (h₁.2 𝒢₁ y₁).mp hy₁,
+  obtain ⟨ℱ₂, x₂, le₂, eq₂, converges₂⟩ := (h₂.2 𝒢₂ y₂).mp hy₂,
+  let ℱ := ℱ₁ ×ᶠ ℱ₂,
+  let x := (x₁, x₂),
+  use ℱ,
+  use x,
+end
+-/
+
+-------------------------------------------------------------------------------
+-- Category Conv of convergence spaces
+-------------------------------------------------------------------------------
+
+universe u
+
+def Conv : Type (u+1) := bundled convergence_space
