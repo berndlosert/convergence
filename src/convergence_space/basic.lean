@@ -405,6 +405,9 @@ inductive coinduced_converges (f : X → Y) [convergence_space X] (𝒢 : filter
 | pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
 | other_case (ℱ : filter X) (x : X) (_ : 𝒢 ≤ map f ℱ) (_ : y = f x) (_ : converges ℱ x) : coinduced_converges
 
+/-- Given `f : X → Y`, where `X` is convergence space, the coinduced convergence
+ -- structure on `Y` is the finest convergence structure making `f`
+ -- continuous. -/
 def convergence_space.coinduced (f : X → Y) [convergence_space X] : convergence_space Y := {
   converges := coinduced_converges f,
   pure_converges := λ y, coinduced_converges.pure_case (le_refl (pure y)),
@@ -431,6 +434,24 @@ def convergence_space.coinduced (f : X → Y) [convergence_space X] : convergenc
         end
   end,
 }
+
+lemma coinduced_finest (f : X → Y) [convergence_space X] [q : convergence_space Y] (hf : continuous f)
+: q ≤ convergence_space.coinduced f
+:= begin
+  unfold has_le.le,
+  assume 𝒢 : filter Y,
+  assume y : Y,
+  assume h : converges_ (convergence_space.coinduced f) 𝒢 y,
+  cases h,
+    case pure_case begin
+      exact le_converges_ q h (pure_converges_ q y),
+    end,
+    case other_case : ℱ x h₀ h₁ h₂ begin
+      have : converges_ q (map f ℱ) (f x), from hf h₂,
+      rw h₁,
+      exact le_converges_ q h₀ this,
+    end
+end
 
 -------------------------------------------------------------------------------
 -- Limits, adherence, interior, closure, open, closed, neighborhoods
