@@ -484,34 +484,34 @@ protected lemma continuous (f : C(X, Y)) : continuous f := f.continuous_to_fun
 
 end continuous_map
 
---instance [p : convergence_space X] [q : convergence_space Y] : convergence_space C(X, Y) := {
---  converges := λ ℱ f, ∀ (x : X) (𝒢 : filter X), p.converges 𝒢 x → q.converges (map continuous_map.eval (ℱ ×ᶠ 𝒢)) (f x),
---  pure_converges := begin
---    assume f : C(X, Y),
---    assume x : X,
---    assume 𝒢 : filter X,
---    assume h : p.converges 𝒢 x,
---    have h' : map continuous_map.eval (pure f ×ᶠ 𝒢) = map f 𝒢, from calc
---      map continuous_map.eval (pure f ×ᶠ 𝒢) = map continuous_map.eval (map (prod.mk f) 𝒢) : by simp [filter.pure_prod]
---      ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
---      ... = map f 𝒢 : by simp [continuous_map.eval_comp_prod],
---    rw h',
---    exact f.continuous_to_fun h
---  end,
---  le_converges := begin
---    assume ℱ 𝒢 : filter C(X, Y),
---    assume le₁ : ℱ ≤ 𝒢,
---    assume f : C(X, Y),
---    intro h, -- h : converges 𝒢 f,
---    assume x : X,
---    assume 𝒢' : filter X,
---    assume h' : p.converges 𝒢' x,
---    have le₂ : ℱ ×ᶠ 𝒢' ≤ 𝒢 ×ᶠ 𝒢', from filter.prod_mono le₁ (partial_order.le_refl 𝒢'),
---    have le₃ : map continuous_map.eval (ℱ ×ᶠ 𝒢') ≤ map continuous_map.eval (𝒢 ×ᶠ 𝒢'), from filter.map_mono le₂,
---    exact q.le_converges le₃ (h x 𝒢' h'),
---  end,
---}
---
+instance [convergence_space X] [convergence_space Y] : convergence_space C(X, Y) := {
+  converges := λ ℱ f, ∀ (x : X) (𝒢 : filter X), converges 𝒢 x → converges (map continuous_map.eval (ℱ ×ᶠ 𝒢)) (f x),
+  pure_converges := begin
+    assume f : C(X, Y),
+    assume x : X,
+    assume 𝒢 : filter X,
+    assume h : converges 𝒢 x,
+    have h' : map continuous_map.eval (pure f ×ᶠ 𝒢) = map f 𝒢, from calc
+      map continuous_map.eval (pure f ×ᶠ 𝒢) = map continuous_map.eval (map (prod.mk f) 𝒢) : by simp [filter.pure_prod]
+      ... = map (continuous_map.eval ∘ prod.mk f) 𝒢 : by simp [filter.map_map]
+      ... = map f 𝒢 : by simp [continuous_map.eval_comp_prod],
+    rw h',
+    exact f.continuous_to_fun h
+  end,
+  le_converges := begin
+    assume ℱ 𝒢 : filter C(X, Y),
+    assume le₁ : ℱ ≤ 𝒢,
+    assume f : C(X, Y),
+    intro h, -- h : converges 𝒢 f,
+    assume x : X,
+    assume 𝒢' : filter X,
+    assume h' : converges 𝒢' x,
+    have le₂ : ℱ ×ᶠ 𝒢' ≤ 𝒢 ×ᶠ 𝒢', from filter.prod_mono le₁ (partial_order.le_refl 𝒢'),
+    have le₃ : map continuous_map.eval (ℱ ×ᶠ 𝒢') ≤ map continuous_map.eval (𝒢 ×ᶠ 𝒢'), from filter.map_mono le₂,
+    exact le_converges le₃ (h x 𝒢' h'),
+  end,
+}
+
 ---------------------------------------------------------------------------------
 ---- Separation axioms
 ---------------------------------------------------------------------------------
