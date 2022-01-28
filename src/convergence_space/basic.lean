@@ -564,7 +564,7 @@ def quotient_map [p : convergence_space X] [q : convergence_space Y] (f : X → 
 surjective f ∧ q = convergence_space.coinduced f p
 
 lemma quotient_map_iff [p : convergence_space X] [q : convergence_space Y] {f : X → Y} :
-quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) := begin
+quotient_map f ↔ surjective f ∧ ∀ 𝒢 y, q.converges 𝒢 y ↔ ∃ ℱ x, (𝒢 ≤ map f ℱ) ∧ (y = f x) ∧ (p.converges ℱ x) := begin
   split,
   -- Proving → direction.
   assume h : quotient_map f,
@@ -613,11 +613,31 @@ quotient_map f ↔ surjective f ∧ ∀ {𝒢 y}, q.converges 𝒢 y ↔ ∃ ℱ
     end,
  end
 
+/-
 lemma quotient_prod_map
-[p : convergence_space X] [q : convergence_space Y] {f : X → Y} (h₁ : quotient_map f)
-{X' Y' : Type*} [p' : convergence_space X'] [q' : convergence_space Y'] {f' : X' → Y'} (h' : quotient_map f')
-: quotient_map (prod.map f f') := sorry
-
+{X₁ Y₁ : Type*} [p₁ : convergence_space X₁] [q₁ : convergence_space Y₁] {f₁ : X₁ → Y₁} (h₁ : quotient_map f₁)
+{X₂ Y₂ : Type*} [p₂ : convergence_space X₂] [q₂ : convergence_space Y₂] {f₂ : X₂ → Y₂} (h₂ : quotient_map f₂)
+: quotient_map (prod.map f₁ f₂) := begin
+  rw quotient_map_iff,
+  rw quotient_map_iff at h₁,
+  rw quotient_map_iff at h₂,
+  split,
+  exact surjective.prod_map h₁.1 h₂.1,
+  rintros (𝒢 : filter (Y₁ × Y₂)) (⟨y₁, y₂⟩ : Y₁ × Y₂),
+  split,
+  assume h : prod.convergence_space.converges 𝒢 (y₁, y₂),
+  let 𝒢₁ := map prod.fst 𝒢,
+  let 𝒢₂ := map prod.snd 𝒢,
+  have hy₁ : q₁.converges 𝒢₁ y₁, sorry,
+  have hy₂ : q₂.converges 𝒢₂ y₂, sorry,
+  obtain ⟨ℱ₁, x₁, le₁, eq₁, converges₁⟩ := (h₁.2 𝒢₁ y₁).mp hy₁,
+  obtain ⟨ℱ₂, x₂, le₂, eq₂, converges₂⟩ := (h₂.2 𝒢₂ y₂).mp hy₂,
+  let ℱ := ℱ₁ ×ᶠ ℱ₂,
+  let x := (x₁, x₂),
+  use ℱ,
+  use x,
+end
+-/
 
 -------------------------------------------------------------------------------
 -- Category Conv of convergence spaces
