@@ -78,8 +78,8 @@ def indiscrete : convergence_space X := {
 }
 
 /--
- - In a discrete convergence space, the only proper filters than converge are
- - the `pure x` ones.
+ - In a discrete convergence space, the only proper filters that converge are
+ - the `pure` ones.
  -/
 def discrete : convergence_space X := {
   converges := λ ℱ x, ℱ ≤ pure x,
