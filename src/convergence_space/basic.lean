@@ -68,19 +68,16 @@ instance : partial_order (convergence_space X) := {
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
-/--
- - In an indiscrete convergence space, every filter converges to every point.
- -/
+/-- In an indiscrete convergence space, every filter converges to every
+ -- point. -/
 def indiscrete : convergence_space X := {
   converges := λ ℱ x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
 
-/--
- - In a discrete convergence space, the only proper filters that converge are
- - the `pure` ones.
- -/
+/-- In a discrete convergence space, the only proper filters that converge are
+ -- the `pure` ones. -/
 def discrete : convergence_space X := {
   converges := λ ℱ x, ℱ ≤ pure x,
   pure_converges := by tauto,
