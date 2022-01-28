@@ -512,30 +512,30 @@ instance [convergence_space X] [convergence_space Y] : convergence_space C(X, Y)
   end,
 }
 
----------------------------------------------------------------------------------
----- Separation axioms
----------------------------------------------------------------------------------
---
---class t0_space (X : Type*) [p : convergence_space X] : Prop :=
---(t0_prop : ∀ x y, p.converges (pure x) y → p.converges (pure y) x → x = y)
---
---class r0_space (X : Type*) [p : convergence_space X] : Prop :=
---(r0_prop : ∀ x y, p.converges (pure x) y → ∀ (ℱ : filter X), p.converges ℱ x ↔ p.converges ℱ y)
---
---class t1_space (X : Type*) [p : convergence_space X] : Prop :=
---(t1_prop : ∀ x y, p.converges (pure x) y → x = y)
---
---class r1_space (X : Type*) [p : convergence_space X] : Prop :=
---(r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → ∀ (𝒢 : filter X), p.converges 𝒢 x ↔ p.converges 𝒢 y)
---
---class t2_space (X : Type*) [p : convergence_space X] : Prop :=
---(t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], p.converges ℱ x ∧ p.converges ℱ y → x = y)
---
---class r2_space (X : Type*) [p : convergence_space X] : Prop :=
---(r2_prop : ∀ x ℱ, p.converges ℱ x → p.converges (filter.generate (cl '' ℱ.sets)) x)
---
---class t3_space (X : Type*) [p : convergence_space X] extends t0_space X, r2_space X.
---
+-------------------------------------------------------------------------------
+-- Separation axioms
+-------------------------------------------------------------------------------
+
+class t0_space (X : Type*) [convergence_space X] : Prop :=
+(t0_prop : ∀ x y : X, converges (pure x) y → converges (pure y) x → x = y)
+
+class r0_space (X : Type*) [convergence_space X] : Prop :=
+(r0_prop : ∀ x y, converges (pure x) y → ∀ (ℱ : filter X), converges ℱ x ↔ converges ℱ y)
+
+class t1_space (X : Type*) [convergence_space X] : Prop :=
+(t1_prop : ∀ x y : X, converges (pure x) y → x = y)
+
+class r1_space (X : Type*) [convergence_space X] : Prop :=
+(r1_prop : ∀ x y, ∃ (ℱ : filter X) [ne_bot ℱ], converges ℱ x ∧ converges ℱ y → ∀ (𝒢 : filter X), converges 𝒢 x ↔ converges 𝒢 y)
+
+class t2_space (X : Type*) [convergence_space X] : Prop :=
+(t2_prop : ∀ x y, ∀ (ℱ : filter X) [ne_bot ℱ], converges ℱ x ∧ converges ℱ y → x = y)
+
+class r2_space (X : Type*) [convergence_space X] : Prop :=
+(r2_prop : ∀ (x : X) (ℱ : filter X), converges ℱ x → converges (filter.generate (cl '' ℱ.sets)) x)
+
+class t3_space (X : Type*) [convergence_space X] extends t0_space X, r2_space X.
+
 ---------------------------------------------------------------------------------
 ---- Compact sets/spaces
 ---------------------------------------------------------------------------------
