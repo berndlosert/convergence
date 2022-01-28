@@ -406,24 +406,24 @@ def is_strictly_dense (A : set X) : Prop :=
 def nhds (x : X) : filter X := ⨅ ℱ ∈ {𝒢 : filter X | converges 𝒢 x}, ℱ
 end
 
----------------------------------------------------------------------------------
----- Continuity
----------------------------------------------------------------------------------
---
---def continuous [p : convergence_space X] [q : convergence_space Y] (f : X → Y) : Prop :=
---∀ ⦃x ℱ⦄, p.converges ℱ x → q.converges (map f ℱ) (f x)
---
---lemma continuous.comp
---[p : convergence_space X] [q : convergence_space Y] [r : convergence_space Z] {g : Y → Z} {f : X → Y}
---(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
---  assume x : X,
---  assume ℱ : filter X,
---  assume : p.converges ℱ x,
---  have : q.converges (map f ℱ) (f x), from hf this,
---  have : r.converges (map g (map f ℱ)) (g (f x)), from hg this,
---  convert this,
---end
---
+-------------------------------------------------------------------------------
+-- Continuity
+-------------------------------------------------------------------------------
+
+def continuous [convergence_space X] [convergence_space Y] (f : X → Y) : Prop :=
+∀ ⦃x ℱ⦄, converges ℱ x → converges (map f ℱ) (f x)
+
+lemma continuous.comp
+[convergence_space X] [convergence_space Y] [convergence_space Z] {g : Y → Z} {f : X → Y}
+(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  have : converges (map f ℱ) (f x), from hf this,
+  have : converges (map g (map f ℱ)) (g (f x)), from hg this,
+  convert this,
+end
+
 --lemma continuous_id [p : convergence_space X] : continuous (id : X → X) := begin
 --  assume x : X,
 --  assume ℱ : filter X,
