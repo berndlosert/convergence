@@ -188,65 +188,65 @@ instance : has_Inf (convergence_space X) := {
   }
 }
 
----------------------------------------------------------------------------------
----- Lattice of convergence spaces
----------------------------------------------------------------------------------
---
---instance : semilattice_sup (convergence_space X) := {
---  le_sup_left := begin
---    assume p q : convergence_space X,
---    assume ℱ : filter X,
---    assume x : X,
---    assume h : (p ⊔ q).converges ℱ x,
---    exact h.left,
---  end,
---  le_sup_right := begin
---    assume p q : convergence_space X,
---    assume l : filter X,
---    assume x : X,
---    assume h : (p ⊔ q).converges l x,
---    exact h.right,
---  end,
---  sup_le := begin
---    assume p q r : convergence_space X,
---    assume le₁ : p ≤ r,
---    assume le₂ : q ≤ r,
---    assume ℱ : filter X,
---    assume x : X,
---    assume hr : r.converges ℱ x,
---    have hp : p.converges ℱ x, from le₁ hr,
---    have hq : q.converges ℱ x, from le₂ hr,
---    exact and.intro hp hq
---  end,
---  ..convergence_space.partial_order,
---  ..convergence_space.has_sup,
---}
---
---instance : complete_semilattice_Sup (convergence_space X) := {
---  le_Sup := begin
---    assume ps : set (convergence_space X),
---    assume p : convergence_space X,
---    assume h : p ∈ ps,
---    assume ℱ : filter X,
---    assume x : X,
---    assume h' : (Sup ps).converges ℱ x,
---    exact h' h,
---  end,
---  Sup_le := begin
---    assume ps : set (convergence_space X),
---    assume q : convergence_space X,
---    assume f : ∀ p : convergence_space X, p ∈ ps → p ≤ q,
---    assume ℱ : filter X,
---    assume x : X,
---    assume h : q.converges ℱ x,
---    assume p : convergence_space X,
---    assume h' : p ∈ ps,
---    exact (f p h') h,
---  end,
---  ..convergence_space.partial_order,
---  ..convergence_space.has_Sup,
---}
---
+-------------------------------------------------------------------------------
+-- Lattice of convergence spaces
+-------------------------------------------------------------------------------
+
+instance : semilattice_sup (convergence_space X) := {
+  le_sup_left := begin
+    assume p q : convergence_space X,
+    assume ℱ : filter X,
+    assume x : X,
+    assume h : converges_ (p ⊔ q) ℱ x,
+    exact h.left,
+  end,
+  le_sup_right := begin
+    assume p q : convergence_space X,
+    assume l : filter X,
+    assume x : X,
+    assume h : converges_ (p ⊔ q) l x,
+    exact h.right,
+  end,
+  sup_le := begin
+    assume p q r : convergence_space X,
+    assume le₁ : p ≤ r,
+    assume le₂ : q ≤ r,
+    assume ℱ : filter X,
+    assume x : X,
+    assume hr : converges_ r ℱ x,
+    have hp : converges_ p ℱ x, from le₁ hr,
+    have hq : converges_ q ℱ x, from le₂ hr,
+    exact and.intro hp hq
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_sup,
+}
+
+instance : complete_semilattice_Sup (convergence_space X) := {
+  le_Sup := begin
+    assume ps : set (convergence_space X),
+    assume p : convergence_space X,
+    assume h : p ∈ ps,
+    assume ℱ : filter X,
+    assume x : X,
+    assume h' : converges_ (Sup ps) ℱ x,
+    exact h' h,
+  end,
+  Sup_le := begin
+    assume ps : set (convergence_space X),
+    assume q : convergence_space X,
+    assume f : ∀ p : convergence_space X, p ∈ ps → p ≤ q,
+    assume ℱ : filter X,
+    assume x : X,
+    assume h : converges_ q ℱ x,
+    assume p : convergence_space X,
+    assume h' : p ∈ ps,
+    exact (f p h') h,
+  end,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_Sup,
+}
+
 --instance : semilattice_inf (convergence_space X) := {
 --  inf_le_left := begin
 --    assume p q : convergence_space X,
