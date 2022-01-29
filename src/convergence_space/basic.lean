@@ -391,7 +391,7 @@ def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_
   end,
 }
 
-lemma induced_coarsest (f : X → Y) [p : convergence_space X] [convergence_space Y] (hf : continuous f)
+lemma continuous.induced_le (f : X → Y) [p : convergence_space X] [convergence_space Y] (hf : continuous f)
 : convergence_space.induced f ≤ p
 := begin
   unfold has_le.le,
@@ -435,7 +435,7 @@ def convergence_space.coinduced (f : X → Y) [convergence_space X] : convergenc
   end,
 }
 
-lemma coinduced_finest (f : X → Y) [convergence_space X] [q : convergence_space Y] (hf : continuous f)
+lemma continuous.le_coinduced (f : X → Y) [convergence_space X] [q : convergence_space Y] (hf : continuous f)
 : q ≤ convergence_space.coinduced f
 := begin
   unfold has_le.le,
@@ -484,6 +484,19 @@ convergence_space.coinduced (quot.mk r)
 
 instance [convergence_space X] [convergence_space Y] : convergence_space (X × Y) :=
 convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
+
+/-
+lemma prod_fst_continuous [convergence_space X] [convergence_space Y]
+: continuous (prod.fst : X × Y → X)
+:= begin
+  unfold continuous,
+  assume p : X × Y,
+  assume ℱ : filter (X × Y),
+  assume h : converges ℱ p,
+  have : converges_ (convergence_space.induced prod.fst) ℱ p.fst, from
+  --have : converges_ (convergence_space.induced prod.fst)
+end
+-/
 
 instance [convergence_space X] : convergence_space (option X) :=
 convergence_space.coinduced some
