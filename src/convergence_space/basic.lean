@@ -314,28 +314,28 @@ instance : lattice (convergence_space X) := {
   ..convergence_space.semilattice_inf,
 }
 
---instance : complete_lattice (convergence_space X) := {
---  le_top := begin
---    assume p : convergence_space X,
---    assume ℱ : filter X,
---    assume x : X,
---    assume h : converges_ discrete ℱ x,
---    exact le_converges_ p h (pure_converges_ p x),
---  end,
---  bot_le := begin
---    assume p : convergence_space X,
---    assume ℱ : filter X,
---    assume x : X,
---    assume h : converges_ p ℱ x,
---    tauto,
---  end,
---  ..convergence_space.lattice,
---  ..convergence_space.complete_semilattice_Sup,
---  ..convergence_space.complete_semilattice_Inf,
---  ..convergence_space.has_top,
---  ..convergence_space.has_bot,
---}
---
+instance : complete_lattice (convergence_space X) := {
+  bot_le := begin
+    assume p : convergence_space X,
+    assume ℱ : filter X,
+    assume x : X,
+    assume h : converges_ discrete ℱ x,
+    exact le_converges_ p h (pure_converges_ p x),
+  end,
+  le_top := begin
+    assume p : convergence_space X,
+    assume ℱ : filter X,
+    assume x : X,
+    assume h : converges_ p ℱ x,
+    tauto,
+  end,
+  ..convergence_space.lattice,
+  ..convergence_space.complete_semilattice_Sup,
+  ..convergence_space.complete_semilattice_Inf,
+  ..convergence_space.has_top,
+  ..convergence_space.has_bot,
+}
+
 ---------------------------------------------------------------------------------
 ---- Continuity
 ---------------------------------------------------------------------------------
