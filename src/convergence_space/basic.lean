@@ -308,12 +308,12 @@ instance : complete_semilattice_Inf (convergence_space X) := {
   ..convergence_space.partial_order,
   ..convergence_space.has_Inf,
 }
---
---instance : lattice (convergence_space X) := {
---  ..convergence_space.semilattice_sup,
---  ..convergence_space.semilattice_inf,
---}
---
+
+instance : lattice (convergence_space X) := {
+  ..convergence_space.semilattice_sup,
+  ..convergence_space.semilattice_inf,
+}
+
 --instance : complete_lattice (convergence_space X) := {
 --  le_top := begin
 --    assume p : convergence_space X,
