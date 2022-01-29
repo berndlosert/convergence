@@ -354,48 +354,48 @@ lemma continuous.comp
   convert this,
 end
 
---lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
---  assume x : X,
---  assume ℱ : filter X,
---  assume : converges ℱ x,
---  simp [filter.map_id],
---  exact this,
---end
---
---structure homeomorph (X Y : Type*) [convergence_space X] [convergence_space Y] extends X ≃ Y :=
---(continuous_to_fun : continuous to_fun)
---(continuous_inv_fun : continuous inv_fun)
---
----------------------------------------------------------------------------------
----- Induced/coinduced convergence space
----------------------------------------------------------------------------------
---
---/-- Given `f : X → Y`, where `Y` is convergence space, the induced convergence
--- -- structure on `X` is the coarsest convergence structure making `f`
--- -- continuous. -/
---def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_space X := {
---  converges := λ ℱ x, converges (map f ℱ) (f x),
---  pure_converges := by simp [filter.map_pure, pure_converges],
---  le_converges := begin
---    assume ℱ 𝒢 : filter X,
---    assume le₁ : ℱ ≤ 𝒢,
---    assume x : X,
---    assume h : converges (map f 𝒢) (f x),
---    have le₂ : map f ℱ ≤ map f 𝒢, apply map_mono le₁,
---    apply le_converges le₂ h
---  end,
---}
---
---lemma continuous.induced_le (f : X → Y) [p : convergence_space X] [convergence_space Y] (hf : continuous f)
---: convergence_space.induced f ≤ p
---:= begin
---  unfold has_le.le,
---  assume ℱ : filter X,
---  assume x : X,
---  assume h : converges_ p ℱ x,
---  exact hf h,
---end
---
+lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  simp [filter.map_id],
+  exact this,
+end
+
+structure homeomorph (X Y : Type*) [convergence_space X] [convergence_space Y] extends X ≃ Y :=
+(continuous_to_fun : continuous to_fun)
+(continuous_inv_fun : continuous inv_fun)
+
+-------------------------------------------------------------------------------
+-- Induced/coinduced convergence space
+-------------------------------------------------------------------------------
+
+/-- Given `f : X → Y`, where `Y` is convergence space, the induced convergence
+ -- structure on `X` is the coarsest convergence structure making `f`
+ -- continuous. -/
+def convergence_space.induced (f : X → Y) [convergence_space Y] : convergence_space X := {
+  converges := λ ℱ x, converges (map f ℱ) (f x),
+  pure_converges := by simp [filter.map_pure, pure_converges],
+  le_converges := begin
+    assume ℱ 𝒢 : filter X,
+    assume le₁ : ℱ ≤ 𝒢,
+    assume x : X,
+    assume h : converges (map f 𝒢) (f x),
+    have le₂ : map f ℱ ≤ map f 𝒢, apply map_mono le₁,
+    apply le_converges le₂ h
+  end,
+}
+
+lemma continuous.induced_le (f : X → Y) [p : convergence_space X] [convergence_space Y] (hf : continuous f)
+: p ≤ convergence_space.induced f
+:= begin
+  unfold has_le.le,
+  assume ℱ : filter X,
+  assume x : X,
+  assume h : converges_ p ℱ x,
+  exact hf h,
+end
+
 --inductive coinduced_converges (f : X → Y) [convergence_space X] (𝒢 : filter Y) (y : Y) : Prop
 --| pure_case (_ : 𝒢 ≤ pure y) : coinduced_converges
 --| other_case (ℱ : filter X) (x : X) (_ : 𝒢 ≤ map f ℱ) (_ : y = f x) (_ : converges ℱ x) : coinduced_converges
