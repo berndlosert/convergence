@@ -336,24 +336,24 @@ instance : complete_lattice (convergence_space X) := {
   ..convergence_space.has_bot,
 }
 
----------------------------------------------------------------------------------
----- Continuity
----------------------------------------------------------------------------------
---
---def continuous [convergence_space X] [convergence_space Y] (f : X → Y) : Prop :=
---∀ ⦃x ℱ⦄, converges ℱ x → converges (map f ℱ) (f x)
---
---lemma continuous.comp
---[convergence_space X] [convergence_space Y] [convergence_space Z] {g : Y → Z} {f : X → Y}
---(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
---  assume x : X,
---  assume ℱ : filter X,
---  assume : converges ℱ x,
---  have : converges (map f ℱ) (f x), from hf this,
---  have : converges (map g (map f ℱ)) (g (f x)), from hg this,
---  convert this,
---end
---
+-------------------------------------------------------------------------------
+-- Continuity
+-------------------------------------------------------------------------------
+
+def continuous [convergence_space X] [convergence_space Y] (f : X → Y) : Prop :=
+∀ ⦃x ℱ⦄, converges ℱ x → converges (map f ℱ) (f x)
+
+lemma continuous.comp
+[convergence_space X] [convergence_space Y] [convergence_space Z] {g : Y → Z} {f : X → Y}
+(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
+  assume x : X,
+  assume ℱ : filter X,
+  assume : converges ℱ x,
+  have : converges (map f ℱ) (f x), from hf this,
+  have : converges (map g (map f ℱ)) (g (f x)), from hg this,
+  convert this,
+end
+
 --lemma continuous_id [convergence_space X] : continuous (id : X → X) := begin
 --  assume x : X,
 --  assume ℱ : filter X,
