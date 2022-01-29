@@ -98,95 +98,95 @@ instance : has_bot (convergence_space X) := {
   bot := discrete
 }
 
----------------------------------------------------------------------------------
----- Supremum and infimum of convergence spaces
----------------------------------------------------------------------------------
---
---instance : has_sup (convergence_space X) := {
---  sup := λ p q, {
---    converges := fun ℱ x, and (converges_ p ℱ x) (converges_ q ℱ x),
---    pure_converges := begin
---      assume x : X,
---      exact and.intro (pure_converges_ p x) (pure_converges_ q x),
---    end,
---    le_converges := begin
---      assume ℱ 𝒢 : filter X,
---      assume h : ℱ ≤ 𝒢,
---      assume x : X,
---      assume h' : and (converges_ p 𝒢 x) (converges_ q 𝒢 x),
---      exact and.intro (le_converges_ p h h'.left) (le_converges_ q h h'.right)
---    end,
---  }
---}
---
---instance : has_Sup (convergence_space X) := {
---  Sup := λ ps, {
---    converges := λ ℱ x, ∀ {p : convergence_space X}, p ∈ ps → converges_ p ℱ x,
---    pure_converges := begin
---      assume x : X,
---      assume p : convergence_space X,
---      assume : p ∈ ps,
---      exact pure_converges_ p x,
---    end,
---    le_converges := begin
---      assume ℱ 𝒢 : filter X,
---      assume h : ℱ ≤ 𝒢,
---      assume x : X,
---      assume f : ∀ {p : convergence_space X}, p ∈ ps → converges_ p 𝒢 x,
---      assume p : convergence_space X,
---      assume h' : p ∈ ps,
---      exact le_converges_ p h (f h')
---    end,
---  }
---}
---
---instance : has_inf (convergence_space X) := {
---  inf := λ p q, {
---    converges := λ ℱ x, or (converges_ p ℱ x) (converges_ q ℱ x),
---    pure_converges := begin
---      assume x : X,
---      exact or.inl (pure_converges_ p x),
---    end,
---    le_converges := begin
---      assume ℱ 𝒢 : filter X,
---      assume h : ℱ ≤ 𝒢,
---      assume x : X,
---      assume h' : or (converges_ p 𝒢 x) (converges_ q 𝒢 x),
---      exact or.elim h'
---        (assume hl, or.inl (le_converges_ p h hl))
---        (assume hr, or.inr (le_converges_ q h hr))
---    end,
---  }
---}
---
---instance : has_Inf (convergence_space X) := {
---  Inf := λ ps, {
---    converges := λ ℱ x, or
---      (ℱ ≤ pure x)
---      (∃ p : convergence_space X, p ∈ ps ∧ converges_ p ℱ x),
---    pure_converges := by tauto,
---    le_converges := begin
---      assume ℱ 𝒢 : filter X,
---      assume le₁ : ℱ ≤ 𝒢,
---      assume x : X,
---      assume h : or
---        (𝒢 ≤ pure x)
---        (∃ p : convergence_space X, p ∈ ps ∧ converges_ p 𝒢 x),
---      cases h,
---        case or.inl : le₂ begin
---          exact or.inl (le_trans le₁ le₂)
---        end,
---        case or.inr : ex begin
---          exact exists.elim ex begin
---            assume p : convergence_space X,
---            assume h' : p ∈ ps ∧ converges_ p 𝒢 x,
---            exact or.inr (exists.intro p (and.intro h'.left (le_converges_ p le₁ h'.right)))
---          end,
---        end,
---    end,
---  }
---}
---
+-------------------------------------------------------------------------------
+-- Infimum and supremum of convergence spaces
+-------------------------------------------------------------------------------
+
+instance : has_inf (convergence_space X) := {
+  inf := λ p q, {
+    converges := fun ℱ x, and (converges_ p ℱ x) (converges_ q ℱ x),
+    pure_converges := begin
+      assume x : X,
+      exact and.intro (pure_converges_ p x) (pure_converges_ q x),
+    end,
+    le_converges := begin
+      assume ℱ 𝒢 : filter X,
+      assume h : ℱ ≤ 𝒢,
+      assume x : X,
+      assume h' : and (converges_ p 𝒢 x) (converges_ q 𝒢 x),
+      exact and.intro (le_converges_ p h h'.left) (le_converges_ q h h'.right)
+    end,
+  }
+}
+
+instance : has_Inf (convergence_space X) := {
+  Inf := λ ps, {
+    converges := λ ℱ x, ∀ {p : convergence_space X}, p ∈ ps → converges_ p ℱ x,
+    pure_converges := begin
+      assume x : X,
+      assume p : convergence_space X,
+      assume : p ∈ ps,
+      exact pure_converges_ p x,
+    end,
+    le_converges := begin
+      assume ℱ 𝒢 : filter X,
+      assume h : ℱ ≤ 𝒢,
+      assume x : X,
+      assume f : ∀ {p : convergence_space X}, p ∈ ps → converges_ p 𝒢 x,
+      assume p : convergence_space X,
+      assume h' : p ∈ ps,
+      exact le_converges_ p h (f h')
+    end,
+  }
+}
+
+instance : has_sup (convergence_space X) := {
+  sup := λ p q, {
+    converges := λ ℱ x, or (converges_ p ℱ x) (converges_ q ℱ x),
+    pure_converges := begin
+      assume x : X,
+      exact or.inl (pure_converges_ p x),
+    end,
+    le_converges := begin
+      assume ℱ 𝒢 : filter X,
+      assume h : ℱ ≤ 𝒢,
+      assume x : X,
+      assume h' : or (converges_ p 𝒢 x) (converges_ q 𝒢 x),
+      exact or.elim h'
+        (assume hl, or.inl (le_converges_ p h hl))
+        (assume hr, or.inr (le_converges_ q h hr))
+    end,
+  }
+}
+
+instance : has_Sup (convergence_space X) := {
+  Sup := λ ps, {
+    converges := λ ℱ x, or
+      (ℱ ≤ pure x)
+      (∃ p : convergence_space X, p ∈ ps ∧ converges_ p ℱ x),
+    pure_converges := by tauto,
+    le_converges := begin
+      assume ℱ 𝒢 : filter X,
+      assume le₁ : ℱ ≤ 𝒢,
+      assume x : X,
+      assume h : or
+        (𝒢 ≤ pure x)
+        (∃ p : convergence_space X, p ∈ ps ∧ converges_ p 𝒢 x),
+      cases h,
+        case or.inl : le₂ begin
+          exact or.inl (le_trans le₁ le₂)
+        end,
+        case or.inr : ex begin
+          exact exists.elim ex begin
+            assume p : convergence_space X,
+            assume h' : p ∈ ps ∧ converges_ p 𝒢 x,
+            exact or.inr (exists.intro p (and.intro h'.left (le_converges_ p le₁ h'.right)))
+          end,
+        end,
+    end,
+  }
+}
+
 ---------------------------------------------------------------------------------
 ---- Lattice of convergence spaces
 ---------------------------------------------------------------------------------
