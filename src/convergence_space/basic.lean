@@ -303,32 +303,32 @@ instance : complete_semilattice_Inf (convergence_space α) :=
   ..convergence_space.partial_order,
   ..convergence_space.has_Inf }
 
-instance : lattice (convergence_space α) := {
-  ..convergence_space.semilattice_sup,
-  ..convergence_space.semilattice_inf,
-}
+instance : lattice (convergence_space α) :=
+{ ..convergence_space.semilattice_sup,
+  ..convergence_space.semilattice_inf }
 
-instance : complete_lattice (convergence_space α) := {
-  bot_le := begin
+instance : complete_lattice (convergence_space α) :=
+{ bot_le :=
+  begin
     assume p : convergence_space α,
-    assume l : filter α,
+    assume f : filter α,
     assume x : α,
-    assume h : converges_ discrete l x,
-    exact le_converges_ p h (pure_converges_ p x),
+    assume : converges_ discrete f x,
+    exact le_converges_ p this (pure_converges_ p x),
   end,
-  le_top := begin
-    assume p : convergence_space α,
-    assume l : filter α,
-    assume x : α,
-    assume h : converges_ p l x,
-    tauto,
-  end,
+  le_top := by intros; tauto,
+  --begin
+  --  assume p : convergence_space α,
+  --  assume l : filter α,
+  --  assume x : α,
+  --  assume h : converges_ p l x,
+  --  tauto,
+  --end,
   ..convergence_space.lattice,
   ..convergence_space.complete_semilattice_Sup,
   ..convergence_space.complete_semilattice_Inf,
   ..convergence_space.has_top,
-  ..convergence_space.has_bot,
-}
+  ..convergence_space.has_bot }
 
 -------------------------------------------------------------------------------
 -- Continuity
