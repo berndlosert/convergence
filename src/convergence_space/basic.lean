@@ -53,19 +53,19 @@ instance : partial_order (convergence_space α) := {
   end,
   le_trans := begin
     assume p q r : convergence_space α,
-    assume le₁ : p ≤ q,
-    assume le₂ : q ≤ r,
+    assume h₁ : p ≤ q,
+    assume h₂ : q ≤ r,
     assume l : filter α,
     assume x : α,
     assume h : converges_ p l x,
-    exact (le₂ (le₁ h))
+    exact (h₂ (h₁ h))
   end,
   le_antisymm := begin
     assume p q : convergence_space α,
-    assume le₁ : p ≤ q,
-    assume le₂ : q ≤ p,
+    assume h₁ : p ≤ q,
+    assume h₂ : q ≤ p,
     ext l x,
-    exact iff.intro le₁ le₂,
+    exact iff.intro h₁ h₂,
   end,
   ..convergence_space.has_le
 }
