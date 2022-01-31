@@ -221,28 +221,28 @@ instance : complete_semilattice_Sup (convergence_space α) := {
   le_Sup := begin
     assume ps : set (convergence_space α),
     assume p : convergence_space α,
-    assume h : p ∈ ps,
-    assume l : filter α,
+    assume hmem : p ∈ ps,
+    assume f : filter α,
     assume x : α,
-    assume h' : converges_ p l x,
-    exact or.inr (exists.intro p (and.intro h h')),
+    assume : converges_ p f x,
+    exact or.inr (exists.intro p (and.intro hmem this)),
   end,
   Sup_le := begin
     assume qs : set (convergence_space α),
     assume p : convergence_space α,
-    assume f : ∀ q ∈ qs, q ≤ p,
-    assume l : filter α,
+    assume hle : ∀ q ∈ qs, q ≤ p,
+    assume f : filter α,
     assume x : α,
-    assume h : converges_ (Sup qs) l x,
-    cases h,
-      case or.inl : le₁ begin
-        exact le_converges_ p le₁ (pure_converges_ p x)
+    assume : converges_ (Sup qs) f x,
+    cases this,
+      case or.inl : hle' begin
+        exact le_converges_ p hle' (pure_converges_ p x)
       end,
-      case or.inr : ea begin
-        exact exists.elim ea begin
+      case or.inr : hconv begin
+        exact exists.elim hconv begin
           assume q : convergence_space α,
-          assume h' : q ∈ qs ∧ converges_ q l x,
-          exact (f q h'.left) h'.right
+          assume hconv' : q ∈ qs ∧ converges_ q f x,
+          exact (hle q hconv'.left) hconv'.right
         end,
       end,
   end,
