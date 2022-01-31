@@ -6,7 +6,7 @@ import category_theory.concrete_category.bundled
 import deprecated.group
 
 noncomputable theory
-open set filter classical option function open category_theory
+open set filter classical option function open category_theory open convergence_space
 open_locale classical filter
 
 -- For multiple inheritance used by cont_monoid_hom
@@ -163,7 +163,7 @@ instance : setoid (G × α) := {
   iseqv := is_equivalence,
 }
 
-def quotient_map : G × α → quote (envelope G α) := λ ⟨g, x⟩, ⟦(g, x)⟧
+def quotient_map : G × α → quot (envelope G α) := λ ⟨a, x⟩, ⟦(a, x)⟧
 
 def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
