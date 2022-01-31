@@ -21,8 +21,8 @@ universe u
 class has_continuous_mul (α : Type*) [convergence_space α] [has_mul α] : Prop :=
 (continuous_mul : continuous (uncurry (*) : α × α → α))
 
-class has_continuous_smul (S α : Type*) [has_scalar S α] [convergence_space S] [convergence_space α] : Prop :=
-(continuous_smul : continuous (uncurry (•) : S × α → α))
+class has_continuous_smul (M α : Type*) [has_scalar M α] [convergence_space M] [convergence_space α] : Prop :=
+(continuous_smul : continuous (uncurry (•) : M × α → α))
 
 class convergence_group (G : Type*) [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
@@ -73,9 +73,9 @@ instance : category ConvGroup := {
 
 class partial_group_action (G α : Type*) [group G] :=
 (act : G → α → option α)
-(identity : ∀ {a}, act 1 a = option.some a)
-(compatibility : ∀ {h} {a}, is_some (act h a) → ∀ g, act (g * h) a = act h a >>= act g)
-(injective : ∀ {g} {x}, is_some (act g x) → ∀ y, act g x = act g y → x = y)
+(identity : ∀ {x}, act 1 x = option.some x)
+(compatibility : ∀ {b} {x}, is_some (act b x) → ∀ a, act (a * b) x = act b x >>= act a)
+(injective : ∀ {a} {x}, is_some (act a x) → ∀ y, act a x = act a y → x = y)
 
 open partial_group_action
 
@@ -102,14 +102,14 @@ structure ContPartAct extends PartAct :=
 [group_is_convergence_space : convergence_space G]
 [group_is_convergence_group : convergence_group G]
 [set_is_convergence_space : convergence_space α]
-(action_is_continuous :  continuous (λ p : G × α, act p.1 p.2))
+(action_is_continuous : continuous (λ p : G × α, act p.1 p.2))
 
 -------------------------------------------------------------------------------
 -- Enveloping action
 -------------------------------------------------------------------------------
 
 def envelope (G α : Type*) [group G] [partial_group_action G α] : G × α → G × α → Prop :=
- λ ⟨g, x⟩ ⟨h, y⟩, act (h⁻¹ * g) x = some y
+ λ ⟨a, x⟩ ⟨b, y⟩, act (b⁻¹ * a) x = some y
 
 namespace envelope
 
@@ -118,7 +118,7 @@ variables {G α : Type*} [group G] [partial_group_action G α]
 theorem is_reflexive : reflexive (envelope G α) := begin
   intros,
   unfold reflexive,
-  rintro (⟨g, x⟩ : G × α),
+  rintro (⟨a, x⟩ : G × α),
   unfold envelope,
   simp [identity],
 end
@@ -126,14 +126,14 @@ end
 theorem is_symmetric : symmetric (envelope G α) := begin
   intros,
   unfold symmetric,
-  rintro ⟨g, x⟩ ⟨h, y⟩ : G × α,
+  rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
   unfold envelope,
   intro heq,
-  have heq' : is_some (act (h⁻¹ * g) x), simp [heq],
-  show act (g⁻¹ * h) y = some x, from calc
-    act (g⁻¹ * h) y = some y >>= act (g⁻¹ * h) : by simp [is_lawful_monad.pure_bind]
-    ... = act (h⁻¹ * g) x >>= act (g⁻¹ * h) : by rw ←heq
-    ... = act ((g⁻¹ * h) * (h⁻¹ * g)) x : by rw ←(compatibility heq')
+  have heq' : is_some (act (b⁻¹ * a) x), simp [heq],
+  show act (a⁻¹ * b) y = some x, from calc
+    act (a⁻¹ * b) y = some y >>= act (a⁻¹ * b) : by simp [is_lawful_monad.pure_bind]
+    ... = act (b⁻¹ * a) x >>= act (a⁻¹ * b) : by rw ← heq
+    ... = act ((a⁻¹ * b) * (b⁻¹ * a)) x : by rw ← (compatibility heq')
     ... = act (1 : G) x : by simp [mul_assoc]
     ... = some x : by exact identity
 end
