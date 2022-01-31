@@ -141,18 +141,18 @@ end
 theorem is_transitive : transitive (envelope G α) := begin
   intros,
   unfold transitive,
-  rintro ⟨g, x⟩ ⟨h, y⟩ ⟨k, z⟩ : G × α,
+  rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
   unfold envelope,
-  assume heq₁ : act (h⁻¹ * g) x = some y,
-  assume heq₂ : act (k⁻¹ * h) y = some z,
-  have hsome₁ : is_some (act (h⁻¹ * g) x), simp *,
-  have hsome₂ : is_some (act (k⁻¹ * h) y), simp *,
-  show act (k⁻¹ * g) x = some z, from calc
-    act (k⁻¹ * g) x = act (k⁻¹ * 1 * g) x : by simp
-    ... = act (k⁻¹ * h * h⁻¹ * g) x : by simp
-    ... = act (h⁻¹ * g) x >>= act (k⁻¹ * h) : by rw [mul_assoc, ←(compatibility hsome₁)]
-    ... = some y >>= act (k⁻¹ * h) : by rw heq₁
-    ... = act (k⁻¹ * h) y : by simp [is_lawful_monad.pure_bind]
+  assume heq₁ : act (b⁻¹ * a) x = some y,
+  assume heq₂ : act (c⁻¹ * b) y = some z,
+  have hsome₁ : is_some (act (b⁻¹ * a) x), simp *,
+  have hsome₂ : is_some (act (c⁻¹ * b) y), simp *,
+  show act (c⁻¹ * a) x = some z, from calc
+    act (c⁻¹ * a) x = act (c⁻¹ * 1 * a) x : by simp
+    ... = act (c⁻¹ * b * b⁻¹ * a) x : by simp
+    ... = act (b⁻¹ * a) x >>= act (c⁻¹ * b) : by rw [mul_assoc, ←(compatibility hsome₁)]
+    ... = some y >>= act (c⁻¹ * b) : by rw heq₁
+    ... = act (c⁻¹ * b) y : by simp [is_lawful_monad.pure_bind]
     ... = some z : by rw heq₂
 end
 
@@ -168,10 +168,10 @@ def quotient_map : G × α → quote (envelope G α) := λ ⟨g, x⟩, ⟦(g, x)
 def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
 def act : G → G × α → quot (envelope G α) :=
-λ g ⟨h, y⟩, ⟦(g * h, y)⟧
+λ a ⟨b, x⟩, ⟦(a * b, x)⟧
 
-theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × α) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := begin
-  rintros (g : G) (⟨h₁,y₁⟩ : G × α) (⟨h₂,y₂⟩ : G × α) h,
+theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
+  rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
   unfold act,
   simp [quotient.eq],
   unfold has_equiv.equiv,
