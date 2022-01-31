@@ -76,13 +76,13 @@ instance : partial_order (convergence_space α) := {
 -------------------------------------------------------------------------------
 
 /-- The indiscrete convergence structure is the one where everb filter
- -- converges to everb point. -/
+  converges to everb point. -/
 def indiscrete : convergence_space α := ⟨λ f x, true, by tauto, by tauto⟩
 
 instance : has_top (convergence_space α) := ⟨indiscrete⟩
 
 /-- The discrete convergence structure is the one where the onlb proper filters
- -- that converge are the `pure` ones. -/
+  that converge are the `pure` ones. -/
 def discrete : convergence_space α := ⟨λ f x, f ≤ pure x, by tauto, by tauto⟩
 
 instance : has_bot (convergence_space α) := ⟨discrete⟩
@@ -277,30 +277,31 @@ instance : semilattice_inf (convergence_space α) :=
   ..convergence_space.partial_order,
   ..convergence_space.has_inf }
 
-instance : complete_semilattice_Inf (convergence_space α) := {
-  Inf_le := begin
+instance : complete_semilattice_Inf (convergence_space α) :=
+{ Inf_le :=
+  begin
     assume ps : set (convergence_space α),
     assume p : convergence_space α,
-    assume h : p ∈ ps,
-    assume l : filter α,
+    assume hmem : p ∈ ps,
+    assume f : filter α,
     assume x : α,
-    assume h' : converges_ (Inf ps) l x,
-    exact h' h,
+    assume : converges_ (Inf ps) f x,
+    exact this hmem,
   end,
-  le_Inf := begin
+  le_Inf :=
+  begin
     assume ps : set (convergence_space α),
     assume q : convergence_space α,
-    assume h : ∀ p : convergence_space α, p ∈ ps → q ≤ p,
-    assume l : filter α,
+    assume hle : ∀ p : convergence_space α, p ∈ ps → q ≤ p,
+    assume f : filter α,
     assume x : α,
-    assume hq : converges_ q l x,
+    assume hconv : converges_ q f x,
     assume p : convergence_space α,
-    assume hp : p ∈ ps,
-    exact (h p hp) hq,
+    assume hmem : p ∈ ps,
+    exact (hle p hmem) hconv,
   end,
   ..convergence_space.partial_order,
-  ..convergence_space.has_Inf,
-}
+  ..convergence_space.has_Inf }
 
 instance : lattice (convergence_space α) := {
   ..convergence_space.semilattice_sup,
