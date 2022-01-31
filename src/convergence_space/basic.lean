@@ -121,18 +121,18 @@ instance : has_inf (convergence_space α) := {
 
 instance : has_Inf (convergence_space α) := {
   Inf := λ ps, {
-    converges := λ l a, ∀ {p : convergence_space α}, p ∈ ps → converges_ p l a,
+    converges := λ l x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p l x,
     pure_converges := begin
-      assume a : α,
+      assume x : α,
       assume p : convergence_space α,
       assume : p ∈ ps,
-      exact pure_converges_ p a,
+      exact pure_converges_ p x,
     end,
     le_converges := begin
       assume l l' : filter α,
       assume h : l ≤ l',
-      assume a : α,
-      assume f : ∀ {p : convergence_space α}, p ∈ ps → converges_ p l' a,
+      assume x : α,
+      assume f : ∀ {p : convergence_space α}, p ∈ ps → converges_ p l' x,
       assume p : convergence_space α,
       assume h' : p ∈ ps,
       exact le_converges_ p h (f h')
@@ -142,16 +142,16 @@ instance : has_Inf (convergence_space α) := {
 
 instance : has_sup (convergence_space α) := {
   sup := λ p q, {
-    converges := λ l a, or (converges_ p l a) (converges_ q l a),
+    converges := λ l x, or (converges_ p l x) (converges_ q l x),
     pure_converges := begin
-      assume a : α,
-      exact or.inl (pure_converges_ p a),
+      assume x : α,
+      exact or.inl (pure_converges_ p x),
     end,
     le_converges := begin
       assume l l' : filter α,
       assume h : l ≤ l',
-      assume a : α,
-      assume h' : or (converges_ p l' a) (converges_ q l' a),
+      assume x : α,
+      assume h' : or (converges_ p l' x) (converges_ q l' x),
       exact or.elim h'
         (assume hl, or.inl (le_converges_ p h hl))
         (assume hr, or.inr (le_converges_ q h hr))
@@ -161,17 +161,17 @@ instance : has_sup (convergence_space α) := {
 
 instance : has_Sup (convergence_space α) := {
   Sup := λ ps, {
-    converges := λ l a, or
-      (l ≤ pure a)
-      (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l a),
+    converges := λ l x, or
+      (l ≤ pure x)
+      (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l x),
     pure_converges := by tauto,
     le_converges := begin
       assume l l' : filter α,
       assume h₁ : l ≤ l',
-      assume a : α,
+      assume x : α,
       assume h : or
-        (l' ≤ pure a)
-        (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l' a),
+        (l' ≤ pure x)
+        (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l' x),
       cases h,
         case or.inl : h₂ begin
           exact or.inl (le_trans h₁ h₂)
@@ -179,7 +179,7 @@ instance : has_Sup (convergence_space α) := {
         case or.inr : ea begin
           exact exists.elim ea begin
             assume p : convergence_space α,
-            assume h' : p ∈ ps ∧ converges_ p l' a,
+            assume h' : p ∈ ps ∧ converges_ p l' x,
             exact or.inr (exists.intro p (and.intro h'.left (le_converges_ p h₁ h'.right)))
           end,
         end,
