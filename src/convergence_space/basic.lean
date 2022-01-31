@@ -457,13 +457,13 @@ variables [convergence_space α]
 def lim (l : filter α) : set α := { x | converges l x }
 def adheres (l : filter α) (x : α) : Prop := ∃ l' ≤ l, converges l' x
 def adh (l : filter α) : set α := { x | adheres l x }
-def interior (A : set α) : set α := { x ∈ A | ∀ l, converges l x → A ∈ l }
-def is_open (A : set α) : Prop := A = interior A
-def cl (A : set α) : set α := { x | ∃ (l : filter α) [ne_bot l], converges l x ∧ A ∈ l }
-def is_closed (A : set α) : Prop := A = cl A
-def is_dense (A : set α) : Prop := ∀ x, x ∈ cl A
-def is_strictly_dense (A : set α) : Prop :=
-∀ {x : α} {l : filter α}, converges l x → ∃ l', (A ∈ l') ∧ (converges l' x) ∧ (l ≤ filter.generate (cl '' l.sets))
+def interior (s : set α) : set α := { x ∈ s | ∀ l, converges l x → s ∈ l }
+def is_open (s : set α) : Prop := s = interior s
+def cl (s : set α) : set α := { x | ∃ (l : filter α) [ne_bot l], converges l x ∧ s ∈ l }
+def is_closed (s : set α) : Prop := s = cl s
+def is_dense (s : set α) : Prop := ∀ x, x ∈ cl s
+def is_strictly_dense (s : set α) : Prop :=
+∀ {x : α} {l : filter α}, converges l x → ∃ l', (s ∈ l') ∧ (converges l' x) ∧ (l ≤ filter.generate (cl '' l.sets))
 def nhds (x : α) : filter α := ⨅ l ∈ {l' : filter α | converges l' x}, l
 end
 
@@ -584,20 +584,20 @@ class t3_space (α : Type*) [convergence_space α] extends t0_space α, r2_space
 -- Compact sets/spaces
 -------------------------------------------------------------------------------
 
-def is_compact [convergence_space α] (A : set α) := ∀ ⦃l : ultrafilter α⦄, A ∈ l → ∃ x, converges l.to_filter x
+def is_compact [convergence_space α] (s : set α) := ∀ ⦃l : ultrafilter α⦄, s ∈ l → ∃ x, converges l.to_filter x
 
 class compact_space (α : Type*) [convergence_space α] : Prop :=
 (compact_prop : is_compact (univ : set α))
 
-theorem is_compact.image {f : α → β} {A : set α} [convergence_space α] [convergence_space β]
-  (h₀ : is_compact A) (h₁ : continuous f) : is_compact (f '' A) :=
+theorem is_compact.image {f : α → β} {s : set α} [convergence_space α] [convergence_space β]
+  (h₀ : is_compact s) (h₁ : continuous f) : is_compact (f '' s) :=
 begin
   unfold is_compact,
   assume 𝒱 : ultrafilter β,
-  assume h₂ : f '' A ∈ 𝒱,
+  assume h₂ : f '' s ∈ 𝒱,
   let 𝒰 := ultrafilter.of_comap_inf_principal h₂,
   let h₃ : ultrafilter.map f 𝒰 = 𝒱 := ultrafilter.of_comap_inf_principal_eq_of_map h₂,
-  let h₄ : A ∈ 𝒰 := ultrafilter.of_comap_inf_principal_mem h₂,
+  let h₄ : s ∈ 𝒰 := ultrafilter.of_comap_inf_principal_mem h₂,
   obtain ⟨x, h₅ : converges 𝒰.to_filter x⟩ := h₀ h₄,
   have : converges (map f 𝒰) (f x) := h₁ h₅,
   rw ← h₃,
