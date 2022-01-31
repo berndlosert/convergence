@@ -159,26 +159,24 @@ instance : has_sup (convergence_space α) := {
 
 instance : has_Sup (convergence_space α) := {
   Sup := λ ps, {
-    converges := λ l x, or
-      (l ≤ pure x)
-      (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l x),
+    converges := λ f x, or
+      (f ≤ pure x)
+      (∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x),
     pure_converges := by tauto,
     le_converges := begin
-      assume l l' : filter α,
-      assume h₁ : l ≤ l',
+      assume f g : filter α,
+      assume hle : f ≤ g,
       assume x : α,
-      assume h : or
-        (l' ≤ pure x)
-        (∃ p : convergence_space α, p ∈ ps ∧ converges_ p l' x),
-      cases h,
-        case or.inl : h₂ begin
-          exact or.inl (le_trans h₁ h₂)
+      assume hor : (g ≤ pure x) ∨ (∃ p : convergence_space α, p ∈ ps ∧ converges_ p g x),
+      cases hor,
+        case or.inl : hle' begin
+          exact or.inl (le_trans hle hle')
         end,
-        case or.inr : ea begin
-          exact exists.elim ea begin
+        case or.inr : hconv begin
+          exact exists.elim hconv begin
             assume p : convergence_space α,
-            assume h' : p ∈ ps ∧ converges_ p l' x,
-            exact or.inr (exists.intro p (and.intro h'.left (le_converges_ p h₁ h'.right)))
+            assume hconv' : p ∈ ps ∧ converges_ p g x,
+            exact or.inr (exists.intro p (and.intro hconv'.left (le_converges_ p hle hconv'.right)))
           end,
         end,
     end,
