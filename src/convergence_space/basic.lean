@@ -19,20 +19,20 @@ variables {α β γ : Type*}
 @[ext] class convergence_space (α : Type*) :=
 (converges : filter α → α → Prop)
 (pure_converges : ∀ x, converges (pure x) x)
-(le_converges : ∀ {l l'}, l ≤ l' → ∀ {x}, converges l' x → converges l x)
+(le_converges : ∀ {f g}, f ≤ g → ∀ {x}, converges g x → converges f x)
 
 open convergence_space
 
 section
 variables (p : convergence_space α)
-def converges_ (l : filter α) (x : α) : Prop := @converges _ p l x
+def converges_ (f : filter α) (x : α) : Prop := @converges _ p f x
 def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
-def le_converges_ ⦃l l' : filter α⦄ (h : l ≤ l') {x : α} (h' : converges l' x) : converges l x
-:= @le_converges _ p _ _ h _ h'
+def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α} (hconv : converges g x) : converges f x
+:= @le_converges _ p _ _ hle _ hconv
 end
 
 theorem convergence_space_eq_iff {p q : convergence_space α} :
-p = q ↔ ∀ l x, @converges _ p l x ↔ @converges _ q l x :=
+p = q ↔ ∀ f x, @converges _ p f x ↔ @converges _ q f x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
 -------------------------------------------------------------------------------
@@ -46,9 +46,9 @@ instance : has_le (convergence_space α) := {
 instance : partial_order (convergence_space α) := {
   le_refl := begin
     assume p : convergence_space α,
-    assume l : filter α,
+    assume f : filter α,
     assume x : α,
-    assume h : converges_ p l x,
+    assume h : converges_ p f x,
     exact h,
   end,
   le_trans := begin
