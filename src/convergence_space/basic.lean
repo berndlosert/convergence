@@ -74,8 +74,8 @@ instance : partial_order (convergence_space α) := {
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
-/-- The indiscrete convergence structure is the one where every filter
- -- converges to every point. -/
+/-- The indiscrete convergence structure is the one where everb filter
+ -- converges to everb point. -/
 def indiscrete : convergence_space α := {
   converges := λ l a, true,
   pure_converges := by tauto,
@@ -86,7 +86,7 @@ instance : has_top (convergence_space α) := {
   top := indiscrete
 }
 
-/-- The discrete convergence structure is the one where the only proper filters
+/-- The discrete convergence structure is the one where the onlb proper filters
  -- that converge are the `pure` ones. -/
 def discrete : convergence_space α := {
   converges := λ l a, l ≤ pure a,
@@ -396,27 +396,27 @@ lemma continuous.induced_le (f : α → β) [p : convergence_space α] [converge
   exact hf h,
 end
 
-inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (y : β) : Prop
-| pure_case (_ : lb ≤ pure y) : coinduced_converges
-| other_case (la : filter α) (a : α) (_ : lb ≤ map f la) (_ : y = f a) (_ : converges la a) : coinduced_converges
+inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (b : β) : Prop
+| pure_case (_ : lb ≤ pure b) : coinduced_converges
+| other_case (la : filter α) (a : α) (_ : lb ≤ map f la) (_ : b = f a) (_ : converges la a) : coinduced_converges
 
 /-- Given `f : α → β`, where `α` is convergence space, the coinduced convergence
  -- structure on `β` is the least convergence structure making `f`
  -- continuous. -/
 def convergence_space.coinduced (f : α → β) [convergence_space α] : convergence_space β := {
   converges := coinduced_converges f,
-  pure_converges := λ y, coinduced_converges.pure_case (le_refl (pure y)),
+  pure_converges := λ b, coinduced_converges.pure_case (le_refl (pure b)),
   le_converges := begin
     assume lb₁ lb₂ : filter β,
     assume : lb₁ ≤ lb₂,
-    assume y : β,
-    assume h : coinduced_converges f lb₂ y,
+    assume b : β,
+    assume h : coinduced_converges f lb₂ b,
     cases h,
       case pure_case begin
-        have : lb₁ ≤ pure y, from calc
+        have : lb₁ ≤ pure b, from calc
           lb₁ ≤ lb₂ : (by assumption : lb₁ ≤ lb₂)
-          ... ≤ pure y : (by assumption : lb₂ ≤ pure y),
-        exact coinduced_converges.pure_case (by assumption : lb₁ ≤ pure y),
+          ... ≤ pure b : (by assumption : lb₂ ≤ pure b),
+        exact coinduced_converges.pure_case (by assumption : lb₁ ≤ pure b),
       end,
       case other_case : la a _ _ _ begin
         have : lb₁ ≤ map f la, from calc
@@ -424,7 +424,7 @@ def convergence_space.coinduced (f : α → β) [convergence_space α] : converg
           ... ≤ map f la : (by assumption : lb₂ ≤ map f la),
         exact coinduced_converges.other_case la a
           (by assumption : lb₁ ≤ map f la)
-          (by assumption : y = f a)
+          (by assumption : b = f a)
           (by assumption : converges la a)
         end
   end,
@@ -435,11 +435,11 @@ lemma continuous.le_coinduced (f : α → β) [convergence_space α] [q : conver
 := begin
   unfold has_le.le,
   assume lb : filter β,
-  assume y : β,
-  assume h : converges_ (convergence_space.coinduced f) lb y,
+  assume b : β,
+  assume h : converges_ (convergence_space.coinduced f) lb b,
   cases h,
     case pure_case begin
-      exact le_converges_ q h (pure_converges_ q y),
+      exact le_converges_ q h (pure_converges_ q b),
     end,
     case other_case : la a h₀ h₁ h₂ begin
       have : converges_ q (map f la) (f a), from hf h₂,
@@ -561,19 +561,19 @@ instance [convergence_space α] [convergence_space β] : convergence_space C(α,
 -------------------------------------------------------------------------------
 
 class t0_space (α : Type*) [convergence_space α] : Prop :=
-(t0_prop : ∀ a y : α, converges (pure a) y → converges (pure y) a → a = y)
+(t0_prop : ∀ a a' : α, converges (pure a) a' → converges (pure a') a → a = a')
 
 class r0_space (α : Type*) [convergence_space α] : Prop :=
-(r0_prop : ∀ a y, converges (pure a) y → ∀ (l : filter α), converges l a ↔ converges l y)
+(r0_prop : ∀ a a', converges (pure a) a' → ∀ (l : filter α), converges l a ↔ converges l a')
 
 class t1_space (α : Type*) [convergence_space α] : Prop :=
-(t1_prop : ∀ a y : α, converges (pure a) y → a = y)
+(t1_prop : ∀ a a' : α, converges (pure a) a' → a = a')
 
 class r1_space (α : Type*) [convergence_space α] : Prop :=
-(r1_prop : ∀ a y, ∃ (l : filter α) [ne_bot l], converges l a ∧ converges l y → ∀ (l' : filter α), converges l' a ↔ converges l' y)
+(r1_prop : ∀ a a', ∃ (l : filter α) [ne_bot l], converges l a ∧ converges l a' → ∀ (l' : filter α), converges l' a ↔ converges l' a')
 
 class t2_space (α : Type*) [convergence_space α] : Prop :=
-(t2_prop : ∀ a y, ∀ (l : filter α) [ne_bot l], converges l a ∧ converges l y → a = y)
+(t2_prop : ∀ a a', ∀ (l : filter α) [ne_bot l], converges l a ∧ converges l a' → a = a')
 
 class r2_space (α : Type*) [convergence_space α] : Prop :=
 (r2_prop : ∀ (a : α) (l : filter α), converges l a → converges (filter.generate (cl '' l.sets)) a)
@@ -613,20 +613,20 @@ def quotient_map [convergence_space α] [q : convergence_space β] (f : α → �
 surjective f ∧ q = convergence_space.coinduced f
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β] {f : α → β} :
-quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la a, (lb ≤ map f la) ∧ (y = f a) ∧ (converges la a) := begin
+quotient_map f ↔ surjective f ∧ ∀ lb b, converges lb b ↔ ∃ la a, (lb ≤ map f la) ∧ (b = f a) ∧ (converges la a) := begin
   split,
   -- Proving → direction.
   assume h : quotient_map f,
   split,
   exact h.1,
   assume lb : filter β,
-  assume y : β,
+  assume b : β,
   split,
   rw h.2,
-  assume h' : converges_ (convergence_space.coinduced f) lb y,
+  assume h' : converges_ (convergence_space.coinduced f) lb b,
   cases h',
     case pure_case begin
-      obtain ⟨a, ha⟩ := h.1 y,
+      obtain ⟨a, ha⟩ := h.1 b,
       rw ← ha at h',
       rw ← filter.map_pure at h',
       exact ⟨pure a, a, h', eq.symm ha, pure_converges a⟩,
@@ -634,7 +634,7 @@ quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la a, (lb �
     case other_case : la a h₁ h₂ h₃ begin
       exact ⟨la, a, h₁, h₂, h₃⟩,
     end,
-  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : y = f a, h₃ : converges la a⟩,
+  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : b = f a, h₃ : converges la a⟩,
   rw h.2,
   exact coinduced_converges.other_case la a h₁ h₂ h₃,
   -- Proving ← direction
@@ -644,15 +644,15 @@ quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la a, (lb �
   exact h.1,
   rw convergence_space_eq_iff,
   assume lb : filter β,
-  assume y : β,
+  assume b : β,
   rw h.2,
   split,
-  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : y = f a, h₃ : converges la a⟩,
+  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : b = f a, h₃ : converges la a⟩,
   exact coinduced_converges.other_case la a h₁ h₂ h₃,
-  assume h' : converges_ (convergence_space.coinduced f) lb y,
+  assume h' : converges_ (convergence_space.coinduced f) lb b,
   cases h',
     case pure_case begin
-      obtain ⟨a, ha⟩ := h.1 y,
+      obtain ⟨a, ha⟩ := h.1 b,
       rw ← ha at h',
       rw ← filter.map_pure at h',
       exact ⟨pure a, a, h', eq.symm ha, pure_converges a⟩,
@@ -672,15 +672,15 @@ lemma quotient_prod_map
   rw quotient_map_iff at h₂,
   split,
   exact surjective.prod_map h₁.1 h₂.1,
-  rintros (l' : filter (β₁ × β₂)) (⟨y₁, y₂⟩ : β₁ × β₂),
+  rintros (l' : filter (β₁ × β₂)) (⟨b₁, b₂⟩ : β₁ × β₂),
   split,
-  assume h : prod.convergence_space.converges l' (y₁, y₂),
+  assume h : prod.convergence_space.converges l' (b₁, b₂),
   let l'₁ := map prod.fst l',
   let l'₂ := map prod.snd l',
-  have hy₁ : q₁.converges l'₁ y₁, sorry,
-  have hy₂ : q₂.converges l'₂ y₂, sorry,
-  obtain ⟨l₁, a₁, le₁, eq₁, converges₁⟩ := (h₁.2 l'₁ y₁).mp hy₁,
-  obtain ⟨l₂, a₂, le₂, eq₂, converges₂⟩ := (h₂.2 l'₂ y₂).mp hy₂,
+  have hb₁ : q₁.converges l'₁ b₁, sorry,
+  have hb₂ : q₂.converges l'₂ b₂, sorry,
+  obtain ⟨l₁, a₁, le₁, eq₁, converges₁⟩ := (h₁.2 l'₁ b₁).mp hb₁,
+  obtain ⟨l₂, a₂, le₂, eq₂, converges₂⟩ := (h₂.2 l'₂ b₂).mp hb₂,
   let l := l₁ ×ᶠ l₂,
   let a := (a₁, a₂),
   use l,
@@ -689,7 +689,7 @@ end
 -/
 
 -------------------------------------------------------------------------------
--- Category Conv of convergence spaces
+-- Categorb Conv of convergence spaces
 -------------------------------------------------------------------------------
 
 universe u
