@@ -45,11 +45,9 @@ instance : has_le (convergence_space α) := {
 
 instance : partial_order (convergence_space α) := {
   le_refl := begin
-    assume p : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume h : converges_ p f x,
-    exact h,
+    unfold has_le.le,
+    intros,
+    assumption,
   end,
   le_trans := begin
     assume p q r : convergence_space α,
