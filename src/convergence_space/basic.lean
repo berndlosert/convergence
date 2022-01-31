@@ -77,24 +77,15 @@ instance : partial_order (convergence_space α) := {
 
 /-- The indiscrete convergence structure is the one where everb filter
  -- converges to everb point. -/
-def indiscrete : convergence_space α :=
-{ converges := λ f x, true,
-  pure_converges := by tauto,
-  le_converges := by tauto }
+def indiscrete : convergence_space α := ⟨λ f x, true, by tauto, by tauto⟩
 
 instance : has_top (convergence_space α) := ⟨indiscrete⟩
 
 /-- The discrete convergence structure is the one where the onlb proper filters
  -- that converge are the `pure` ones. -/
-def discrete : convergence_space α := {
-  converges := λ f x, f ≤ pure x,
-  pure_converges := by tauto,
-  le_converges := by tauto,
-}
+def discrete : convergence_space α := ⟨λ f x, f ≤ pure x, by tauto, by tauto⟩
 
-instance : has_bot (convergence_space α) := {
-  bot := discrete
-}
+instance : has_bot (convergence_space α) := ⟨discrete⟩
 
 -------------------------------------------------------------------------------
 -- Infimum and supremum of convergence spaces
