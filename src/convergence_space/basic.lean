@@ -119,7 +119,7 @@ instance : has_inf (convergence_space α) := {
 
 instance : has_Inf (convergence_space α) := {
   Inf := λ ps, {
-    converges := λ l x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p l x,
+    converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
     pure_converges := begin
       assume x : α,
       assume p : convergence_space α,
@@ -127,32 +127,32 @@ instance : has_Inf (convergence_space α) := {
       exact pure_converges_ p x,
     end,
     le_converges := begin
-      assume l l' : filter α,
-      assume h : l ≤ l',
+      assume f g : filter α,
+      assume hle : f ≤ g,
       assume x : α,
-      assume f : ∀ {p : convergence_space α}, p ∈ ps → converges_ p l' x,
+      assume hconv : ∀ {p : convergence_space α}, p ∈ ps → converges_ p g x,
       assume p : convergence_space α,
-      assume h' : p ∈ ps,
-      exact le_converges_ p h (f h')
+      assume hmem : p ∈ ps,
+      exact le_converges_ p hle (hconv hmem)
     end,
   }
 }
 
 instance : has_sup (convergence_space α) := {
   sup := λ p q, {
-    converges := λ l x, or (converges_ p l x) (converges_ q l x),
+    converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
     pure_converges := begin
       assume x : α,
       exact or.inl (pure_converges_ p x),
     end,
     le_converges := begin
-      assume l l' : filter α,
-      assume h : l ≤ l',
+      assume f g : filter α,
+      assume hle : f ≤ g,
       assume x : α,
-      assume h' : or (converges_ p l' x) (converges_ q l' x),
-      exact or.elim h'
-        (assume hl, or.inl (le_converges_ p h hl))
-        (assume hr, or.inr (le_converges_ q h hr))
+      assume hconv : (converges_ p g x) ∨ (converges_ q g x),
+      exact or.elim hconv
+        (assume hl, or.inl (le_converges_ p hle hl))
+        (assume hr, or.inr (le_converges_ q hle hr))
     end,
   }
 }
