@@ -396,9 +396,9 @@ lemma continuous.induced_le (f : α → β) [p : convergence_space α] [converge
   exact hf h,
 end
 
-inductive coinduced_converges (f : α → β) [convergence_space α] (l' : filter β) (y : β) : Prop
-| pure_case (_ : l' ≤ pure y) : coinduced_converges
-| other_case (l : filter α) (x : α) (_ : l' ≤ map f l) (_ : y = f x) (_ : converges l x) : coinduced_converges
+inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (y : β) : Prop
+| pure_case (_ : lb ≤ pure y) : coinduced_converges
+| other_case (la : filter α) (x : α) (_ : lb ≤ map f la) (_ : y = f x) (_ : converges la x) : coinduced_converges
 
 /-- Given `f : α → β`, where `α` is convergence space, the coinduced convergence
  -- structure on `β` is the least convergence structure making `f`
@@ -407,25 +407,25 @@ def convergence_space.coinduced (f : α → β) [convergence_space α] : converg
   converges := coinduced_converges f,
   pure_converges := λ y, coinduced_converges.pure_case (le_refl (pure y)),
   le_converges := begin
-    assume l'₁ l'₂ : filter β,
-    assume : l'₁ ≤ l'₂,
+    assume lb₁ lb₂ : filter β,
+    assume : lb₁ ≤ lb₂,
     assume y : β,
-    assume h : coinduced_converges f l'₂ y,
+    assume h : coinduced_converges f lb₂ y,
     cases h,
       case pure_case begin
-        have : l'₁ ≤ pure y, from calc
-          l'₁ ≤ l'₂ : (by assumption : l'₁ ≤ l'₂)
-          ... ≤ pure y : (by assumption : l'₂ ≤ pure y),
-        exact coinduced_converges.pure_case (by assumption : l'₁ ≤ pure y),
+        have : lb₁ ≤ pure y, from calc
+          lb₁ ≤ lb₂ : (by assumption : lb₁ ≤ lb₂)
+          ... ≤ pure y : (by assumption : lb₂ ≤ pure y),
+        exact coinduced_converges.pure_case (by assumption : lb₁ ≤ pure y),
       end,
-      case other_case : l x _ _ _ begin
-        have : l'₁ ≤ map f l, from calc
-          l'₁ ≤ l'₂ : (by assumption : l'₁ ≤ l'₂)
-          ... ≤ map f l : (by assumption : l'₂ ≤ map f l),
-        exact coinduced_converges.other_case l x
-          (by assumption : l'₁ ≤ map f l)
+      case other_case : la x _ _ _ begin
+        have : lb₁ ≤ map f la, from calc
+          lb₁ ≤ lb₂ : (by assumption : lb₁ ≤ lb₂)
+          ... ≤ map f la : (by assumption : lb₂ ≤ map f la),
+        exact coinduced_converges.other_case la x
+          (by assumption : lb₁ ≤ map f la)
           (by assumption : y = f x)
-          (by assumption : converges l x)
+          (by assumption : converges la x)
         end
   end,
 }
