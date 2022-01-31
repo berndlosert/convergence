@@ -91,33 +91,35 @@ instance : has_bot (convergence_space α) := ⟨discrete⟩
 -- Infimum and supremum of convergence spaces
 -------------------------------------------------------------------------------
 
-instance : has_inf (convergence_space α) := {
-  inf := λ p q, {
-    converges := fun f x, (converges_ p f x) ∧ (converges_ q f x),
-    pure_converges := begin
+instance : has_inf (convergence_space α) :=
+{ inf := λ p q,
+  { converges := fun f x, (converges_ p f x) ∧ (converges_ q f x),
+    pure_converges :=
+    begin
       assume x : α,
       exact and.intro (pure_converges_ p x) (pure_converges_ q x),
     end,
-    le_converges := begin
+    le_converges :=
+    begin
       assume f g : filter α,
       assume hle : f ≤ g,
       assume x : α,
       assume hconv : (converges_ p g x) ∧ (converges_ q g x),
       exact and.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
-    end,
-  }
-}
+    end }}
 
-instance : has_Inf (convergence_space α) := {
-  Inf := λ ps, {
-    converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
-    pure_converges := begin
+instance : has_Inf (convergence_space α) :=
+{ Inf := λ ps,
+  { converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
+    pure_converges :=
+    begin
       assume x : α,
       assume p : convergence_space α,
       assume : p ∈ ps,
       exact pure_converges_ p x,
     end,
-    le_converges := begin
+    le_converges :=
+    begin
       assume f g : filter α,
       assume hle : f ≤ g,
       assume x : α,
@@ -125,18 +127,18 @@ instance : has_Inf (convergence_space α) := {
       assume p : convergence_space α,
       assume hmem : p ∈ ps,
       exact le_converges_ p hle (hconv hmem)
-    end,
-  }
-}
+    end }}
 
-instance : has_sup (convergence_space α) := {
-  sup := λ p q, {
-    converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
-    pure_converges := begin
+instance : has_sup (convergence_space α) :=
+{ sup := λ p q,
+  { converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
+    pure_converges :=
+    begin
       assume x : α,
       exact or.inl (pure_converges_ p x),
     end,
-    le_converges := begin
+    le_converges :=
+    begin
       assume f g : filter α,
       assume hle : f ≤ g,
       assume x : α,
@@ -144,21 +146,20 @@ instance : has_sup (convergence_space α) := {
       exact or.elim hconv
         (assume hl, or.inl (le_converges_ p hle hl))
         (assume hr, or.inr (le_converges_ q hle hr))
-    end,
-  }
-}
+    end }}
 
-instance : has_Sup (convergence_space α) := {
-  Sup := λ ps, {
-    converges := λ f x, or
-      (f ≤ pure x)
+instance : has_Sup (convergence_space α) :=
+{ Sup := λ ps,
+  { converges := λ f x, (f ≤ pure x) ∨
       (∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x),
     pure_converges := by tauto,
-    le_converges := begin
+    le_converges :=
+    begin
       assume f g : filter α,
       assume hle : f ≤ g,
       assume x : α,
-      assume hor : (g ≤ pure x) ∨ (∃ p : convergence_space α, p ∈ ps ∧ converges_ p g x),
+      assume hor : (g ≤ pure x) ∨
+        (∃ p : convergence_space α, p ∈ ps ∧ converges_ p g x),
       cases hor,
         case or.inl : hle' begin
           exact or.inl (le_trans hle hle')
@@ -167,12 +168,12 @@ instance : has_Sup (convergence_space α) := {
           exact exists.elim hconv begin
             assume p : convergence_space α,
             assume hconv' : p ∈ ps ∧ converges_ p g x,
-            exact or.inr (exists.intro p (and.intro hconv'.left (le_converges_ p hle hconv'.right)))
+            exact or.inr
+              (exists.intro p
+                (and.intro hconv'.left (le_converges_ p hle hconv'.right)))
           end,
         end,
-    end,
-  }
-}
+    end }}
 
 -------------------------------------------------------------------------------
 -- Lattice of convergence spaces
