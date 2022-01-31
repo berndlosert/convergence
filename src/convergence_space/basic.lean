@@ -40,7 +40,7 @@ by simp [funext_iff, convergence_space.ext_iff p q]
 -------------------------------------------------------------------------------
 
 instance : has_le (convergence_space α) := {
-  le := λ p q, ∀ {l x}, @converges _ p l x → @converges _ q l x
+  le := λ p q, ∀ {f x}, @converges _ p f x → @converges _ q f x
 }
 
 instance : partial_order (convergence_space α) := {
@@ -51,19 +51,19 @@ instance : partial_order (convergence_space α) := {
   end,
   le_trans := begin
     assume p q r : convergence_space α,
-    assume h₁ : p ≤ q,
-    assume h₂ : q ≤ r,
-    assume l : filter α,
+    assume hpq : p ≤ q,
+    assume hqr : q ≤ r,
+    assume f : filter α,
     assume x : α,
-    assume h : converges_ p l x,
-    exact (h₂ (h₁ h))
+    assume hconv : converges_ p f x,
+    exact (hqr (hpq hconv))
   end,
   le_antisymm := begin
     assume p q : convergence_space α,
-    assume h₁ : p ≤ q,
-    assume h₂ : q ≤ p,
-    ext l x,
-    exact iff.intro h₁ h₂,
+    assume hpq : p ≤ q,
+    assume hqp : q ≤ p,
+    ext f x,
+    exact iff.intro hpq hqp,
   end,
   ..convergence_space.has_le
 }
@@ -75,7 +75,7 @@ instance : partial_order (convergence_space α) := {
 /-- The indiscrete convergence structure is the one where everb filter
  -- converges to everb point. -/
 def indiscrete : convergence_space α := {
-  converges := λ l x, true,
+  converges := λ f x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
@@ -87,7 +87,7 @@ instance : has_top (convergence_space α) := {
 /-- The discrete convergence structure is the one where the onlb proper filters
  -- that converge are the `pure` ones. -/
 def discrete : convergence_space α := {
-  converges := λ l x, l ≤ pure x,
+  converges := λ f x, f ≤ pure x,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
