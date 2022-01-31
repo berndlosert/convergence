@@ -102,17 +102,17 @@ instance : has_bot (convergence_space α) := {
 
 instance : has_inf (convergence_space α) := {
   inf := λ p q, {
-    converges := fun l x, and (converges_ p l x) (converges_ q l x),
+    converges := fun f x, (converges_ p f x) ∧ (converges_ q f x),
     pure_converges := begin
       assume x : α,
       exact and.intro (pure_converges_ p x) (pure_converges_ q x),
     end,
     le_converges := begin
-      assume l l' : filter α,
-      assume h : l ≤ l',
+      assume f g : filter α,
+      assume hle : f ≤ g,
       assume x : α,
-      assume h' : and (converges_ p l' x) (converges_ q l' x),
-      exact and.intro (le_converges_ p h h'.left) (le_converges_ q h h'.right)
+      assume hconv : (converges_ p g x) ∧ (converges_ q g x),
+      exact and.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
     end,
   }
 }
