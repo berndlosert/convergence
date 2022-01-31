@@ -27,29 +27,31 @@ section
 variables (p : convergence_space α)
 def converges_ (f : filter α) (x : α) : Prop := @converges _ p f x
 def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
-def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α} (hconv : converges g x) : converges f x
-:= @le_converges _ p _ _ hle _ hconv
+def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α}
+  (hconv : converges g x) : converges f x :=
+@le_converges _ p _ _ hle _ hconv
 end
 
 theorem convergence_space_eq_iff {p q : convergence_space α} :
-p = q ↔ ∀ f x, @converges _ p f x ↔ @converges _ q f x :=
+  p = q ↔ ∀ f x, @converges _ p f x ↔ @converges _ q f x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
 -------------------------------------------------------------------------------
 -- Parital ordering
 -------------------------------------------------------------------------------
 
-instance : has_le (convergence_space α) := {
-  le := λ p q, ∀ {f x}, @converges _ p f x → @converges _ q f x
-}
+instance : has_le (convergence_space α) :=
+⟨λ p q, ∀ {f x}, @converges _ p f x → @converges _ q f x⟩
 
 instance : partial_order (convergence_space α) := {
-  le_refl := begin
+  le_refl :=
+  begin
     unfold has_le.le,
     intros,
     assumption,
   end,
-  le_trans := begin
+  le_trans :=
+  begin
     assume p q r : convergence_space α,
     assume hpq : p ≤ q,
     assume hqr : q ≤ r,
@@ -58,7 +60,8 @@ instance : partial_order (convergence_space α) := {
     assume hconv : converges_ p f x,
     exact (hqr (hpq hconv))
   end,
-  le_antisymm := begin
+  le_antisymm :=
+  begin
     assume p q : convergence_space α,
     assume hpq : p ≤ q,
     assume hqp : q ≤ p,
@@ -74,15 +77,12 @@ instance : partial_order (convergence_space α) := {
 
 /-- The indiscrete convergence structure is the one where everb filter
  -- converges to everb point. -/
-def indiscrete : convergence_space α := {
-  converges := λ f x, true,
+def indiscrete : convergence_space α :=
+{ converges := λ f x, true,
   pure_converges := by tauto,
-  le_converges := by tauto,
-}
+  le_converges := by tauto }
 
-instance : has_top (convergence_space α) := {
-  top := indiscrete
-}
+instance : has_top (convergence_space α) := ⟨indiscrete⟩
 
 /-- The discrete convergence structure is the one where the onlb proper filters
  -- that converge are the `pure` ones. -/
