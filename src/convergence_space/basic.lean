@@ -435,14 +435,14 @@ lemma continuous.le_coinduced (f : α → β) [convergence_space α] [q : conver
 := begin
   unfold has_le.le,
   assume lb : filter β,
-  assume b : β,
-  assume h : converges_ (convergence_space.coinduced f) lb b,
+  assume y : β,
+  assume h : converges_ (convergence_space.coinduced f) lb y,
   cases h,
     case pure_case begin
-      exact le_converges_ q h (pure_converges_ q b),
+      exact le_converges_ q h (pure_converges_ q y),
     end,
-    case other_case : la a h₀ h₁ h₂ begin
-      have : converges_ q (map f la) (f a), from hf h₂,
+    case other_case : la x h₀ h₁ h₂ begin
+      have : converges_ q (map f la) (f x), from hf h₂,
       rw h₁,
       exact le_converges_ q h₀ this,
     end
@@ -454,17 +454,17 @@ end
 
 section
 variables [convergence_space α]
-def lim (l : filter α) : set α := { a | converges l a }
-def adheres (l : filter α) (a : α) : Prop := ∃ l' ≤ l, converges l' a
-def adh (l : filter α) : set α := { a | adheres l a }
-def interior (s : set α) : set α := { a ∈ s | ∀ l, converges l a → s ∈ l }
+def lim (l : filter α) : set α := { x | converges l x }
+def adheres (l : filter α) (x : α) : Prop := ∃ l' ≤ l, converges l' x
+def adh (l : filter α) : set α := { x | adheres l x }
+def interior (s : set α) : set α := { x ∈ s | ∀ l, converges l x → s ∈ l }
 def is_open (s : set α) : Prop := s = interior s
-def cl (s : set α) : set α := { a | ∃ (l : filter α) [ne_bot l], converges l a ∧ s ∈ l }
+def cl (s : set α) : set α := { x | ∃ (l : filter α) [ne_bot l], converges l x ∧ s ∈ l }
 def is_closed (s : set α) : Prop := s = cl s
-def is_dense (s : set α) : Prop := ∀ a, a ∈ cl s
+def is_dense (s : set α) : Prop := ∀ x, x ∈ cl s
 def is_strictly_dense (s : set α) : Prop :=
-∀ {a : α} {l : filter α}, converges l a → ∃ l', (s ∈ l') ∧ (converges l' a) ∧ (l ≤ filter.generate (cl '' l.sets))
-def nhds (a : α) : filter α := ⨅ l ∈ {l' : filter α | converges l' a}, l
+∀ {x : α} {l : filter α}, converges l x → ∃ l', (s ∈ l') ∧ (converges l' x) ∧ (l ≤ filter.generate (cl '' l.sets))
+def nhds (x : α) : filter α := ⨅ l ∈ {l' : filter α | converges l' x}, l
 end
 
 -------------------------------------------------------------------------------
