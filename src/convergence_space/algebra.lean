@@ -182,7 +182,7 @@ theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envel
 end
 
 instance : has_scalar G (quot (envelope G α)) := {
-  smul := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
+  smul := λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x,
 }
 
 instance
@@ -205,7 +205,7 @@ variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
 variables {α : Type*} [convergence_space α] [partial_group_action G α] [continuous_partial_group_action G α]
 
 def adh_restrictive : Prop :=
-∀ {l' : filter G} {l : filter α}, adh l = ∅ → ∃ g : G, converges l' g → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
+∀ {l' : filter G} {l : filter α}, adh l = ∅ → ∃ a : G, converges l' a → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
 
 def weakly_adh_restrictive : Prop :=
-∀ {l' : filter G} {l : filter α}, adh (map (@envelope.pure G _ _ _) l) = ∅ → ∃ g : G, converges l' g → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
+∀ {l' : filter G} {l : filter α}, adh (map (@envelope.pure G _ _ _) l) = ∅ → ∃ a : G, converges l' a → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
