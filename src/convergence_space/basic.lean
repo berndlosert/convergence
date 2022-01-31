@@ -584,7 +584,7 @@ class t3_space (α : Type*) [convergence_space α] extends t0_space α, r2_space
 -- Compact sets/spaces
 -------------------------------------------------------------------------------
 
-def is_compact [convergence_space α] (s : set α) := ∀ ⦃l : ultrafilter α⦄, s ∈ l → ∃ a, converges l.to_filter a
+def is_compact [convergence_space α] (s : set α) := ∀ ⦃l : ultrafilter α⦄, s ∈ l → ∃ x, converges l.to_filter x
 
 class compact_space (α : Type*) [convergence_space α] : Prop :=
 (compact_prop : is_compact (univ : set α))
@@ -598,10 +598,10 @@ begin
   let la := ultrafilter.of_comap_inf_principal h₂,
   let h₃ : ultrafilter.map f la = lb := ultrafilter.of_comap_inf_principal_eq_of_map h₂,
   let h₄ : s ∈ la := ultrafilter.of_comap_inf_principal_mem h₂,
-  obtain ⟨a, h₅ : converges la.to_filter a⟩ := h₀ h₄,
-  have : converges (map f la) (f a) := h₁ h₅,
+  obtain ⟨x, h₅ : converges la.to_filter x⟩ := h₀ h₄,
+  have : converges (map f la) (f x) := h₁ h₅,
   rw ← h₃,
-  use f a,
+  use f x,
   tauto,
 end
 
@@ -613,30 +613,30 @@ def quotient_map [convergence_space α] [q : convergence_space β] (f : α → �
 surjective f ∧ q = convergence_space.coinduced f
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β] {f : α → β} :
-quotient_map f ↔ surjective f ∧ ∀ lb b, converges lb b ↔ ∃ la a, (lb ≤ map f la) ∧ (b = f a) ∧ (converges la a) := begin
+quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la x, (lb ≤ map f la) ∧ (y = f x) ∧ (converges la x) := begin
   split,
   -- Proving → direction.
   assume h : quotient_map f,
   split,
   exact h.1,
   assume lb : filter β,
-  assume b : β,
+  assume y : β,
   split,
   rw h.2,
-  assume h' : converges_ (convergence_space.coinduced f) lb b,
+  assume h' : converges_ (convergence_space.coinduced f) lb y,
   cases h',
     case pure_case begin
-      obtain ⟨a, ha⟩ := h.1 b,
+      obtain ⟨x, ha⟩ := h.1 y,
       rw ← ha at h',
       rw ← filter.map_pure at h',
-      exact ⟨pure a, a, h', eq.symm ha, pure_converges a⟩,
+      exact ⟨pure x, x, h', eq.symm ha, pure_converges x⟩,
     end,
-    case other_case : la a h₁ h₂ h₃ begin
-      exact ⟨la, a, h₁, h₂, h₃⟩,
+    case other_case : la x h₁ h₂ h₃ begin
+      exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
-  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : b = f a, h₃ : converges la a⟩,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
   rw h.2,
-  exact coinduced_converges.other_case la a h₁ h₂ h₃,
+  exact coinduced_converges.other_case la x h₁ h₂ h₃,
   -- Proving ← direction
   intro h,
   unfold quotient_map,
@@ -644,21 +644,21 @@ quotient_map f ↔ surjective f ∧ ∀ lb b, converges lb b ↔ ∃ la a, (lb �
   exact h.1,
   rw convergence_space_eq_iff,
   assume lb : filter β,
-  assume b : β,
+  assume y : β,
   rw h.2,
   split,
-  rintro ⟨la : filter α, a : α, h₁ : lb ≤ map f la, h₂ : b = f a, h₃ : converges la a⟩,
-  exact coinduced_converges.other_case la a h₁ h₂ h₃,
-  assume h' : converges_ (convergence_space.coinduced f) lb b,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
+  exact coinduced_converges.other_case la x h₁ h₂ h₃,
+  assume h' : converges_ (convergence_space.coinduced f) lb y,
   cases h',
     case pure_case begin
-      obtain ⟨a, ha⟩ := h.1 b,
+      obtain ⟨x, ha⟩ := h.1 y,
       rw ← ha at h',
       rw ← filter.map_pure at h',
-      exact ⟨pure a, a, h', eq.symm ha, pure_converges a⟩,
+      exact ⟨pure x, x, h', eq.symm ha, pure_converges x⟩,
     end,
-    case other_case : la a h₁ h₂ h₃ begin
-      exact ⟨la, a, h₁, h₂, h₃⟩,
+    case other_case : la x h₁ h₂ h₃ begin
+      exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
  end
 
