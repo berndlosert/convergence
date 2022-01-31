@@ -195,15 +195,15 @@ instance : semilattice_sup (convergence_space α) := {
   le_sup_left := begin
     assume p q : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ p l a,
+    assume x : α,
+    assume h : converges_ p l x,
     exact or.inl h,
   end,
   le_sup_right := begin
     assume p q : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ q l a,
+    assume x : α,
+    assume h : converges_ q l x,
     exact or.inr h,
   end,
   sup_le := begin
@@ -211,8 +211,8 @@ instance : semilattice_sup (convergence_space α) := {
     assume h₁ : p ≤ r,
     assume h₂ : q ≤ r,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ (p ⊔ q) l a,
+    assume x : α,
+    assume h : converges_ (p ⊔ q) l x,
     cases h,
       exact h₁ h,
       exact h₂ h,
@@ -227,8 +227,8 @@ instance : complete_semilattice_Sup (convergence_space α) := {
     assume p : convergence_space α,
     assume h : p ∈ ps,
     assume l : filter α,
-    assume a : α,
-    assume h' : converges_ p l a,
+    assume x : α,
+    assume h' : converges_ p l x,
     exact or.inr (exists.intro p (and.intro h h')),
   end,
   Sup_le := begin
@@ -236,16 +236,16 @@ instance : complete_semilattice_Sup (convergence_space α) := {
     assume p : convergence_space α,
     assume f : ∀ q ∈ qs, q ≤ p,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ (Sup qs) l a,
+    assume x : α,
+    assume h : converges_ (Sup qs) l x,
     cases h,
       case or.inl : le₁ begin
-        exact le_converges_ p le₁ (pure_converges_ p a)
+        exact le_converges_ p le₁ (pure_converges_ p x)
       end,
       case or.inr : ea begin
         exact exists.elim ea begin
           assume q : convergence_space α,
-          assume h' : q ∈ qs ∧ converges_ q l a,
+          assume h' : q ∈ qs ∧ converges_ q l x,
           exact (f q h'.left) h'.right
         end,
       end,
@@ -258,15 +258,15 @@ instance : semilattice_inf (convergence_space α) := {
   inf_le_left := begin
     assume p q : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ (p ⊓ q) l a,
+    assume x : α,
+    assume h : converges_ (p ⊓ q) l x,
     exact h.left,
   end,
   inf_le_right := begin
     assume p q : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ (p ⊓ q) l a,
+    assume x : α,
+    assume h : converges_ (p ⊓ q) l x,
     exact h.right,
   end,
   le_inf := begin
@@ -274,10 +274,10 @@ instance : semilattice_inf (convergence_space α) := {
     assume h₁ : p ≤ q,
     assume h₂ : p ≤ r,
     assume l : filter α,
-    assume a : α,
-    assume hp : converges_ p l a,
-    have hq : converges_ q l a, from h₁ hp,
-    have hr : converges_ r l a, from h₂ hp,
+    assume x : α,
+    assume hp : converges_ p l x,
+    have hq : converges_ q l x, from h₁ hp,
+    have hr : converges_ r l x, from h₂ hp,
     exact and.intro hq hr
   end,
   ..convergence_space.partial_order,
@@ -290,8 +290,8 @@ instance : complete_semilattice_Inf (convergence_space α) := {
     assume p : convergence_space α,
     assume h : p ∈ ps,
     assume l : filter α,
-    assume a : α,
-    assume h' : converges_ (Inf ps) l a,
+    assume x : α,
+    assume h' : converges_ (Inf ps) l x,
     exact h' h,
   end,
   le_Inf := begin
@@ -299,8 +299,8 @@ instance : complete_semilattice_Inf (convergence_space α) := {
     assume q : convergence_space α,
     assume h : ∀ p : convergence_space α, p ∈ ps → q ≤ p,
     assume l : filter α,
-    assume a : α,
-    assume hq : converges_ q l a,
+    assume x : α,
+    assume hq : converges_ q l x,
     assume p : convergence_space α,
     assume hp : p ∈ ps,
     exact (h p hp) hq,
@@ -318,15 +318,15 @@ instance : complete_lattice (convergence_space α) := {
   bot_le := begin
     assume p : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ discrete l a,
-    exact le_converges_ p h (pure_converges_ p a),
+    assume x : α,
+    assume h : converges_ discrete l x,
+    exact le_converges_ p h (pure_converges_ p x),
   end,
   le_top := begin
     assume p : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ p l a,
+    assume x : α,
+    assume h : converges_ p l x,
     tauto,
   end,
   ..convergence_space.lattice,
@@ -341,23 +341,23 @@ instance : complete_lattice (convergence_space α) := {
 -------------------------------------------------------------------------------
 
 def continuous [convergence_space α] [convergence_space β] (f : α → β) : Prop :=
-∀ ⦃a l⦄, converges l a → converges (map f l) (f a)
+∀ ⦃x l⦄, converges l x → converges (map f l) (f x)
 
 lemma continuous.comp
 [convergence_space α] [convergence_space β] [convergence_space γ] {g : β → γ} {f : α → β}
 (hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
-  assume a : α,
+  assume x : α,
   assume l : filter α,
-  assume : converges l a,
-  have : converges (map f l) (f a), from hf this,
-  have : converges (map g (map f l)) (g (f a)), from hg this,
+  assume : converges l x,
+  have : converges (map f l) (f x), from hf this,
+  have : converges (map g (map f l)) (g (f x)), from hg this,
   convert this,
 end
 
 lemma continuous_id [convergence_space α] : continuous (id : α → α) := begin
-  assume a : α,
+  assume x : α,
   assume l : filter α,
-  assume : converges l a,
+  assume : converges l x,
   simp [filter.map_id],
   exact this,
 end
