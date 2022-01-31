@@ -613,17 +613,17 @@ def quotient_map [convergence_space α] [q : convergence_space β] (f : α → �
 surjective f ∧ q = convergence_space.coinduced f
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β] {f : α → β} :
-quotient_map f ↔ surjective f ∧ ∀ l' y, converges l' y ↔ ∃ l x, (l' ≤ map f l) ∧ (y = f x) ∧ (converges l x) := begin
+quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la x, (lb ≤ map f la) ∧ (y = f x) ∧ (converges la x) := begin
   split,
   -- Proving → direction.
   assume h : quotient_map f,
   split,
   exact h.1,
-  assume l' : filter β,
+  assume lb : filter β,
   assume y : β,
   split,
   rw h.2,
-  assume h' : converges_ (convergence_space.coinduced f) l' y,
+  assume h' : converges_ (convergence_space.coinduced f) lb y,
   cases h',
     case pure_case begin
       obtain ⟨x, hx⟩ := h.1 y,
@@ -631,25 +631,25 @@ quotient_map f ↔ surjective f ∧ ∀ l' y, converges l' y ↔ ∃ l x, (l' �
       rw ← filter.map_pure at h',
       exact ⟨pure x, x, h', eq.symm hx, pure_converges x⟩,
     end,
-    case other_case : l x h₁ h₂ h₃ begin
-      exact ⟨l, x, h₁, h₂, h₃⟩,
+    case other_case : la x h₁ h₂ h₃ begin
+      exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
-  rintro ⟨l : filter α, x : α, h₁ : l' ≤ map f l, h₂ : y = f x, h₃ : converges l x⟩,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
   rw h.2,
-  exact coinduced_converges.other_case l x h₁ h₂ h₃,
+  exact coinduced_converges.other_case la x h₁ h₂ h₃,
   -- Proving ← direction
   intro h,
   unfold quotient_map,
   split,
   exact h.1,
   rw convergence_space_eq_iff,
-  assume l' : filter β,
+  assume lb : filter β,
   assume y : β,
   rw h.2,
   split,
-  rintro ⟨l : filter α, x : α, h₁ : l' ≤ map f l, h₂ : y = f x, h₃ : converges l x⟩,
-  exact coinduced_converges.other_case l x h₁ h₂ h₃,
-  assume h' : converges_ (convergence_space.coinduced f) l' y,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
+  exact coinduced_converges.other_case la x h₁ h₂ h₃,
+  assume h' : converges_ (convergence_space.coinduced f) lb y,
   cases h',
     case pure_case begin
       obtain ⟨x, hx⟩ := h.1 y,
@@ -657,8 +657,8 @@ quotient_map f ↔ surjective f ∧ ∀ l' y, converges l' y ↔ ∃ l x, (l' �
       rw ← filter.map_pure at h',
       exact ⟨pure x, x, h', eq.symm hx, pure_converges x⟩,
     end,
-    case other_case : l x h₁ h₂ h₃ begin
-      exact ⟨l, x, h₁, h₂, h₃⟩,
+    case other_case : la x h₁ h₂ h₃ begin
+      exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
  end
 
