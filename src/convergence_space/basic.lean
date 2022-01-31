@@ -520,7 +520,7 @@ variables {α β} {f g : continuous_map α β}
 
 @[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := begin
   apply funext,
-  assume a : α,
+  assume x : α,
   apply comp_apply,
 end
 
@@ -532,9 +532,9 @@ instance [convergence_space α] [convergence_space β] : convergence_space C(α,
   converges := λ l f, ∀ (a : α) (l' : filter α), converges l' a → converges (map continuous_map.eval (l ×ᶠ l')) (f a),
   pure_converges := begin
     assume f : C(α, β),
-    assume a : α,
+    assume x : α,
     assume l' : filter α,
-    assume h : converges l' a,
+    assume h : converges l' x,
     have h' : map continuous_map.eval (pure f ×ᶠ l') = map f l', from calc
       map continuous_map.eval (pure f ×ᶠ l') = map continuous_map.eval (map (prod.mk f) l') : by simp [filter.pure_prod]
       ... = map (continuous_map.eval ∘ prod.mk f) l' : by simp [filter.map_map]
@@ -547,12 +547,12 @@ instance [convergence_space α] [convergence_space β] : convergence_space C(α,
     assume h₁ : l ≤ l',
     assume f : C(α, β),
     intro h, -- h : converges l' f,
-    assume a : α,
+    assume x : α,
     assume la : filter α,
-    assume ha : converges la a,
+    assume ha : converges la x,
     have h₂ : l ×ᶠ la ≤ l' ×ᶠ la, from filter.prod_mono h₁ (partial_order.le_refl la),
     have h₃ : map continuous_map.eval (l ×ᶠ la) ≤ map continuous_map.eval (l' ×ᶠ la), from filter.map_mono h₂,
-    exact le_converges h₃ (h a la ha),
+    exact le_converges h₃ (h x la ha),
   end,
 }
 
@@ -561,22 +561,22 @@ instance [convergence_space α] [convergence_space β] : convergence_space C(α,
 -------------------------------------------------------------------------------
 
 class t0_space (α : Type*) [convergence_space α] : Prop :=
-(t0_prop : ∀ a a' : α, converges (pure a) a' → converges (pure a') a → a = a')
+(t0_prop : ∀ x y : α, converges (pure x) y → converges (pure y) x → x = y)
 
 class r0_space (α : Type*) [convergence_space α] : Prop :=
-(r0_prop : ∀ a a', converges (pure a) a' → ∀ (l : filter α), converges l a ↔ converges l a')
+(r0_prop : ∀ x y, converges (pure x) y → ∀ (l : filter α), converges l x ↔ converges l y)
 
 class t1_space (α : Type*) [convergence_space α] : Prop :=
-(t1_prop : ∀ a a' : α, converges (pure a) a' → a = a')
+(t1_prop : ∀ x y : α, converges (pure x) y → x = y)
 
 class r1_space (α : Type*) [convergence_space α] : Prop :=
-(r1_prop : ∀ a a', ∃ (l : filter α) [ne_bot l], converges l a ∧ converges l a' → ∀ (l' : filter α), converges l' a ↔ converges l' a')
+(r1_prop : ∀ x y, ∃ (l : filter α) [ne_bot l], converges l x ∧ converges l y → ∀ (l' : filter α), converges l' x ↔ converges l' y)
 
 class t2_space (α : Type*) [convergence_space α] : Prop :=
-(t2_prop : ∀ a a', ∀ (l : filter α) [ne_bot l], converges l a ∧ converges l a' → a = a')
+(t2_prop : ∀ x y, ∀ (l : filter α) [ne_bot l], converges l x ∧ converges l y → x = y)
 
 class r2_space (α : Type*) [convergence_space α] : Prop :=
-(r2_prop : ∀ (a : α) (l : filter α), converges l a → converges (filter.generate (cl '' l.sets)) a)
+(r2_prop : ∀ (x : α) (l : filter α), converges l x → converges (filter.generate (cl '' l.sets)) x)
 
 class t3_space (α : Type*) [convergence_space α] extends t0_space α, r2_space α.
 
