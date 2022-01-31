@@ -18,11 +18,11 @@ universe u
 -- Convergence semigroups, monoids, groups
 -------------------------------------------------------------------------------
 
-class has_continuous_mul (X : Type*) [convergence_space X] [has_mul X] : Prop :=
-(continuous_mul : continuous (uncurry (*) : X × X → X))
+class has_continuous_mul (α : Type*) [convergence_space α] [has_mul α] : Prop :=
+(continuous_mul : continuous (uncurry (*) : α × α → α))
 
-class has_continuous_smul (S X : Type*) [has_scalar S X] [convergence_space S] [convergence_space X] : Prop :=
-(continuous_smul : continuous (uncurry (•) : S × X → X))
+class has_continuous_smul (S α : Type*) [has_scalar S α] [convergence_space S] [convergence_space α] : Prop :=
+(continuous_smul : continuous (uncurry (•) : S × α → α))
 
 class convergence_group (G : Type*) [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
@@ -53,7 +53,7 @@ end ConvGroup
 
 instance : category ConvGroup := {
   hom := ConvGroup.hom,
-  comp := λ X Y Z f g, {
+  comp := λ α Y Z f g, {
     to_fun := g ∘ f,
     to_fun_continuous := begin
       exact continuous.comp (g.to_fun_continuous) (f.to_fun_continuous),
@@ -61,7 +61,7 @@ instance : category ConvGroup := {
     to_fun_group_hom := sorry,
   },
   id := λ G, {
-    to_fun := λ x, x,
+    to_fun := λ a, a,
     to_fun_continuous := continuous_id,
     to_fun_group_hom := sorry,
   },
@@ -71,62 +71,62 @@ instance : category ConvGroup := {
 -- Partial group actions
 -------------------------------------------------------------------------------
 
-class partial_group_action (G X : Type*) [group G] :=
-(act : G → X → option X)
-(identity : ∀ {x}, act 1 x = option.some x)
-(compatibility : ∀ {h} {x}, is_some (act h x) → ∀ g, act (g * h) x = act h x >>= act g)
+class partial_group_action (G α : Type*) [group G] :=
+(act : G → α → option α)
+(identity : ∀ {a}, act 1 a = option.some a)
+(compatibility : ∀ {h} {a}, is_some (act h a) → ∀ g, act (g * h) a = act h a >>= act g)
 (injective : ∀ {g} {x}, is_some (act g x) → ∀ y, act g x = act g y → x = y)
 
 open partial_group_action
 
 class continuous_partial_group_action
-  (G X : Type*)
+  (G α : Type*)
   [group G]
   [convergence_space G]
   [convergence_group G]
-  [convergence_space X]
-  [partial_group_action G X] :=
-(continuity : continuous (uncurry act : G × X → option X))
+  [convergence_space α]
+  [partial_group_action G α] :=
+(continuity : continuous (uncurry act : G × α → option α))
 
 structure PartAct :=
-(G X : Type*)
+(G α : Type*)
 [group_is_group : group G]
-[the_action : partial_group_action G X]
+[the_action : partial_group_action G α]
 
 def the_group (action : PartAct) : Type* := action.G
-def the_set (action : PartAct) : Type* := action.X
+def the_set (action : PartAct) : Type* := action.α
 
---instance : has_coe_to_fun (PartAct) (λ action, action.G × action.X → action.X) := ⟨action.the_action.act⟩
+--instance : has_coe_to_fun (PartAct) (λ action, action.G × action.α → action.α) := ⟨action.the_action.act⟩
 
 structure ContPartAct extends PartAct :=
 [group_is_convergence_space : convergence_space G]
 [group_is_convergence_group : convergence_group G]
-[set_is_convergence_space : convergence_space X]
-(action_is_continuous :  continuous (λ p : G × X, act p.1 p.2))
+[set_is_convergence_space : convergence_space α]
+(action_is_continuous :  continuous (λ p : G × α, act p.1 p.2))
 
 -------------------------------------------------------------------------------
 -- Enveloping action
 -------------------------------------------------------------------------------
 
-def envelope (G X : Type*) [group G] [partial_group_action G X] : G × X → G × X → Prop :=
+def envelope (G α : Type*) [group G] [partial_group_action G α] : G × α → G × α → Prop :=
  λ ⟨g, x⟩ ⟨h, y⟩, act (h⁻¹ * g) x = some y
 
 namespace envelope
 
-variables {G X : Type*} [group G] [partial_group_action G X]
+variables {G α : Type*} [group G] [partial_group_action G α]
 
-theorem is_reflexive : reflexive (envelope G X) := begin
+theorem is_reflexive : reflexive (envelope G α) := begin
   intros,
   unfold reflexive,
-  rintro (⟨g, x⟩ : G × X),
+  rintro (⟨g, x⟩ : G × α),
   unfold envelope,
   simp [identity],
 end
 
-theorem is_symmetric : symmetric (envelope G X) := begin
+theorem is_symmetric : symmetric (envelope G α) := begin
   intros,
   unfold symmetric,
-  rintro ⟨g, x⟩ ⟨h, y⟩ : G × X,
+  rintro ⟨g, x⟩ ⟨h, y⟩ : G × α,
   unfold envelope,
   intro heq,
   have heq' : is_some (act (h⁻¹ * g) x), simp [heq],
@@ -138,10 +138,10 @@ theorem is_symmetric : symmetric (envelope G X) := begin
     ... = some x : by exact identity
 end
 
-theorem is_transitive : transitive (envelope G X) := begin
+theorem is_transitive : transitive (envelope G α) := begin
   intros,
   unfold transitive,
-  rintro ⟨g, x⟩ ⟨h, y⟩ ⟨k, z⟩ : G × X,
+  rintro ⟨g, x⟩ ⟨h, y⟩ ⟨k, z⟩ : G × α,
   unfold envelope,
   assume heq₁ : act (h⁻¹ * g) x = some y,
   assume heq₂ : act (k⁻¹ * h) y = some z,
@@ -156,22 +156,22 @@ theorem is_transitive : transitive (envelope G X) := begin
     ... = some z : by rw heq₂
 end
 
-theorem is_equivalence : equivalence (envelope G X) := ⟨is_reflexive, is_symmetric, is_transitive⟩
+theorem is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 
-instance : setoid (G × X) := {
-  r := envelope G X,
+instance : setoid (G × α) := {
+  r := envelope G α,
   iseqv := is_equivalence,
 }
 
-def quotient_map : G × X → quote (envelope G X) := λ ⟨g, x⟩, ⟦(g, x)⟧
+def quotient_map : G × α → quote (envelope G α) := λ ⟨g, x⟩, ⟦(g, x)⟧
 
-def pure (x : X) : quot (envelope G X) := ⟦(1, x)⟧
+def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
-def act : G → G × X → quot (envelope G X) :=
+def act : G → G × α → quot (envelope G α) :=
 λ g ⟨h, y⟩, ⟦(g * h, y)⟧
 
-theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := begin
-  rintros (g : G) (⟨h₁,y₁⟩ : G × X) (⟨h₂,y₂⟩ : G × X) h,
+theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × α) (h : h₁y₁ ≈ h₂y₂), envelope.act g h₁y₁ = envelope.act g h₂y₂ := begin
+  rintros (g : G) (⟨h₁,y₁⟩ : G × α) (⟨h₂,y₂⟩ : G × α) h,
   unfold act,
   simp [quotient.eq],
   unfold has_equiv.equiv,
@@ -181,14 +181,14 @@ theorem act_congr : ∀ (g : G) (h₁y₁ h₂y₂ : G × X) (h : h₁y₁ ≈ h
   assumption,
 end
 
-instance : has_scalar G (quot (envelope G X)) := {
+instance : has_scalar G (quot (envelope G α)) := {
   smul := λ g x, quotient.lift (envelope.act g) (envelope.act_congr g) x,
 }
 
 instance
 [convergence_space G] [convergence_group G]
-[convergence_space X] [continuous_partial_group_action G X] :
-has_continuous_smul G (quot (envelope G X)) := {
+[convergence_space α] [continuous_partial_group_action G α] :
+has_continuous_smul G (quot (envelope G α)) := {
   continuous_smul := begin
     unfold continuous,
     sorry,
@@ -202,10 +202,10 @@ end envelope
 -------------------------------------------------------------------------------
 
 variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
-variables {X : Type*} [convergence_space X] [partial_group_action G X] [continuous_partial_group_action G X]
+variables {α : Type*} [convergence_space α] [partial_group_action G α] [continuous_partial_group_action G α]
 
 def adh_restrictive : Prop :=
-∀ {𝒢 : filter G} {ℱ : filter X}, adh ℱ = ∅ → ∃ g : G, converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+∀ {l' : filter G} {l : filter α}, adh l = ∅ → ∃ g : G, converges l' g → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
 
 def weakly_adh_restrictive : Prop :=
-∀ {𝒢 : filter G} {ℱ : filter X}, adh (map (@envelope.pure G _ _ _) ℱ) = ∅ → ∃ g : G, converges 𝒢 g → ∀ x, option.some x ∉ adh (map (uncurry act) (𝒢 ×ᶠ ℱ))
+∀ {l' : filter G} {l : filter α}, adh (map (@envelope.pure G _ _ _) l) = ∅ → ∃ g : G, converges l' g → ∀ x, option.some x ∉ adh (map (uncurry act) (l' ×ᶠ l))
