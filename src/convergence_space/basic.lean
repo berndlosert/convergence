@@ -378,11 +378,11 @@ def convergence_space.induced (f : α → β) [convergence_space β] : convergen
   pure_converges := by simp [filter.map_pure, pure_converges],
   le_converges := begin
     assume l l' : filter α,
-    assume le₁ : l ≤ l',
+    assume hl : l ≤ l',
     assume x : α,
     assume h : converges (map f l') (f x),
-    have le₂ : map f l ≤ map f l', apply map_mono le₁,
-    apply le_converges le₂ h
+    have hl' : map f l ≤ map f l', apply map_mono hl,
+    apply le_converges hl' h
   end,
 }
 
