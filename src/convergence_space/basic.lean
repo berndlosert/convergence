@@ -374,13 +374,13 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
  -- structure on `α` is the grextest convergence structure making `f`
  -- continuous. -/
 def convergence_space.induced (f : α → β) [convergence_space β] : convergence_space α := {
-  converges := λ l a, converges (map f l) (f a),
+  converges := λ l x, converges (map f l) (f x),
   pure_converges := by simp [filter.map_pure, pure_converges],
   le_converges := begin
     assume l l' : filter α,
     assume hl : l ≤ l',
-    assume a : α,
-    assume h : converges (map f l') (f a),
+    assume x : α,
+    assume h : converges (map f l') (f x),
     have hl' : map f l ≤ map f l', apply map_mono hl,
     apply le_converges hl' h
   end,
@@ -391,14 +391,14 @@ lemma continuous.induced_le (f : α → β) [p : convergence_space α] [converge
 := begin
   unfold has_le.le,
   assume l : filter α,
-  assume a : α,
-  assume h : converges_ p l a,
+  assume x : α,
+  assume h : converges_ p l x,
   exact hf h,
 end
 
-inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (b : β) : Prop
-| pure_case (_ : lb ≤ pure b) : coinduced_converges
-| other_case (la : filter α) (a : α) (_ : lb ≤ map f la) (_ : b = f a) (_ : converges la a) : coinduced_converges
+inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (y : β) : Prop
+| pure_case (_ : lb ≤ pure y) : coinduced_converges
+| other_case (la : filter α) (x : α) (_ : lb ≤ map f la) (_ : y = f x) (_ : converges la x) : coinduced_converges
 
 /-- Given `f : α → β`, where `α` is convergence space, the coinduced convergence
  -- structure on `β` is the least convergence structure making `f`
@@ -409,23 +409,23 @@ def convergence_space.coinduced (f : α → β) [convergence_space α] : converg
   le_converges := begin
     assume lb₁ lb₂ : filter β,
     assume : lb₁ ≤ lb₂,
-    assume b : β,
-    assume h : coinduced_converges f lb₂ b,
+    assume y : β,
+    assume h : coinduced_converges f lb₂ y,
     cases h,
       case pure_case begin
-        have : lb₁ ≤ pure b, from calc
+        have : lb₁ ≤ pure y, from calc
           lb₁ ≤ lb₂ : (by assumption : lb₁ ≤ lb₂)
-          ... ≤ pure b : (by assumption : lb₂ ≤ pure b),
-        exact coinduced_converges.pure_case (by assumption : lb₁ ≤ pure b),
+          ... ≤ pure y : (by assumption : lb₂ ≤ pure y),
+        exact coinduced_converges.pure_case (by assumption : lb₁ ≤ pure y),
       end,
-      case other_case : la a _ _ _ begin
+      case other_case : la x _ _ _ begin
         have : lb₁ ≤ map f la, from calc
           lb₁ ≤ lb₂ : (by assumption : lb₁ ≤ lb₂)
           ... ≤ map f la : (by assumption : lb₂ ≤ map f la),
-        exact coinduced_converges.other_case la a
+        exact coinduced_converges.other_case la x
           (by assumption : lb₁ ≤ map f la)
-          (by assumption : b = f a)
-          (by assumption : converges la a)
+          (by assumption : y = f x)
+          (by assumption : converges la x)
         end
   end,
 }
