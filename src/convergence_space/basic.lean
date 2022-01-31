@@ -271,13 +271,13 @@ instance : semilattice_inf (convergence_space α) := {
   end,
   le_inf := begin
     assume p q r : convergence_space α,
-    assume le₁ : p ≤ q,
-    assume le₂ : p ≤ r,
+    assume h₁ : p ≤ q,
+    assume h₂ : p ≤ r,
     assume l : filter α,
     assume x : α,
     assume hp : converges_ p l x,
-    have hq : converges_ q l x, from le₁ hp,
-    have hr : converges_ r l x, from le₂ hp,
+    have hq : converges_ q l x, from h₁ hp,
+    have hr : converges_ r l x, from h₂ hp,
     exact and.intro hq hr
   end,
   ..convergence_space.partial_order,
