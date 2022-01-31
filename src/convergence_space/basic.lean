@@ -18,21 +18,21 @@ variables {α β γ : Type*}
 /-- Instances of this class will be refered to as convergence structures. -/
 @[ext] class convergence_space (α : Type*) :=
 (converges : filter α → α → Prop)
-(pure_converges : ∀ a, converges (pure a) a)
-(le_converges : ∀ {l l'}, l ≤ l' → ∀ {a}, converges l' a → converges l a)
+(pure_converges : ∀ x, converges (pure x) x)
+(le_converges : ∀ {l l'}, l ≤ l' → ∀ {x}, converges l' x → converges l x)
 
 open convergence_space
 
 section
 variables (p : convergence_space α)
-def converges_ (l : filter α) (a : α) : Prop := @converges _ p l a
-def pure_converges_ (a : α) : converges (pure a) a := @pure_converges _ p a
-def le_converges_ ⦃l l' : filter α⦄ (h : l ≤ l') {a : α} (h' : converges l' a) : converges l a
+def converges_ (l : filter α) (x : α) : Prop := @converges _ p l x
+def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
+def le_converges_ ⦃l l' : filter α⦄ (h : l ≤ l') {x : α} (h' : converges l' x) : converges l x
 := @le_converges _ p _ _ h _ h'
 end
 
 theorem convergence_space_eq_iff {p q : convergence_space α} :
-p = q ↔ ∀ l a, @converges _ p l a ↔ @converges _ q l a :=
+p = q ↔ ∀ l x, @converges _ p l x ↔ @converges _ q l x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
 -------------------------------------------------------------------------------
@@ -40,15 +40,15 @@ by simp [funext_iff, convergence_space.ext_iff p q]
 -------------------------------------------------------------------------------
 
 instance : has_le (convergence_space α) := {
-  le := λ p q, ∀ {l} {a}, @converges _ p l a → @converges _ q l a
+  le := λ p q, ∀ {l x}, @converges _ p l x → @converges _ q l x
 }
 
 instance : partial_order (convergence_space α) := {
   le_refl := begin
     assume p : convergence_space α,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ p l a,
+    assume x : α,
+    assume h : converges_ p l x,
     exact h,
   end,
   le_trans := begin
@@ -56,15 +56,15 @@ instance : partial_order (convergence_space α) := {
     assume h₁ : p ≤ q,
     assume h₂ : q ≤ r,
     assume l : filter α,
-    assume a : α,
-    assume h : converges_ p l a,
+    assume x : α,
+    assume h : converges_ p l x,
     exact (h₂ (h₁ h))
   end,
   le_antisymm := begin
     assume p q : convergence_space α,
     assume h₁ : p ≤ q,
     assume h₂ : q ≤ p,
-    ext l a,
+    ext l x,
     exact iff.intro h₁ h₂,
   end,
   ..convergence_space.has_le
@@ -77,7 +77,7 @@ instance : partial_order (convergence_space α) := {
 /-- The indiscrete convergence structure is the one where everb filter
  -- converges to everb point. -/
 def indiscrete : convergence_space α := {
-  converges := λ l a, true,
+  converges := λ l x, true,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
@@ -89,7 +89,7 @@ instance : has_top (convergence_space α) := {
 /-- The discrete convergence structure is the one where the onlb proper filters
  -- that converge are the `pure` ones. -/
 def discrete : convergence_space α := {
-  converges := λ l a, l ≤ pure a,
+  converges := λ l x, l ≤ pure x,
   pure_converges := by tauto,
   le_converges := by tauto,
 }
@@ -104,16 +104,16 @@ instance : has_bot (convergence_space α) := {
 
 instance : has_inf (convergence_space α) := {
   inf := λ p q, {
-    converges := fun l a, and (converges_ p l a) (converges_ q l a),
+    converges := fun l x, and (converges_ p l x) (converges_ q l x),
     pure_converges := begin
-      assume a : α,
-      exact and.intro (pure_converges_ p a) (pure_converges_ q a),
+      assume x : α,
+      exact and.intro (pure_converges_ p x) (pure_converges_ q x),
     end,
     le_converges := begin
       assume l l' : filter α,
       assume h : l ≤ l',
-      assume a : α,
-      assume h' : and (converges_ p l' a) (converges_ q l' a),
+      assume x : α,
+      assume h' : and (converges_ p l' x) (converges_ q l' x),
       exact and.intro (le_converges_ p h h'.left) (le_converges_ q h h'.right)
     end,
   }
