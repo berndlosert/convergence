@@ -646,7 +646,7 @@ class compact_space (α : Type*) [convergence_space α] : Prop :=
 
 theorem is_compact.image {f : α → β} {s : set α}
   [convergence_space α] [convergence_space β]
-  (hcom : is_compact s) (h₁ : continuous f) : is_compact (f '' s) :=
+  (hcom : is_compact s) (hcont : continuous f) : is_compact (f '' s) :=
 begin
   unfold is_compact,
   assume lb : ultrafilter β,
@@ -655,7 +655,7 @@ begin
   let h₃ : ultrafilter.map f la = lb := ultrafilter.of_comap_inf_principal_eq_of_map h₂,
   let h₄ : s ∈ la := ultrafilter.of_comap_inf_principal_mem h₂,
   obtain ⟨x, h₅ : converges la.to_filter x⟩ := hcom h₄,
-  have : converges (map f la) (f x) := h₁ h₅,
+  have : converges (map f la) (f x) := hcont h₅,
   rw ← h₃,
   use f x,
   tauto,
