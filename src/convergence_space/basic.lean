@@ -317,13 +317,6 @@ instance : complete_lattice (convergence_space α) :=
     exact le_converges_ p this (pure_converges_ p x),
   end,
   le_top := by intros; tauto,
-  --begin
-  --  assume p : convergence_space α,
-  --  assume l : filter α,
-  --  assume x : α,
-  --  assume h : converges_ p l x,
-  --  tauto,
-  --end,
   ..convergence_space.lattice,
   ..convergence_space.complete_semilattice_Sup,
   ..convergence_space.complete_semilattice_Inf,
@@ -334,12 +327,13 @@ instance : complete_lattice (convergence_space α) :=
 -- Continuity
 -------------------------------------------------------------------------------
 
-def continuous [convergence_space α] [convergence_space β] (f : α → β) : Prop :=
-∀ ⦃x l⦄, converges l x → converges (map f l) (f x)
+def continuous [convergence_space α] [convergence_space β] (m : α → β) : Prop :=
+∀ ⦃x f⦄, converges f x → converges (map m f) (m x)
 
-lemma continuous.comp
-[convergence_space α] [convergence_space β] [convergence_space γ] {g : β → γ} {f : α → β}
-(hg : continuous g) (hf : continuous f) : continuous (g ∘ f) := begin
+lemma continuous.comp [convergence_space α] [convergence_space β]
+  [convergence_space γ] {g : β → γ} {f : α → β} (hg : continuous g)
+  (hf : continuous f) : continuous (g ∘ f) :=
+begin
   assume x : α,
   assume l : filter α,
   assume : converges l x,
@@ -348,15 +342,17 @@ lemma continuous.comp
   convert this,
 end
 
-lemma continuous_id [convergence_space α] : continuous (id : α → α) := begin
+lemma continuous_id [convergence_space α] : continuous (id : α → α) :=
+begin
   assume x : α,
-  assume l : filter α,
-  assume : converges l x,
+  assume f : filter α,
+  assume : converges f x,
   simp [filter.map_id],
   exact this,
 end
 
-structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β] extends α ≃ β :=
+structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
+  extends α ≃ β :=
 (continuous_to_fun : continuous to_fun)
 (continuous_inv_fun : continuous inv_fun)
 
@@ -364,21 +360,21 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 -- Induced/coinduced convergence space
 -------------------------------------------------------------------------------
 
-/-- Given `f : α → β`, where `β` is convergence space, the induced convergence
- -- structure on `α` is the grextest convergence structure making `f`
- -- continuous. -/
-def convergence_space.induced (f : α → β) [convergence_space β] : convergence_space α := {
-  converges := λ l x, converges (map f l) (f x),
+/-- Given `m : α → β`, where `β` is convergence space, the induced convergence
+  structure on `α` is the grextest convergence structure making `m`
+  continuous. -/
+def convergence_space.induced (m : α → β) [convergence_space β] : convergence_space α :=
+{ converges := λ f x, converges (map m f) (m x),
   pure_converges := by simp [filter.map_pure, pure_converges],
-  le_converges := begin
-    assume l l' : filter α,
-    assume hl : l ≤ l',
+  le_converges :=
+  begin
+    assume f g : filter α,
+    assume hle : f ≤ g,
     assume x : α,
-    assume h : converges (map f l') (f x),
-    have hl' : map f l ≤ map f l', apply map_mono hl,
-    apply le_converges hl' h
-  end,
-}
+    assume hconv : converges (map m g) (m x),
+    have hle' : map m f ≤ map m g, apply map_mono hle,
+    apply le_converges hle' hconv
+  end }
 
 lemma continuous.induced_le (f : α → β) [p : convergence_space α] [convergence_space β] (hf : continuous f)
 : p ≤ convergence_space.induced f
