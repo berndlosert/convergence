@@ -638,7 +638,8 @@ class t3_space (α : Type*) [convergence_space α] extends
 -- Compact sets/spaces
 -------------------------------------------------------------------------------
 
-def is_compact [convergence_space α] (s : set α) := ∀ ⦃l : ultrafilter α⦄, s ∈ l → ∃ x, converges l.to_filter x
+def is_compact [convergence_space α] (s : set α) :=
+∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x
 
 class compact_space (α : Type*) [convergence_space α] : Prop :=
 (compact_prop : is_compact (univ : set α))
