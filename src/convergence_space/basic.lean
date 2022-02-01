@@ -666,11 +666,13 @@ end
 -- Quotient maps
 -------------------------------------------------------------------------------
 
-def quotient_map [convergence_space α] [q : convergence_space β] (f : α → β) : Prop :=
-surjective f ∧ q = convergence_space.coinduced f
+def quotient_map [convergence_space α] [q : convergence_space β]
+(f : α → β) : Prop := surjective f ∧ q = convergence_space.coinduced f
 
-lemma quotient_map_iff [convergence_space α] [q : convergence_space β] {f : α → β} :
-quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la x, (lb ≤ map f la) ∧ (y = f x) ∧ (converges la x) := begin
+lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
+{f : α → β} : quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔
+∃ la x, (lb ≤ map f la) ∧ (y = f x) ∧ (converges la x) :=
+begin
   split,
   -- Proving → direction.
   assume h : quotient_map f,
@@ -717,7 +719,7 @@ quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔ ∃ la x, (lb �
     case other_case : la x h₁ h₂ h₃ begin
       exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
- end
+end
 
 /-
 lemma quotient_prod_map
