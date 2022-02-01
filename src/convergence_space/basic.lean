@@ -363,7 +363,8 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 /-- Given `m : α → β`, where `β` is convergence space, the induced convergence
   structure on `α` is the grextest convergence structure making `m`
   continuous. -/
-def convergence_space.induced (m : α → β) [convergence_space β] : convergence_space α :=
+def convergence_space.induced (m : α → β) [convergence_space β] :
+  convergence_space α :=
 { converges := λ f x, converges (map m f) (m x),
   pure_converges := by simp [filter.map_pure, pure_converges],
   le_converges :=
@@ -376,14 +377,15 @@ def convergence_space.induced (m : α → β) [convergence_space β] : convergen
     apply le_converges hle' hconv
   end }
 
-lemma continuous.induced_le (f : α → β) [p : convergence_space α] [convergence_space β] (hf : continuous f)
-: p ≤ convergence_space.induced f
-:= begin
+lemma continuous.induced_le (m : α → β) [p : convergence_space α]
+  [convergence_space β] (hm : continuous m) :
+  p ≤ convergence_space.induced m :=
+begin
   unfold has_le.le,
-  assume l : filter α,
+  assume f : filter α,
   assume x : α,
-  assume h : converges_ p l x,
-  exact hf h,
+  assume : converges_ p f x,
+  exact hm this,
 end
 
 inductive coinduced_converges (f : α → β) [convergence_space α] (lb : filter β) (y : β) : Prop
