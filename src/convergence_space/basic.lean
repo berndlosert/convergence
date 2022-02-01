@@ -600,25 +600,39 @@ instance [convergence_space α] [convergence_space β] :
 -- Separation aaioms
 -------------------------------------------------------------------------------
 
+/-- In a T₀ space, the equality of two points can be determined by checking
+  if the corresponding pure filters converge to the other point. -/
 class t0_space (α : Type*) [convergence_space α] : Prop :=
-(t0_prop : ∀ x y : α, converges (pure x) y → converges (pure y) x → x = y)
+(t0_prop : ∀ x y : α, converges (pure x) y ∧ converges (pure y) x ↔ x = y)
 
+/-- In an R₀ space, if `pure x` converges to `y`, then `x` and `y` have the
+  same convergent filters. -/
 class r0_space (α : Type*) [convergence_space α] : Prop :=
-(r0_prop : ∀ x y, converges (pure x) y → ∀ (l : filter α), converges l x ↔ converges l y)
+(r0_prop : ∀ x y, converges (pure x) y →
+∀ (f : filter α), converges f x ↔ converges f y)
 
+/-- In a T₁ space, the `pure` filters have exactly one limit. -/
 class t1_space (α : Type*) [convergence_space α] : Prop :=
 (t1_prop : ∀ x y : α, converges (pure x) y → x = y)
 
+/-- In an R₁ space, if a `x` and `y` are the limits of a proper filter, then
+  they share the same convergent filters. -/
 class r1_space (α : Type*) [convergence_space α] : Prop :=
-(r1_prop : ∀ x y, ∃ (l : filter α) [ne_bot l], converges l x ∧ converges l y → ∀ (l' : filter α), converges l' x ↔ converges l' y)
+(r1_prop : ∀ x y, ∃ (f : filter α) [ne_bot f], converges f x ∧ converges f y →
+  ∀ (g : filter α), converges g x ↔ converges g y)
 
+/-- In a T₂ space, every proper filter has exactly one limit. -/
 class t2_space (α : Type*) [convergence_space α] : Prop :=
-(t2_prop : ∀ x y, ∀ (l : filter α) [ne_bot l], converges l x ∧ converges l y → x = y)
+(t2_prop : ∀ x y, ∀ (f : filter α) [ne_bot f],
+  converges f x ∧ converges f y → x = y)
 
+/-- In an R₂ space, if a filter converges, then so does its closure. -/
 class r2_space (α : Type*) [convergence_space α] : Prop :=
-(r2_prop : ∀ (x : α) (l : filter α), converges l x → converges (cl l) x)
+(r2_prop : ∀ (x : α) (f : filter α), converges f x → converges (cl f) x)
 
-class t3_space (α : Type*) [convergence_space α] extends t0_space α, r2_space α.
+/-- A T₃ space is a T₀ & R₂ space. -/
+class t3_space (α : Type*) [convergence_space α] extends
+  t0_space α, r2_space α.
 
 -------------------------------------------------------------------------------
 -- Compact sets/spaces
