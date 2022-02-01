@@ -425,20 +425,20 @@ def convergence_space.coinduced (m : α → β) [convergence_space α] :
         end
   end }
 
-lemma continuous.le_coinduced (f : α → β) [convergence_space α]
-  [q : convergence_space β] (hf : continuous f) :
-  convergence_space.coinduced f ≤ q :=
+lemma continuous.le_coinduced (m : α → β) [convergence_space α]
+  [q : convergence_space β] (hm : continuous m) :
+  convergence_space.coinduced m ≤ q :=
 begin
   unfold has_le.le,
-  assume lb : filter β,
+  assume g : filter β,
   assume y : β,
-  assume h : converges_ (convergence_space.coinduced f) lb y,
-  cases h,
+  assume hconv : converges_ (convergence_space.coinduced m) g y,
+  cases hconv,
     case pure_case begin
-      exact le_converges_ q h (pure_converges_ q y),
+      exact le_converges_ q hconv (pure_converges_ q y),
     end,
-    case other_case : la x h₀ h₁ h₂ begin
-      have : converges_ q (map f la) (f x), from hf h₂,
+    case other_case : f x h₀ h₁ h₂ begin
+      have : converges_ q (map m f) (m x), from hm h₂,
       rw h₁,
       exact le_converges_ q h₀ this,
     end
