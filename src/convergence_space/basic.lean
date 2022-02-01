@@ -388,6 +388,7 @@ begin
   exact hm this,
 end
 
+/-- The coinduced convergence of a mapping `m : α → β`. -/
 inductive coinduced_converges (m : α → β) [convergence_space α]
   (g : filter β) (y : β) : Prop
 | pure_case (_ : g ≤ pure y) : coinduced_converges
@@ -395,8 +396,8 @@ inductive coinduced_converges (m : α → β) [convergence_space α]
   (_ : y = m x) (_ : converges f x) : coinduced_converges
 
 /-- Given `m : α → β`, where `α` is convergence space, the coinduced convergence
- -- structure on `β` is the least convergence structure making `m`
- -- continuous. -/
+  structure on `β` is the least convergence structure making `m`
+  continuous. -/
 def convergence_space.coinduced (m : α → β) [convergence_space α] :
   convergence_space β :=
 { converges := coinduced_converges m,
