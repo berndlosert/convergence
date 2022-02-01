@@ -670,19 +670,19 @@ def quotient_map [convergence_space α] [q : convergence_space β]
 (f : α → β) : Prop := surjective f ∧ q = convergence_space.coinduced f
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
-{f : α → β} : quotient_map f ↔ surjective f ∧ ∀ lb y, converges lb y ↔
-∃ la x, (lb ≤ map f la) ∧ (y = f x) ∧ (converges la x) :=
+{m : α → β} : quotient_map m ↔ surjective m ∧ ∀ lb y, converges lb y ↔
+∃ la x, (lb ≤ map m la) ∧ (y = m x) ∧ (converges la x) :=
 begin
   split,
   -- Proving → direction.
-  assume h : quotient_map f,
+  assume h : quotient_map m,
   split,
   exact h.1,
   assume lb : filter β,
   assume y : β,
   split,
   rw h.2,
-  assume h' : converges_ (convergence_space.coinduced f) lb y,
+  assume h' : converges_ (convergence_space.coinduced m) lb y,
   cases h',
     case pure_case begin
       obtain ⟨x, ha⟩ := h.1 y,
@@ -693,7 +693,7 @@ begin
     case other_case : la x h₁ h₂ h₃ begin
       exact ⟨la, x, h₁, h₂, h₃⟩,
     end,
-  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map m la, h₂ : y = m x, h₃ : converges la x⟩,
   rw h.2,
   exact coinduced_converges.other_case la x h₁ h₂ h₃,
   -- Proving ← direction
@@ -706,9 +706,9 @@ begin
   assume y : β,
   rw h.2,
   split,
-  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map f la, h₂ : y = f x, h₃ : converges la x⟩,
+  rintro ⟨la : filter α, x : α, h₁ : lb ≤ map m la, h₂ : y = m x, h₃ : converges la x⟩,
   exact coinduced_converges.other_case la x h₁ h₂ h₃,
-  assume h' : converges_ (convergence_space.coinduced f) lb y,
+  assume h' : converges_ (convergence_space.coinduced m) lb y,
   cases h',
     case pure_case begin
       obtain ⟨x, ha⟩ := h.1 y,
