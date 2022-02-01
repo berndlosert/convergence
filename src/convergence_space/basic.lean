@@ -644,20 +644,21 @@ def is_compact [convergence_space α] (s : set α) :=
 class compact_space (α : Type*) [convergence_space α] : Prop :=
 (compact_prop : is_compact (univ : set α))
 
-theorem is_compact.image {f : α → β} {s : set α}
+theorem is_compact.image {m : α → β} {s : set α}
   [convergence_space α] [convergence_space β]
-  (hcom : is_compact s) (hcont : continuous f) : is_compact (f '' s) :=
+  (hcom : is_compact s) (hcont : continuous m) : is_compact (m '' s) :=
 begin
   unfold is_compact,
-  assume lb : ultrafilter β,
-  assume h₂ : f '' s ∈ lb,
-  let la := ultrafilter.of_comap_inf_principal h₂,
-  let h₃ : ultrafilter.map f la = lb := ultrafilter.of_comap_inf_principal_eq_of_map h₂,
-  let h₄ : s ∈ la := ultrafilter.of_comap_inf_principal_mem h₂,
-  obtain ⟨x, h₅ : converges la.to_filter x⟩ := hcom h₄,
-  have : converges (map f la) (f x) := hcont h₅,
-  rw ← h₃,
-  use f x,
+  assume g : ultrafilter β,
+  assume hmem : m '' s ∈ g,
+  let f := ultrafilter.of_comap_inf_principal hmem,
+  let heq : ultrafilter.map m f = g :=
+    ultrafilter.of_comap_inf_principal_eq_of_map hmem,
+  let hmem' : s ∈ f := ultrafilter.of_comap_inf_principal_mem hmem,
+  obtain ⟨x, hconv : converges f.to_filter x⟩ := hcom hmem',
+  have : converges (map m f) (m x) := hcont hconv,
+  rw ← heq,
+  use m x,
   tauto,
 end
 
