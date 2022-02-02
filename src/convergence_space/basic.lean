@@ -670,8 +670,8 @@ def quotient_map [convergence_space α] [q : convergence_space β]
 (f : α → β) : Prop := surjective f ∧ q = convergence_space.coinduced f
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
-{m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
-∃ f x, (g ≤ map m f) ∧ (y = m x) ∧ (converges f x) :=
+  {m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
+  ∃ f x, (g ≤ map m f) ∧ (y = m x) ∧ (converges f x) :=
 begin
   split,
   -- Proving → direction.
