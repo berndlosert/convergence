@@ -388,6 +388,16 @@ begin
   exact hm this,
 end
 
+lemma continuous_induced_dom {m : α → β} {q : convergence_space β} :
+  @continuous α β (@convergence_space.induced α β m q) q m :=
+begin
+  assume x : α,
+  assume f : filter α,
+  let p := @convergence_space.induced α β m q,
+  assume hconv : converges_ p f x,
+  assumption,
+end
+
 /-- The coinduced convergence of a mapping `m : α → β`. -/
 inductive coinduced_converges (m : α → β) [convergence_space α]
   (g : filter β) (y : β) : Prop
@@ -497,7 +507,19 @@ def nhds (x : α) : filter α := ⨅ f ∈ {g : filter α | converges g x}, f
 end
 
 -------------------------------------------------------------------------------
--- Convergence spaces constructions
+-- Product spaces
+-------------------------------------------------------------------------------
+
+instance [convergence_space α] [convergence_space β] : convergence_space (α × β) :=
+convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
+
+/-
+lemma continuous_fst : continuous (@prod.fst α β) :=
+continuous_inf_dom_left continuous_induced_dom
+-/
+
+-------------------------------------------------------------------------------
+-- Other convergence spaces constructions
 -------------------------------------------------------------------------------
 
 instance {p : α → Prop} [convergence_space α] : convergence_space (subtype p) :=
@@ -505,22 +527,6 @@ convergence_space.induced (coe : subtype p → α)
 
 instance {r : α → α → Prop} [convergence_space α] : convergence_space (quot r) :=
 convergence_space.coinduced (quot.mk r)
-
-instance [convergence_space α] [convergence_space β] : convergence_space (α × β) :=
-convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
-
-/-
-lemma prod_fst_continuous [convergence_space α] [convergence_space β]
-: continuous (prod.fst : α × β → α)
-:= begin
-  unfold continuous,
-  assume p : α × β,
-  assume l : filter (α × β),
-  assume h : converges l p,
-  have : converges_ (convergence_space.induced prod.fst) l p.fst, from
-  --have : converges_ (convergence_space.induced prod.fst)
-end
--/
 
 instance [convergence_space α] : convergence_space (option α) :=
 convergence_space.coinduced some
