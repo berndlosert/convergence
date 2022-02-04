@@ -330,6 +330,10 @@ instance : complete_lattice (convergence_space α) :=
 def continuous [convergence_space α] [convergence_space β] (m : α → β) : Prop :=
 ∀ ⦃x f⦄, converges f x → converges (map m f) (m x)
 
+def continuous_ (p : convergence_space α) (q : convergence_space β)
+  (m : α → β) : Prop :=
+@continuous α β p q m
+
 lemma continuous.comp [convergence_space α] [convergence_space β]
   [convergence_space γ] {g : β → γ} {f : α → β} (hg : continuous g)
   (hf : continuous f) : continuous (g ∘ f) :=
@@ -350,6 +354,10 @@ begin
   simp [filter.map_id],
   exact this,
 end
+
+--lemma continuous_inf_dom_left {p q : convergence_space α}
+--  {r : convergence_space β} : cont t₁ t₃ f → @continuous (t₁ ⊓ t₂) t₃ f :=
+--  continuous_le_dom inf_le_left
 
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
@@ -389,7 +397,7 @@ begin
 end
 
 lemma continuous_induced_dom {m : α → β} {q : convergence_space β} :
-  @continuous α β (@convergence_space.induced α β m q) q m :=
+  continuous_ (@convergence_space.induced α β m q) q m :=
 begin
   assume x : α,
   assume f : filter α,
