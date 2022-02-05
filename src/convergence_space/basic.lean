@@ -613,11 +613,11 @@ instance [convergence_space α] [convergence_space β] :
     assume x : α,
     assume f' : filter α,
     assume hconv' : converges f' x,
-    have hle1 : f ×ᶠ f' ≤ g ×ᶠ f',
+    have hle₁ : f ×ᶠ f' ≤ g ×ᶠ f',
       from filter.prod_mono hle (partial_order.le_refl f'),
-    have hle2 : map continuous_map.eval (f ×ᶠ f') ≤
-      map continuous_map.eval (g ×ᶠ f'), from filter.map_mono hle1,
-    exact le_converges hle2 (hconv x f' hconv'),
+    have hle₂ : map continuous_map.eval (f ×ᶠ f') ≤
+      map continuous_map.eval (g ×ᶠ f'), from filter.map_mono hle₁,
+    exact le_converges hle₂ (hconv x f' hconv'),
   end,
 }
 
