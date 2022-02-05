@@ -753,9 +753,7 @@ begin
       rw ← filter.map_pure at hconv,
       exact ⟨pure x, x, hconv, heq, pure_converges x⟩,
     end,
-    case or.inr : hexists begin
-      exact hexists,
-    end,
+    case or.inr { assumption },
 end
 
 /-
