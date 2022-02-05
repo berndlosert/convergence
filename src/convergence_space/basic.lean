@@ -366,10 +366,15 @@ begin
   exact hcont this,
 end
 
-lemma continuous_inf_dom_left {p q : convergence_space α}
-  {r : convergence_space β} {m : α → β} :
-  continuous_ p r m → continuous_ (p ⊓ q) r m :=
+lemma continuous_inf_dom_left {p p' : convergence_space α}
+  {q : convergence_space β} {m : α → β} :
+  continuous_ p q m → continuous_ (p ⊓ p') q m :=
 continuous_le_dom inf_le_left
+
+lemma continuous_inf_dom_right {p p' : convergence_space α}
+  {q : convergence_space β} {m : α → β} :
+  continuous_ p' q m → continuous_ (p ⊓ p') q m :=
+continuous_le_dom inf_le_right
 
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
@@ -530,13 +535,20 @@ end
 -- Product spaces
 -------------------------------------------------------------------------------
 
-instance [convergence_space α] [convergence_space β] : convergence_space (α × β) :=
+section
+
+variables [convergence_space α] [convergence_space β]
+
+instance : convergence_space (α × β) :=
 convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
 
-/-
 lemma continuous_fst : continuous (@prod.fst α β) :=
 continuous_inf_dom_left continuous_induced_dom
--/
+
+lemma continuous_snd : continuous (@prod.snd α β) :=
+continuous_inf_dom_right continuous_induced_dom
+
+end
 
 -------------------------------------------------------------------------------
 -- Other convergence spaces constructions
