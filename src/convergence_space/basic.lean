@@ -755,31 +755,37 @@ begin
     case or.inr { assumption },
 end
 
-/-
 lemma quotient_prod_map
-{α₁ β₁ : Type*} [p₁ : convergence_space α₁] [q₁ : convergence_space β₁] {f₁ : α₁ → β₁} (h₁ : quotient_map f₁)
-{α₂ β₂ : Type*} [p₂ : convergence_space α₂] [q₂ : convergence_space β₂] {f₂ : α₂ → β₂} (h₂ : quotient_map f₂)
-: quotient_map (prod.map f₁ f₂) := begin
+  {α₁ β₁ : Type*} [convergence_space α₁] [convergence_space β₁]
+  {m₁ : α₁ → β₁} (hquot₁ : quotient_map m₁)
+  {α₂ β₂ : Type*} [convergence_space α₂] [convergence_space β₂]
+  {m₂ : α₂ → β₂} (hquot₂ : quotient_map m₂) :
+  quotient_map (prod.map m₁ m₂) :=
+begin
   rw quotient_map_iff,
-  rw quotient_map_iff at h₁,
-  rw quotient_map_iff at h₂,
+  rw quotient_map_iff at hquot₁,
+  rw quotient_map_iff at hquot₂,
   split,
-  exact surjective.prod_map h₁.1 h₂.1,
-  rintros (l' : filter (β₁ × β₂)) (⟨b₁, b₂⟩ : β₁ × β₂),
+  exact surjective.prod_map hquot₁.1 hquot₂.1,
+  rintros (g : filter (β₁ × β₂)) (⟨y₁, y₂⟩ : β₁ × β₂),
   split,
-  assume h : prod.convergence_space.converges l' (b₁, b₂),
-  let l'₁ := map prod.fst l',
-  let l'₂ := map prod.snd l',
-  have hb₁ : q₁.converges l'₁ b₁, sorry,
-  have hb₂ : q₂.converges l'₂ b₂, sorry,
-  obtain ⟨l₁, a₁, le₁, eq₁, converges₁⟩ := (h₁.2 l'₁ b₁).mp hb₁,
-  obtain ⟨l₂, a₂, le₂, eq₂, converges₂⟩ := (h₂.2 l'₂ b₂).mp hb₂,
-  let l := l₁ ×ᶠ l₂,
-  let a := (a₁, a₂),
-  use l,
-  use a,
+  assume hconv : convergence_space.converges g (y₁, y₂),
+  let g₁ := map prod.fst g,
+  let g₂ := map prod.snd g,
+  have hg₁ : converges g₁ y₁, from continuous_fst hconv,
+  have hg₂ : converges g₂ y₂, from continuous_snd hconv,
+  obtain ⟨f₁, x₁, hle₁, heq₁, hf₁⟩ := (hquot₁.2 g₁ y₁).mp hg₁,
+  obtain ⟨f₂, x₂, hle₂, heq₂, hf₂⟩ := (hquot₂.2 g₂ y₂).mp hg₂,
+  let f := f₁ ×ᶠ f₂,
+  let x := (x₁, x₂),
+  use f,
+  use x,
+  have hle : g ≤ map (prod.map m₁ m₂) f, sorry,
+  have heq : prod.map m₁ m₂ x = (y₁, y₂), sorry,
+  have hconv' : converges f x, sorry,
+  exact ⟨hle, heq, hconv'⟩,
+  sorry,
 end
--/
 
 -------------------------------------------------------------------------------
 -- Categorb Conv of convergence spaces
