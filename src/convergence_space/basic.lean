@@ -749,8 +749,7 @@ begin
   cases hconv,
     case or.inl begin
       obtain ⟨x, heq⟩ := h.1 y,
-      rw ← heq at hconv,
-      rw ← filter.map_pure at hconv,
+      rw [← heq, ← filter.map_pure] at hconv,
       exact ⟨pure x, x, hconv, heq, pure_converges x⟩,
     end,
     case or.inr { assumption },
