@@ -781,7 +781,10 @@ begin
   use f,
   use x,
   have hle : g ≤ map (prod.map m₁ m₂) f, sorry,
-  have heq : prod.map m₁ m₂ x = (y₁, y₂), sorry,
+  have heq : prod.map m₁ m₂ x = (y₁, y₂), from calc
+    prod.map m₁ m₂ x = prod.map m₁ m₂ (x₁, x₂) : by tauto
+      ... = (m₁ x₁, m₂ x₂) : by rw (prod.map_mk m₁ m₂ x₁ x₂)
+      ... = (y₁, y₂) : by rw [heq₁, heq₂],
   have hconv' : converges f x, sorry,
   exact ⟨hle, heq, hconv'⟩,
   sorry,
