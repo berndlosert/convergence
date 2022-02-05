@@ -355,9 +355,21 @@ begin
   exact this,
 end
 
---lemma continuous_inf_dom_left {p q : convergence_space α}
---  {r : convergence_space β} : cont t₁ t₃ f → @continuous (t₁ ⊓ t₂) t₃ f :=
---  continuous_le_dom inf_le_left
+lemma continuous_le_dom {p p' : convergence_space α} {q : convergence_space β}
+  {m : α → β} (hle : p' ≤ p) (hcont : continuous_ p q m) :
+  continuous_ p' q m :=
+begin
+  assume x : α,
+  assume f : filter α,
+  assume : converges_ p' f x,
+  have : converges_ p f x, from hle this,
+  exact hcont this,
+end
+
+lemma continuous_inf_dom_left {p q : convergence_space α}
+  {r : convergence_space β} {m : α → β} :
+  continuous_ p r m → continuous_ (p ⊓ q) r m :=
+continuous_le_dom inf_le_left
 
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
