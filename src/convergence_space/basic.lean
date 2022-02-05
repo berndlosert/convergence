@@ -704,8 +704,34 @@ end
 -- Quotient maps
 -------------------------------------------------------------------------------
 
+/-- A surjective map `m : α → β` where β has the coinduced convergence is
+  called a quotient map. -/
 def quotient_map [convergence_space α] [q : convergence_space β]
-(f : α → β) : Prop := surjective f ∧ q = convergence_space.coinduced f
+(m : α → β) : Prop := surjective m ∧ q = convergence_space.coinduced m
+
+lemma quotient_map.converges [convergence_space α] [q : convergence_space β]
+  {m : α → β} (hquot : quotient_map m) (g : filter β) (y : β) :
+  converges g y ↔ ∃ f x, (g ≤ map m f) ∧ (y = m x) ∧ (converges f x) :=
+begin
+  split,
+  -- Proof of → direction.
+  assume : converges g y,
+  rw hquot.2 at this,
+  cases this,
+    case pure_case begin
+      obtain ⟨x, heq⟩ := hquot.1 y,
+      rw ← heq at this,
+      rw ← filter.map_pure at this,
+      exact ⟨pure x, x, this, eq.symm heq, pure_converges x⟩,
+    end,
+    case other_case : f x hle heq hconv begin
+      exact ⟨f, x, hle, heq, hconv⟩,
+    end,
+  -- Proof of ← direction.
+  rintro ⟨f, x, hle, heq, hconv⟩,
+  rw hquot.2,
+  exact coinduced_converges.other_case f x hle heq hconv,
+end
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
   {m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
@@ -718,22 +744,7 @@ begin
   exact h.1,
   assume g : filter β,
   assume y : β,
-  split,
-  rw h.2,
-  assume h' : converges_ (convergence_space.coinduced m) g y,
-  cases h',
-    case pure_case begin
-      obtain ⟨x, ha⟩ := h.1 y,
-      rw ← ha at h',
-      rw ← filter.map_pure at h',
-      exact ⟨pure x, x, h', eq.symm ha, pure_converges x⟩,
-    end,
-    case other_case : f x h₁ h₂ h₃ begin
-      exact ⟨f, x, h₁, h₂, h₃⟩,
-    end,
-  rintro ⟨f : filter α, x : α, h₁ : g ≤ map m f, h₂ : y = m x, h₃ : converges f x⟩,
-  rw h.2,
-  exact coinduced_converges.other_case f x h₁ h₂ h₃,
+  exact quotient_map.converges h g y,
   -- Proving ← direction
   intro h,
   unfold quotient_map,
