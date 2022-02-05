@@ -382,7 +382,7 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 (continuous_inv_fun : continuous inv_fun)
 
 -------------------------------------------------------------------------------
--- Induced/coinduced convergence space
+-- Induced convergence space
 -------------------------------------------------------------------------------
 
 /-- Given `m : α → β`, where `β` is convergence space, the induced convergence
@@ -423,42 +423,41 @@ begin
   assumption,
 end
 
-/-- The coinduced convergence of a mapping `m : α → β`. -/
-inductive coinduced_converges (m : α → β) [convergence_space α]
-  (g : filter β) (y : β) : Prop
-| pure_case (_ : g ≤ pure y) : coinduced_converges
-| other_case (f : filter α) (x : α) (_ : g ≤ map m f)
-  (_ : y = m x) (_ : converges f x) : coinduced_converges
+-------------------------------------------------------------------------------
+-- Coinduced convergence space
+-------------------------------------------------------------------------------
 
 /-- Given `m : α → β`, where `α` is convergence space, the coinduced convergence
   structure on `β` is the least convergence structure making `m`
   continuous. -/
 def convergence_space.coinduced (m : α → β) [convergence_space α] :
   convergence_space β :=
-{ converges := coinduced_converges m,
-  pure_converges := λ b, coinduced_converges.pure_case (le_refl (pure b)),
+{ converges := λ g y, (g ≤ pure y) ∨
+    ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x),
+  pure_converges := λ b, or.inl (le_refl (pure b)),
   le_converges :=
   begin
     assume g₁ g₂ : filter β,
     assume : g₁ ≤ g₂,
     assume y : β,
-    assume h : coinduced_converges m g₂ y,
-    cases h,
-      case pure_case begin
+    intro hconv,
+    cases hconv,
+      case or.inl begin
         have : g₁ ≤ pure y, from calc
           g₁ ≤ g₂ : (by assumption : g₁ ≤ g₂)
           ... ≤ pure y : (by assumption : g₂ ≤ pure y),
-        exact coinduced_converges.pure_case (by assumption : g₁ ≤ pure y),
+        exact or.inl (by assumption : g₁ ≤ pure y),
       end,
-      case other_case : f x _ _ _ begin
+      case or.inr : hexists begin
+        obtain ⟨f, x, _, _, _⟩ := hexists,
         have : g₁ ≤ map m f, from calc
           g₁ ≤ g₂ : (by assumption : g₁ ≤ g₂)
           ... ≤ map m f : (by assumption : g₂ ≤ map m f),
-        exact coinduced_converges.other_case f x
-          (by assumption : g₁ ≤ map m f)
-          (by assumption : y = m x)
-          (by assumption : converges f x)
-        end
+        exact or.inr ⟨f, x,
+          (by assumption : g₁ ≤ map m f),
+          (by assumption : m x = y),
+          (by assumption : converges f x)⟩
+      end
   end }
 
 lemma continuous.le_coinduced (m : α → β) [convergence_space α]
@@ -470,12 +469,13 @@ begin
   assume y : β,
   assume hconv : converges_ (convergence_space.coinduced m) g y,
   cases hconv,
-    case pure_case begin
+    case or.inl begin
       exact le_converges_ q hconv (pure_converges_ q y),
     end,
-    case other_case : f x h₀ h₁ h₂ begin
+    case or.inr : hexists begin
+      obtain ⟨f, x, h₀, h₁, h₂⟩ := hexists,
       have : converges_ q (map m f) (m x), from hm h₂,
-      rw h₁,
+      rw ← h₁,
       exact le_converges_ q h₀ this,
     end
 end
@@ -711,31 +711,32 @@ def quotient_map [convergence_space α] [q : convergence_space β]
 
 lemma quotient_map.converges [convergence_space α] [q : convergence_space β]
   {m : α → β} (hquot : quotient_map m) (g : filter β) (y : β) :
-  converges g y ↔ ∃ f x, (g ≤ map m f) ∧ (y = m x) ∧ (converges f x) :=
+  converges g y ↔ ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
 begin
   split,
   -- Proof of → direction.
   assume : converges g y,
   rw hquot.2 at this,
   cases this,
-    case pure_case begin
+    case or.inl begin
       obtain ⟨x, heq⟩ := hquot.1 y,
       rw ← heq at this,
       rw ← filter.map_pure at this,
-      exact ⟨pure x, x, this, eq.symm heq, pure_converges x⟩,
+      exact ⟨pure x, x, this, heq, pure_converges x⟩,
     end,
-    case other_case : f x hle heq hconv begin
-      exact ⟨f, x, hle, heq, hconv⟩,
+    case or.inr : hexists begin
+      exact hexists,
     end,
   -- Proof of ← direction.
-  rintro ⟨f, x, hle, heq, hconv⟩,
+  rintro hexists,
   rw hquot.2,
-  exact coinduced_converges.other_case f x hle heq hconv,
+  exact or.inr hexists,
 end
+
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
   {m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
-  ∃ f x, (g ≤ map m f) ∧ (y = m x) ∧ (converges f x) :=
+  ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
 begin
   split,
   -- Proving → direction.
@@ -755,18 +756,18 @@ begin
   assume y : β,
   rw h.2,
   split,
-  rintro ⟨f : filter α, x : α, h₁ : g ≤ map m f, h₂ : y = m x, h₃ : converges f x⟩,
-  exact coinduced_converges.other_case f x h₁ h₂ h₃,
+  intro hexists,
+  exact or.inr hexists,
   assume h' : converges_ (convergence_space.coinduced m) g y,
   cases h',
-    case pure_case begin
+    case or.inl begin
       obtain ⟨x, ha⟩ := h.1 y,
       rw ← ha at h',
       rw ← filter.map_pure at h',
-      exact ⟨pure x, x, h', eq.symm ha, pure_converges x⟩,
+      exact ⟨pure x, x, h', ha, pure_converges x⟩,
     end,
-    case other_case : f x h₁ h₂ h₃ begin
-      exact ⟨f, x, h₁, h₂, h₃⟩,
+    case or.inr : hexists begin
+      exact hexists,
     end,
 end
 
