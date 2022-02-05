@@ -438,26 +438,13 @@ def convergence_space.coinduced (m : α → β) [convergence_space α] :
   le_converges :=
   begin
     assume g₁ g₂ : filter β,
-    assume : g₁ ≤ g₂,
+    assume hle : g₁ ≤ g₂,
     assume y : β,
     intro hconv,
-    cases hconv,
-      case or.inl begin
-        have : g₁ ≤ pure y, from calc
-          g₁ ≤ g₂ : (by assumption : g₁ ≤ g₂)
-          ... ≤ pure y : (by assumption : g₂ ≤ pure y),
-        exact or.inl (by assumption : g₁ ≤ pure y),
-      end,
-      case or.inr : hexists begin
-        obtain ⟨f, x, _, _, _⟩ := hexists,
-        have : g₁ ≤ map m f, from calc
-          g₁ ≤ g₂ : (by assumption : g₁ ≤ g₂)
-          ... ≤ map m f : (by assumption : g₂ ≤ map m f),
-        exact or.inr ⟨f, x,
-          (by assumption : g₁ ≤ map m f),
-          (by assumption : m x = y),
-          (by assumption : converges f x)⟩
-      end
+    exact or.elim hconv
+      (λ hle' : g₂ ≤ pure y, or.inl (le_trans hle hle'))
+      (λ ⟨f, x, hle', heq, hconv'⟩,
+        or.inr ⟨f, x, le_trans hle hle', heq, hconv'⟩)
   end }
 
 lemma continuous.le_coinduced (m : α → β) [convergence_space α]
