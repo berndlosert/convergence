@@ -335,14 +335,14 @@ def continuous_ (p : convergence_space α) (q : convergence_space β)
 @continuous α β p q m
 
 lemma continuous.comp [convergence_space α] [convergence_space β]
-  [convergence_space γ] {g : β → γ} {f : α → β} (hg : continuous g)
-  (hf : continuous f) : continuous (g ∘ f) :=
+  [convergence_space γ] {m' : β → γ} {m : α → β} (hcont' : continuous m')
+  (hcont : continuous m) : continuous (m' ∘ m) :=
 begin
   assume x : α,
-  assume l : filter α,
-  assume : converges l x,
-  have : converges (map f l) (f x), from hf this,
-  have : converges (map g (map f l)) (g (f x)), from hg this,
+  assume f : filter α,
+  assume : converges f x,
+  have : converges (map m f) (m x), from hcont this,
+  have : converges (map m' (map m f)) (m' (m x)), from hcont' this,
   convert this,
 end
 
