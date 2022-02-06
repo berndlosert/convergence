@@ -89,15 +89,17 @@ instance : category ConvGroup := {
   denoted `∙`. -/
 class has_partial_scalar (M α : Type*) :=
 (partial_smul : M → α → option α)
+(partial_smul' : M → option α → option α := λ a x, x >>= partial_smul a)
 
 infixr ` ∙ `:73 := has_partial_scalar.partial_smul
+infixr ` ∙' `:73 := has_partial_scalar.partial_smul'
 
 /-- Typeclass for partial actions by monoids. -/
 class partial_mul_action (M α : Type*) [monoid M]
   extends has_partial_scalar M α :=
 (identity : ∀ {x : α}, (1 : M) ∙ x = option.some x)
-(compatibility : ∀ {b : M} {x : α}, is_some (b ∙ x) →
-  ∀ a : M, (a * b) ∙ x = b ∙ x >>= (λ (bx : α), a ∙ bx))
+(compatibility : ∀ {a b : M} {x : α} (bx : is_some (b ∙ x)),
+  (a * b) ∙ x = a ∙ option.get bx)
 (injective : ∀ {a : M} {x : α}, is_some (a ∙ x) → ∀ y, a ∙ x = a ∙ y → x = y)
 
 
@@ -125,23 +127,23 @@ structure ContPartAct extends PartAct :=
 (action_is_continuous : continuous (λ p : G × α, act p.1 p.2))
 -/
 
--------------------------------------------------------------------------------
--- Enveloping action
--------------------------------------------------------------------------------
-
-def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
- λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) ∙ x = some y
-
+---------------------------------------------------------------------------------
+---- Enveloping action
+---------------------------------------------------------------------------------
+--
+--def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
+-- λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) ∙ x = some y
+--
 --namespace envelope
 --
---variables {G α : Type*} [group G] [partial_group_action G α]
+--variables {G α : Type*} [group G] [partial_mul_action G α]
 --
 --theorem is_reflexive : reflexive (envelope G α) := begin
 --  intros,
 --  unfold reflexive,
 --  rintro (⟨a, x⟩ : G × α),
 --  unfold envelope,
---  simp [identity],
+--  simp [partial_mul_action.identity],
 --end
 --
 --theorem is_symmetric : symmetric (envelope G α) := begin
@@ -150,13 +152,18 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 --  rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
 --  unfold envelope,
 --  intro heq,
---  have heq' : is_some (act (b⁻¹ * a) x), simp [heq],
---  show act (a⁻¹ * b) y = some x, from calc
---    act (a⁻¹ * b) y = some y >>= act (a⁻¹ * b) : by simp [is_lawful_monad.pure_bind]
---    ... = act (b⁻¹ * a) x >>= act (a⁻¹ * b) : by rw ← heq
---    ... = act ((a⁻¹ * b) * (b⁻¹ * a)) x : by rw ← (compatibility heq')
---    ... = act (1 : G) x : by simp [mul_assoc]
---    ... = some x : by exact identity
+--  have heq' : is_some ((b⁻¹ * a) ∙ x), simp [heq],
+--  show (a⁻¹ * b) ∙ y = some x, from calc
+--    (a⁻¹ * b) ∙ y = some y >>= (λ y', (a⁻¹ * b) ∙ y') :
+--      by simp [is_lawful_monad.pure_bind]
+--    ... = (b⁻¹ * a) ∙ x >>= (λ y', (a⁻¹ * b) ∙ y') :
+--      by rw ← heq
+--    ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
+--      by rw ← (partial_mul_action.compatibility heq')
+--    ... = (1 : G) ∙ x :
+--      by simp [mul_assoc]
+--    ... = some x :
+--      by exact partial_mul_action.identity
 --end
 --
 --theorem is_transitive : transitive (envelope G α) := begin
@@ -217,7 +224,7 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 --  end }
 --
 --end envelope
---
+
 ---------------------------------------------------------------------------------
 ---- Adherence restrictive
 ---------------------------------------------------------------------------------
