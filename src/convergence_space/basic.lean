@@ -832,8 +832,10 @@ begin
     ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
     ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
     ... = map m₂ f₂ : by simp,
-  have hg₁ : converges g₁ y₁, from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
-  have hg₂ : converges g₂ y₂, from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
+  have hg₁ : converges g₁ y₁,
+    from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
+  have hg₂ : converges g₂ y₂,
+    from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
   exact ⟨hg₁, hg₂⟩,
 end
 
