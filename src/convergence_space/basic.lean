@@ -816,16 +816,10 @@ begin
       ... = (y₁, y₂) : by rw [heq₁, heq₂],
   have hconv' : converges f x, from prod.converges hf₁ hf₂,
   exact ⟨hle, heq, hconv'⟩,
-  rintro ⟨f, x, hle, heq, hconv⟩,
+  rintro ⟨f, x, hle, heq, hf⟩,
   let f₁ := map prod.fst f,
   let f₂ := map prod.snd f,
-  let x₁ := prod.fst x,
-  let x₂ := prod.snd x,
-  simp [prod.map_mk m₁ m₂ x₁ x₂] at heq,
-  let heq₁ : m₁ x₁ = y₁ := heq.1,
-  let heq₂ : m₂ x₂ = y₂ := heq.2,
-  let hf₁ : converges f₁ x₁ := hconv.1,
-  let hf₂ : converges f₂ x₂ := hconv.2,
+  simp [prod.map_mk m₁ m₂ x.1 x.2] at heq,
   let g₁ := map prod.fst g,
   let g₂ := map prod.snd g,
   have hle₁ : g₁ ≤ map m₁ f₁, from calc
@@ -838,8 +832,8 @@ begin
     ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
     ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
     ... = map m₂ f₂ : by simp,
-  have hg₁ : converges g₁ y₁, from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x₁, hle₁, heq₁, hf₁⟩,
-  have hg₂ : converges g₂ y₂, from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x₂, hle₂, heq₂, hf₂⟩,
+  have hg₁ : converges g₁ y₁, from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
+  have hg₂ : converges g₂ y₂, from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
   exact ⟨hg₁, hg₂⟩,
 end
 
