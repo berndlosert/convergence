@@ -154,14 +154,11 @@ theorem is_symmetric : symmetric (envelope G α) := begin
   intro heq,
   have b'ax : is_some ((b⁻¹ * a) ∙ x), simp [heq],
   show (a⁻¹ * b) ∙ y = some x, from calc
-    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ option.get b'ax :
-      by simp [heq]
+    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ option.get b'ax : by simp [heq]
     ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
       by { rw [← (partial_mul_action.compatibility b'ax)]; tauto }
-    ... = (1 : G) ∙ x :
-      by simp [mul_assoc]
-    ... = some x :
-      by exact partial_mul_action.identity
+    ... = (1 : G) ∙ x : by simp [mul_assoc]
+    ... = some x : by exact partial_mul_action.identity
 end
 
 theorem is_transitive : transitive (envelope G α) := begin
@@ -176,25 +173,26 @@ theorem is_transitive : transitive (envelope G α) := begin
   show (c⁻¹ * a) ∙ x = some z, from calc
     (c⁻¹ * a) ∙ x = (c⁻¹ * 1 * a) ∙ x : by simp
     ... = (c⁻¹ * b * b⁻¹ * a) ∙ x : by simp
-    ... = (c⁻¹ * b) ∙ option.get b'ax : by { rw ← (partial_mul_action.compatibility b'ax); simp [mul_assoc]; tauto }
+    ... = (c⁻¹ * b) ∙ option.get b'ax :
+      by { rw ← (partial_mul_action.compatibility b'ax); simp [mul_assoc]; tauto }
     ... = (c⁻¹ * b) ∙ y : by simp [heq₁]
     ... = some z : by rw heq₂
 end
 
---theorem is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
---
---instance : setoid (G × α) := {
---  r := envelope G α,
---  iseqv := is_equivalence,
---}
---
---def quotient_map : G × α → quot (envelope G α) := λ ⟨a, x⟩, ⟦(a, x)⟧
---
---def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
---
---def act : G → G × α → quot (envelope G α) :=
---λ a ⟨b, x⟩, ⟦(a * b, x)⟧
---
+theorem is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
+
+instance : setoid (G × α) := {
+  r := envelope G α,
+  iseqv := is_equivalence,
+}
+
+def quotient_map : G × α → quot (envelope G α) := λ ⟨a, x⟩, ⟦(a, x)⟧
+
+def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
+
+def act : G → G × α → quot (envelope G α) :=
+λ a ⟨b, x⟩, ⟦(a * b, x)⟧
+
 --theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
 --  rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
 --  unfold act,
