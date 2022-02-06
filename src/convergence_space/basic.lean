@@ -828,8 +828,16 @@ begin
   let hf₂ : converges f₂ x₂ := hconv.2,
   let g₁ := map prod.fst g,
   let g₂ := map prod.snd g,
-  have hle₁ : g₁ ≤ map m₁ f₁, sorry,
-  have hle₂ : g₂ ≤ map m₂ f₂, sorry,
+  have hle₁ : g₁ ≤ map m₁ f₁, from calc
+    g₁ ≤ map prod.fst (map (prod.map m₁ m₂) f) : map_mono hle
+    ... = map (prod.fst ∘ prod.map m₁ m₂) f : map_map
+    ... = map (m₁ ∘ prod.fst) f : by rw (prod.map_fst' m₁ m₂)
+    ... = map m₁ f₁ : by simp,
+  have hle₂ : g₂ ≤ map m₂ f₂, from calc
+    g₂ ≤ map prod.snd (map (prod.map m₁ m₂) f) : map_mono hle
+    ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
+    ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
+    ... = map m₂ f₂ : by simp,
   have hg₁ : converges g₁ y₁, from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x₁, hle₁, heq₁, hf₁⟩,
   have hg₂ : converges g₂ y₂, from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x₂, hle₂, heq₂, hf₂⟩,
   exact ⟨hg₁, hg₂⟩,
