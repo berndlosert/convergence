@@ -535,6 +535,17 @@ continuous_inf_dom_left continuous_induced_dom
 lemma continuous_snd : continuous (@prod.snd α β) :=
 continuous_inf_dom_right continuous_induced_dom
 
+lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
+  (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
+begin
+  unfold converges,
+  have hf' : converges (map prod.fst (f ×ᶠ g)) x,
+    from le_converges tendsto_fst hf,
+  have hg' : converges (map prod.snd (f ×ᶠ g)) y,
+    from le_converges tendsto_snd hg,
+  exact and.intro hf' hg',
+end
+
 end
 
 -------------------------------------------------------------------------------
@@ -720,7 +731,6 @@ begin
   exact or.inr hexists,
 end
 
-
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
   {m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
   ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
@@ -785,7 +795,7 @@ begin
     prod.map m₁ m₂ x = prod.map m₁ m₂ (x₁, x₂) : by tauto
       ... = (m₁ x₁, m₂ x₂) : by rw (prod.map_mk m₁ m₂ x₁ x₂)
       ... = (y₁, y₂) : by rw [heq₁, heq₂],
-  have hconv' : converges f x, sorry,
+  have hconv' : converges f x, from prod.converges hf₁ hf₂,
   exact ⟨hle, heq, hconv'⟩,
   sorry,
 end
