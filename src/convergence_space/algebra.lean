@@ -134,17 +134,17 @@ structure ContPartAct extends PartAct :=
 def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
  λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) ∙ x = some y
 
---namespace envelope
---
---variables {G α : Type*} [group G] [partial_mul_action G α]
---
---theorem is_reflexive : reflexive (envelope G α) := begin
---  intros,
---  unfold reflexive,
---  rintro (⟨a, x⟩ : G × α),
---  unfold envelope,
---  simp [partial_mul_action.identity],
---end
+namespace envelope
+
+variables {G α : Type*} [group G] [partial_mul_action G α]
+
+theorem is_reflexive : reflexive (envelope G α) := begin
+  intros,
+  unfold reflexive,
+  rintro (⟨a, x⟩ : G × α),
+  unfold envelope,
+  simp [partial_mul_action.identity],
+end
 --
 --theorem is_symmetric : symmetric (envelope G α) := begin
 --  intros,
@@ -223,7 +223,7 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 --    sorry,
 --  end }
 --
---end envelope
+end envelope
 
 ---------------------------------------------------------------------------------
 ---- Adherence restrictive
