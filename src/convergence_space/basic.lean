@@ -765,6 +765,15 @@ begin
     case or.inr { assumption },
 end
 
+lemma filter.prod_map_fst_snd_eq (f : filter (α × β)) :
+  f ≤ filter.map prod.fst f ×ᶠ map prod.snd f :=
+begin
+  unfold filter.prod,
+  have hle₁ : f ≤ comap prod.fst (map prod.fst f), from le_comap_map,
+  have hle₂ : f ≤ comap prod.snd (map prod.snd f), from le_comap_map,
+  exact le_inf hle₁ hle₂,
+end
+
 lemma quotient_prod_map
   {α₁ β₁ : Type*} [convergence_space α₁] [convergence_space β₁]
   {m₁ : α₁ → β₁} (hquot₁ : quotient_map m₁)
@@ -790,7 +799,11 @@ begin
   let x := (x₁, x₂),
   use f,
   use x,
-  have hle : g ≤ map (prod.map m₁ m₂) f, sorry,
+  have hle : g ≤ map (prod.map m₁ m₂) f, from calc
+    g ≤ map prod.fst g ×ᶠ map prod.snd g : filter.prod_map_fst_snd_eq g
+    ... = g₁ ×ᶠ g₂ : by tauto
+    ... ≤ map m₁ f₁ ×ᶠ map m₂ f₂ : prod_mono hle₁ hle₂
+    ... = map (prod.map m₁ m₂) (f₁ ×ᶠ f₂) : prod_map_map_eq' m₁ m₂ f₁ f₂,
   have heq : prod.map m₁ m₂ x = (y₁, y₂), from calc
     prod.map m₁ m₂ x = prod.map m₁ m₂ (x₁, x₂) : by tauto
       ... = (m₁ x₁, m₂ x₂) : by rw (prod.map_mk m₁ m₂ x₁ x₂)
