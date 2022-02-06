@@ -145,26 +145,31 @@ theorem is_reflexive : reflexive (envelope G α) := begin
   unfold envelope,
   simp [partial_mul_action.identity],
 end
---
---theorem is_symmetric : symmetric (envelope G α) := begin
---  intros,
---  unfold symmetric,
---  rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
---  unfold envelope,
---  intro heq,
---  have heq' : is_some ((b⁻¹ * a) ∙ x), simp [heq],
---  show (a⁻¹ * b) ∙ y = some x, from calc
---    (a⁻¹ * b) ∙ y = some y >>= (λ y', (a⁻¹ * b) ∙ y') :
---      by simp [is_lawful_monad.pure_bind]
---    ... = (b⁻¹ * a) ∙ x >>= (λ y', (a⁻¹ * b) ∙ y') :
---      by rw ← heq
---    ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
---      by rw ← (partial_mul_action.compatibility heq')
---    ... = (1 : G) ∙ x :
---      by simp [mul_assoc]
---    ... = some x :
---      by exact partial_mul_action.identity
---end
+
+lemma foo (a b : G) (x : α) (b'ax : is_some ((b⁻¹ * a) ∙ x)) :
+  ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x = (a⁻¹ * b) ∙ option.get b'ax :=
+begin
+  rw (partial_mul_action.compatibility b'ax),
+  tauto,
+end
+
+theorem is_symmetric : symmetric (envelope G α) := begin
+  intros,
+  unfold symmetric,
+  rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
+  unfold envelope,
+  intro heq,
+  have b'ax : is_some ((b⁻¹ * a) ∙ x), simp [heq],
+  show (a⁻¹ * b) ∙ y = some x, from calc
+    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ option.get b'ax :
+      by simp [heq]
+    ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
+      by { rw [← (partial_mul_action.compatibility b'ax)]; tauto }
+    ... = (1 : G) ∙ x :
+      by simp [mul_assoc]
+    ... = some x :
+      by exact partial_mul_action.identity
+end
 --
 --theorem is_transitive : transitive (envelope G α) := begin
 --  intros,
