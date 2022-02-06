@@ -205,7 +205,7 @@ variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
 variables {α : Type*} [convergence_space α] [partial_group_action G α] [continuous_partial_group_action G α]
 
 def adh_restrictive : Prop :=
-∀ {l : filter G} {la : filter α}, adh la = ∅ → ∃ a : G, converges l a → ∀ x, option.some x ∉ adh (map (uncurry act) (l ×ᶠ la))
+∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry act) (g ×ᶠ f))
 
 def weakly_adh_restrictive : Prop :=
-∀ {l : filter G} {la : filter α}, adh (map (@envelope.pure G _ _ _) la) = ∅ → ∃ a : G, converges l a → ∀ x, option.some x ∉ adh (map (uncurry act) (l ×ᶠ la))
+∀ {g : filter G} {f : filter α}, adh (map (@envelope.pure G _ _ _) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry act) (g ×ᶠ f))
