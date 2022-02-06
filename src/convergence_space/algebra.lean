@@ -227,16 +227,20 @@ instance : has_continuous_smul G (G × α) :=
 { continuous_smul :=
   begin
     unfold continuous,
-    rintro ⟨a, b, x⟩ : G × G × α,
-    rintro h : filter (G × G × α),
-    rintro hconv : converges h (a, b, x),
+    rintro ⟨a, ⟨b, x⟩⟩ : G × (G × α),
+    rintro k : filter (G × (G × α)),
+    rintro hconv : converges k (a, (b, x)),
     simp,
-    let h' : filter (G × α) := map (uncurry has_scalar.smul) h,
-    let g := map prod.fst h',
-    let f := map prod.snd h',
-    have hg : converges g (a * b), sorry,
-    have hf : converges f x, sorry,
-    exact prod.converges' hg hf,
+    let h : filter (G × α) := map (uncurry has_scalar.smul) k,
+    let g := map prod.fst k,
+    let f := map prod.snd k,
+    have hg : converges g a, sorry,
+    have hf : converges f (b, x), sorry,
+    have : converges (g ×ᶠ f) (a , (b, x)), sorry,
+    let h' := map (uncurry has_scalar.smul) (g ×ᶠ f),
+    have hh' : converges h' (a * b, x), sorry,
+    have hle : h ≤ h', from map_mono (filter.prod_map_fst_snd_eq k),
+    exact le_converges hle hh',
   end }
 
 end
