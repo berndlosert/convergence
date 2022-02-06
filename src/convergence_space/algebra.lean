@@ -89,10 +89,8 @@ instance : category ConvGroup := {
   denoted `∙`. -/
 class has_partial_scalar (M α : Type*) :=
 (partial_smul : M → α → option α)
-(partial_smul' : M → option α → option α := λ a x, x >>= partial_smul a)
 
 infixr ` ∙ `:73 := has_partial_scalar.partial_smul
-infixr ` ∙' `:73 := has_partial_scalar.partial_smul'
 
 /-- Typeclass for partial actions by monoids. -/
 class partial_mul_action (M α : Type*) [monoid M]
@@ -204,20 +202,22 @@ theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envel
   assumption,
 end
 
---instance : has_scalar G (quot (envelope G α)) := {
---  smul := λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x,
---}
---
+instance : has_scalar G (G × α) :=
+⟨λ a ⟨b, x⟩, (a * b, x)⟩
+
+instance : has_scalar G (quot (envelope G α)) :=
+⟨λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x⟩
+
 --instance
 --[convergence_space G] [convergence_group G]
---[convergence_space α] [continuous_partial_group_action G α] :
+--[convergence_space α] [continuous_mul_action G α] :
 --has_continuous_smul G (quot (envelope G α)) :=
 --{ continuous_smul :=
 --  begin
 --    unfold continuous,
 --    sorry,
 --  end }
---
+
 end envelope
 
 ---------------------------------------------------------------------------------
