@@ -27,17 +27,23 @@ class has_continuous_mul (α : Type*)
   [convergence_space α] [has_mul α] : Prop :=
 (continuous_mul : continuous (uncurry (*) : α × α → α))
 
+open has_continuous_mul
+
 /-- Class `has_continuous_smul M α` says that the scalar multiplication
   `(•) : M → α → α` is continuous in both arguments. -/
 class has_continuous_smul (M α : Type*)
   [has_scalar M α] [convergence_space M] [convergence_space α] : Prop :=
 (continuous_smul : continuous (uncurry (•) : M × α → α))
 
+open has_continuous_smul
+
 /-- A convergence group is a group in which the multiplication and inversion
   operations are continuous. -/
 class convergence_group (G : Type*)
   [convergence_space G] [group G] extends has_continuous_mul G : Prop :=
 (continuous_inv : continuous (has_inv.inv : G → G))
+
+open convergence_group
 
 --structure cont_monoid_hom (M N : Type*) [mul_one_class M] [mul_one_class N] [convergence_space M] [convergence_space N] extends one_hom M N, mul_hom M N :=
 --(to_fun_continuous : continuous to_fun)
@@ -100,9 +106,10 @@ class partial_mul_action (M α : Type*) [monoid M]
   extends has_partial_scalar M α :=
 (identity : ∀ {x : α}, (1 : M) ∙ x = option.some x)
 (compatibility : ∀ {a b : M} {x : α} (bx : is_some (b ∙ x)),
-  (a * b) ∙ x = a ∙ option.get bx)
+  (a * b) ∙ x = a ∙ get bx)
 (injective : ∀ {a : M} {x : α}, is_some (a ∙ x) → ∀ y, a ∙ x = a ∙ y → x = y)
 
+open partial_mul_action
 
 /-- Class `has_continuous_smul M α` says that the partial scalar multiplication
   `(∙) : M → α → α` is continuous in both arguments. -/
@@ -144,7 +151,7 @@ theorem is_reflexive : reflexive (envelope G α) := begin
   unfold reflexive,
   rintro (⟨a, x⟩ : G × α),
   unfold envelope,
-  simp [partial_mul_action.identity],
+  simp [identity],
 end
 
 theorem is_symmetric : symmetric (envelope G α) := begin
@@ -155,11 +162,11 @@ theorem is_symmetric : symmetric (envelope G α) := begin
   intro heq,
   have b'ax : is_some ((b⁻¹ * a) ∙ x), simp [heq],
   show (a⁻¹ * b) ∙ y = some x, from calc
-    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ option.get b'ax : by simp [heq]
+    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ get b'ax : by simp [heq]
     ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
-      by { rw [← (partial_mul_action.compatibility b'ax)]; tauto }
+      by { rw [← (compatibility b'ax)]; tauto }
     ... = (1 : G) ∙ x : by simp [mul_assoc]
-    ... = some x : by exact partial_mul_action.identity
+    ... = some x : by exact identity
 end
 
 theorem is_transitive : transitive (envelope G α) := begin
@@ -174,8 +181,8 @@ theorem is_transitive : transitive (envelope G α) := begin
   show (c⁻¹ * a) ∙ x = some z, from calc
     (c⁻¹ * a) ∙ x = (c⁻¹ * 1 * a) ∙ x : by simp
     ... = (c⁻¹ * b * b⁻¹ * a) ∙ x : by simp
-    ... = (c⁻¹ * b) ∙ option.get b'ax :
-      by { rw ← (partial_mul_action.compatibility b'ax); simp [mul_assoc]; tauto }
+    ... = (c⁻¹ * b) ∙ get b'ax :
+      by { rw ← (compatibility b'ax); simp [mul_assoc]; tauto }
     ... = (c⁻¹ * b) ∙ y : by simp [heq₁]
     ... = some z : by rw heq₂
 end
@@ -224,12 +231,12 @@ instance : has_continuous_smul G (G × α) :=
     rintro h : filter (G × G × α),
     rintro hconv : converges h (a, b, x),
     simp,
-    let g := filter.map prod.fst h,
-    let f := filter.map prod.snd h,
-    have hg : converges g a, sorry,
-    have hf : converges f (b, x), sorry,
-    sorry,
-    --exact and.intro hg hf,
+    let h' : filter (G × α) := map (uncurry has_scalar.smul) h,
+    let g := map prod.fst h',
+    let f := map prod.snd h',
+    have hg : converges g (a * b), sorry,
+    have hf : converges f x, sorry,
+    exact prod.converges' hg hf,
   end }
 
 end
