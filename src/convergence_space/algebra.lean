@@ -89,6 +89,9 @@ instance : category ConvGroup := {
   denoted `∙`. -/
 class has_partial_scalar (M α : Type*) :=
 (partial_smul : M → α → option α)
+(partial_smul' : M × α → option α := uncurry partial_smul)
+
+open has_partial_scalar
 
 infixr ` ∙ `:73 := has_partial_scalar.partial_smul
 
@@ -105,7 +108,7 @@ class partial_mul_action (M α : Type*) [monoid M]
   `(∙) : M → α → α` is continuous in both arguments. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
-(continuous_partial_smul : continuous (uncurry (∙) : M × α → option α))
+(continuous_partial_smul : continuous (partial_smul' : M × α → option α))
 
 /-
 structure PartAct :=
@@ -207,6 +210,29 @@ instance : has_scalar G (G × α) :=
 
 instance : has_scalar G (quot (envelope G α)) :=
 ⟨λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x⟩
+
+section
+
+variables [convergence_space G] [convergence_group G]
+variables [convergence_space α]
+
+instance : has_continuous_smul G (G × α) :=
+{ continuous_smul :=
+  begin
+    unfold continuous,
+    rintro ⟨a, b, x⟩ : G × G × α,
+    rintro h : filter (G × G × α),
+    rintro hconv : converges h (a, b, x),
+    simp,
+    let g := filter.map prod.fst h,
+    let f := filter.map prod.snd h,
+    have hg : converges g a, sorry,
+    have hf : converges f (b, x), sorry,
+    sorry,
+    --exact and.intro hg hf,
+  end }
+
+end
 
 --instance
 --[convergence_space G] [convergence_group G]
