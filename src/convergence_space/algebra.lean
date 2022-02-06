@@ -125,13 +125,13 @@ structure ContPartAct extends PartAct :=
 (action_is_continuous : continuous (λ p : G × α, act p.1 p.2))
 -/
 
----------------------------------------------------------------------------------
----- Enveloping action
----------------------------------------------------------------------------------
---
---def envelope (G α : Type*) [group G] [partial_group_action G α] : G × α → G × α → Prop :=
--- λ ⟨a, x⟩ ⟨b, y⟩, act (b⁻¹ * a) x = some y
---
+-------------------------------------------------------------------------------
+-- Enveloping action
+-------------------------------------------------------------------------------
+
+def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
+ λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) ∙ x = some y
+
 --namespace envelope
 --
 --variables {G α : Type*} [group G] [partial_group_action G α]
