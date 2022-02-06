@@ -146,13 +146,6 @@ theorem is_reflexive : reflexive (envelope G α) := begin
   simp [partial_mul_action.identity],
 end
 
-lemma foo (a b : G) (x : α) (b'ax : is_some ((b⁻¹ * a) ∙ x)) :
-  ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x = (a⁻¹ * b) ∙ option.get b'ax :=
-begin
-  rw (partial_mul_action.compatibility b'ax),
-  tauto,
-end
-
 theorem is_symmetric : symmetric (envelope G α) := begin
   intros,
   unfold symmetric,
@@ -170,25 +163,24 @@ theorem is_symmetric : symmetric (envelope G α) := begin
     ... = some x :
       by exact partial_mul_action.identity
 end
---
---theorem is_transitive : transitive (envelope G α) := begin
---  intros,
---  unfold transitive,
---  rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
---  unfold envelope,
---  assume heq₁ : act (b⁻¹ * a) x = some y,
---  assume heq₂ : act (c⁻¹ * b) y = some z,
---  have hsome₁ : is_some (act (b⁻¹ * a) x), simp *,
---  have hsome₂ : is_some (act (c⁻¹ * b) y), simp *,
---  show act (c⁻¹ * a) x = some z, from calc
---    act (c⁻¹ * a) x = act (c⁻¹ * 1 * a) x : by simp
---    ... = act (c⁻¹ * b * b⁻¹ * a) x : by simp
---    ... = act (b⁻¹ * a) x >>= act (c⁻¹ * b) : by rw [mul_assoc, ←(compatibility hsome₁)]
---    ... = some y >>= act (c⁻¹ * b) : by rw heq₁
---    ... = act (c⁻¹ * b) y : by simp [is_lawful_monad.pure_bind]
---    ... = some z : by rw heq₂
---end
---
+
+theorem is_transitive : transitive (envelope G α) := begin
+  intros,
+  unfold transitive,
+  rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
+  unfold envelope,
+  assume heq₁ : (b⁻¹ * a) ∙ x = some y,
+  assume heq₂ : (c⁻¹ * b) ∙ y = some z,
+  have b'ax : is_some ((b⁻¹ * a) ∙ x), simp *,
+  have c'by : is_some ((c⁻¹ * b) ∙ y), simp *,
+  show (c⁻¹ * a) ∙ x = some z, from calc
+    (c⁻¹ * a) ∙ x = (c⁻¹ * 1 * a) ∙ x : by simp
+    ... = (c⁻¹ * b * b⁻¹ * a) ∙ x : by simp
+    ... = (c⁻¹ * b) ∙ option.get b'ax : by { rw ← (partial_mul_action.compatibility b'ax); simp [mul_assoc]; tauto }
+    ... = (c⁻¹ * b) ∙ y : by simp [heq₁]
+    ... = some z : by rw heq₂
+end
+
 --theorem is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 --
 --instance : setoid (G × α) := {
