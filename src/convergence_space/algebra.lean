@@ -193,17 +193,17 @@ def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 def act : G → G × α → quot (envelope G α) :=
 λ a ⟨b, x⟩, ⟦(a * b, x)⟧
 
---theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
---  rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
---  unfold act,
---  simp [quotient.eq],
---  unfold has_equiv.equiv,
---  unfold setoid.r,
---  unfold envelope,
---  simp [mul_assoc],
---  assumption,
---end
---
+theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
+  rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
+  unfold act,
+  simp [quotient.eq],
+  unfold has_equiv.equiv,
+  unfold setoid.r,
+  unfold envelope,
+  simp [mul_assoc],
+  assumption,
+end
+
 --instance : has_scalar G (quot (envelope G α)) := {
 --  smul := λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x,
 --}
