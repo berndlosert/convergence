@@ -546,6 +546,12 @@ begin
   exact and.intro hf' hg',
 end
 
+lemma prod.converges' {f : filter (α × β)} {x : α × β}
+  (hfst : converges (map prod.fst f) (prod.fst x))
+  (hsnd : converges (map prod.snd f) (prod.snd x)) :
+  (converges f x) :=
+⟨hfst, hsnd⟩
+
 end
 
 -------------------------------------------------------------------------------
@@ -810,7 +816,22 @@ begin
       ... = (y₁, y₂) : by rw [heq₁, heq₂],
   have hconv' : converges f x, from prod.converges hf₁ hf₂,
   exact ⟨hle, heq, hconv'⟩,
-  sorry,
+  rintro ⟨f, x, hle, heq, hconv⟩,
+  let f₁ := map prod.fst f,
+  let f₂ := map prod.snd f,
+  let x₁ := prod.fst x,
+  let x₂ := prod.snd x,
+  have heq₁ : m₁ x₁ = y₁, sorry,
+  have heq₂ : m₂ x₂ = y₂, sorry,
+  have hf₁ : converges f₁ x₁, sorry,
+  have hf₂ : converges f₂ x₂, sorry,
+  let g₁ := map prod.fst g,
+  let g₂ := map prod.snd g,
+  have hle₁ : g₁ ≤ map m₁ f₁, sorry,
+  have hle₂ : g₂ ≤ map m₂ f₂, sorry,
+  have hg₁ : converges g₁ y₁, from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x₁, hle₁, heq₁, hf₁⟩,
+  have hg₂ : converges g₂ y₂, from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x₂, hle₂, heq₂, hf₂⟩,
+  exact ⟨hg₁, hg₂⟩,
 end
 
 -------------------------------------------------------------------------------
