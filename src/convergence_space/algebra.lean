@@ -198,7 +198,7 @@ def quotient_map : G × α → quot (envelope G α) := λ ⟨a, x⟩, ⟦(a, x)�
 
 def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
-def act : G → G × α → quot (envelope G α) :=
+@[simp] def act : G → G × α → quot (envelope G α) :=
 λ a ⟨b, x⟩, ⟦(a * b, x)⟧
 
 theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
@@ -232,6 +232,8 @@ instance : has_continuous_smul G (G × α) :=
     rintro hk : converges k (a₁, (a₂, x)),
     let act : G × (G × α) → G × α := uncurry has_scalar.smul,
     let mul : G × G → G := uncurry has_mul.mul,
+    let rlassoc := (equiv.prod_assoc G G α).inv_fun,
+    have eq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
     let g₁ : filter G := map prod.fst k,
     let hg₁ : converges g₁ a₁ := hk.1,
     let g₂ : filter G := map (prod.fst ∘ prod.snd) k,
@@ -248,6 +250,7 @@ instance : has_continuous_smul G (G × α) :=
       rw filter.le_def,
       assume s : set (G × α),
       intro hmem, -- hmem : s ∈ map mul (g ×ᶠ f),
+      sorry,
     end,
     exact le_converges hle hconv,
   end }
