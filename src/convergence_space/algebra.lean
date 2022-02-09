@@ -244,7 +244,11 @@ instance : has_continuous_smul G (G × α) :=
     have : converges (map mul g) (mul a),
       from convergence_group.continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
-    have hle : map act k ≤ map mul g ×ᶠ f, sorry,
+    have hle : map act k ≤ map mul g ×ᶠ f, begin
+      rw filter.le_def,
+      assume s : set (G × α),
+      intro hmem, -- hmem : s ∈ map mul (g ×ᶠ f),
+    end,
     exact le_converges hle hconv,
   end }
 
