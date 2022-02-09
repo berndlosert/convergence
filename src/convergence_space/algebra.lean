@@ -249,7 +249,7 @@ instance : has_continuous_smul G (G × α) :=
     have hle : map act k ≤ map mul g ×ᶠ f, begin
       rw filter.le_def,
       assume s : set (G × α),
-      intro hmem, -- hmem : s ∈ map mul (g ×ᶠ f),
+      intro hmem, -- hmem : s ∈ map mul g ×ᶠ f,
       sorry,
     end,
     exact le_converges hle hconv,
