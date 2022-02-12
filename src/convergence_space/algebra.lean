@@ -249,8 +249,8 @@ instance : has_continuous_smul G (G × α) :=
     have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), from calc
       k ≤ map prod.fst k ×ᶠ map prod.snd k : filter.le_prod_map_fst_snd
       ... = g₁ ×ᶠ map prod.snd k : by tauto
-      --... = g₁ ×ᶠ (map prod.fst (prod.snd k) ×ᶠ map prod.snd (prod.snd k)) :
-      --  prod.mono (le_refl g₁) filter.le_prod_map_fst_snd
+      ... ≤ g₁ ×ᶠ (map prod.fst (map prod.snd k) ×ᶠ map prod.snd (map prod.snd k)) :
+        prod_mono (le_refl g₁) filter.le_prod_map_fst_snd
       --... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
       --  by rw filter.map_map
       ... = g₁ ×ᶠ (g₂ ×ᶠ f) : sorry, --by tauto,
