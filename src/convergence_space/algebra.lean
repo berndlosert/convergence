@@ -251,8 +251,8 @@ instance : has_continuous_smul G (G × α) :=
       ... = g₁ ×ᶠ map prod.snd k : by tauto
       ... ≤ g₁ ×ᶠ (map prod.fst (map prod.snd k) ×ᶠ map prod.snd (map prod.snd k)) :
         prod_mono (le_refl g₁) filter.le_prod_map_fst_snd
-      --... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
-      --  by rw filter.map_map
+      ... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
+        by simp [filter.map_map]
       ... = g₁ ×ᶠ (g₂ ×ᶠ f) : sorry, --by tauto,
     have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, sorry,
     have hle' : map act k ≤ map mul g ×ᶠ f, from eq.subst heq' (map_mono hle),
