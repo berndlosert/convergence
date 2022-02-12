@@ -233,7 +233,7 @@ instance : has_continuous_smul G (G × α) :=
     let act : G × (G × α) → G × α := uncurry has_scalar.smul,
     let mul : G × G → G := uncurry has_mul.mul,
     let rlassoc := (equiv.prod_assoc G G α).inv_fun,
-    have eq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
+    have heq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
     let g₁ : filter G := map prod.fst k,
     let hg₁ : converges g₁ a₁ := hk.1,
     let g₂ : filter G := map (prod.fst ∘ prod.snd) k,
@@ -246,13 +246,10 @@ instance : has_continuous_smul G (G × α) :=
     have : converges (map mul g) (mul a),
       from convergence_group.continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
-    have hle : map act k ≤ map mul g ×ᶠ f, begin
-      rw filter.le_def,
-      assume s : set (G × α),
-      intro hmem, -- hmem : s ∈ map mul g ×ᶠ f,
-      sorry,
-    end,
-    exact le_converges hle hconv,
+    have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), sorry,
+    have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, sorry,
+    have hle' : map act k ≤ map mul g ×ᶠ f, from eq.subst heq' (map_mono hle),
+    exact le_converges hle' hconv,
   end }
 
 end
