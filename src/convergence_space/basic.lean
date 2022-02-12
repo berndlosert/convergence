@@ -771,7 +771,7 @@ begin
     case or.inr { assumption },
 end
 
-lemma filter.prod_map_fst_snd_eq (f : filter (α × β)) :
+lemma filter.le_prod_map_fst_snd {f : filter (α × β)} :
   f ≤ filter.map prod.fst f ×ᶠ map prod.snd f :=
 begin
   unfold filter.prod,
@@ -806,7 +806,7 @@ begin
   use f,
   use x,
   have hle : g ≤ map (prod.map m₁ m₂) f, from calc
-    g ≤ map prod.fst g ×ᶠ map prod.snd g : filter.prod_map_fst_snd_eq g
+    g ≤ map prod.fst g ×ᶠ map prod.snd g : filter.le_prod_map_fst_snd
     ... = g₁ ×ᶠ g₂ : by tauto
     ... ≤ map m₁ f₁ ×ᶠ map m₂ f₂ : prod_mono hle₁ hle₂
     ... = map (prod.map m₁ m₂) (f₁ ×ᶠ f₂) : prod_map_map_eq' m₁ m₂ f₁ f₂,
