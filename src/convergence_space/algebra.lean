@@ -246,7 +246,14 @@ instance : has_continuous_smul G (G × α) :=
     have : converges (map mul g) (mul a),
       from convergence_group.continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
-    have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), sorry,
+    have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), from calc
+      k ≤ map prod.fst k ×ᶠ map prod.snd k : sorry --by filter.le_prod_map_fst_snd
+      --... = g₁ ×ᶠ prod.snd k : by tauto
+      --... = g₁ ×ᶠ (map prod.fst (prod.snd k) ×ᶠ map prod.snd (prod.snd k)) :
+      --  prod.mono (le_refl g₁) filter.le_prod_map_fst_snd
+      --... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
+      --  by rw filter.map_map
+      ... = g₁ ×ᶠ (g₂ ×ᶠ f) : sorry, --by tauto,
     have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, sorry,
     have hle' : map act k ≤ map mul g ×ᶠ f, from eq.subst heq' (map_mono hle),
     exact le_converges hle' hconv,
