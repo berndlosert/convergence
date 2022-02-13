@@ -94,27 +94,27 @@ instance : category ConvGroup := {
 -------------------------------------------------------------------------------
 
 /-- Typeclass for types with a partial scalar multiplication operation,
-  denoted `∙`. -/
+  denoted `·`. -/
 class has_partial_scalar (M α : Type*) :=
 (partial_smul : M → α → option α)
 (partial_smul' : M × α → option α := uncurry partial_smul)
 
 open has_partial_scalar
 
-infixr ` ∙ `:73 := has_partial_scalar.partial_smul
+infixr ` · `:73 := has_partial_scalar.partial_smul
 
 /-- Typeclass for partial actions by monoids. -/
 class partial_mul_action (M α : Type*) [monoid M]
   extends has_partial_scalar M α :=
-(identity : ∀ {x : α}, (1 : M) ∙ x = option.some x)
-(compatibility : ∀ {a b : M} {x : α} (bx : is_some (b ∙ x)),
-  (a * b) ∙ x = a ∙ get bx)
-(injective : ∀ {a : M} {x : α}, is_some (a ∙ x) → ∀ y, a ∙ x = a ∙ y → x = y)
+(identity : ∀ {x : α}, (1 : M) · x = option.some x)
+(compatibility : ∀ {a b : M} {x : α} (bx : is_some (b · x)),
+  (a * b) · x = a · get bx)
+(injective : ∀ {a : M} {x : α}, is_some (a · x) → ∀ y, a · x = a · y → x = y)
 
 open partial_mul_action
 
 /-- Class `has_continuous_smul M α` says that the partial scalar multiplication
-  `(∙) : M → α → α` is continuous in both arguments. -/
+  `(·) : M → α → α` is continuous in both arguments. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : continuous (partial_smul' : M × α → option α))
@@ -142,7 +142,7 @@ structure ContPartAct extends PartAct :=
 -------------------------------------------------------------------------------
 
 def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
- λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) ∙ x = some y
+ λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) · x = some y
 
 namespace envelope
 
@@ -162,12 +162,12 @@ theorem is_symmetric : symmetric (envelope G α) := begin
   rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
   unfold envelope,
   intro heq,
-  have b'ax : is_some ((b⁻¹ * a) ∙ x), simp [heq],
-  show (a⁻¹ * b) ∙ y = some x, from calc
-    (a⁻¹ * b) ∙ y = (a⁻¹ * b) ∙ get b'ax : by simp [heq]
-    ... = ((a⁻¹ * b) * (b⁻¹ * a)) ∙ x :
+  have b'ax : is_some ((b⁻¹ * a) · x), simp [heq],
+  show (a⁻¹ * b) · y = some x, from calc
+    (a⁻¹ * b) · y = (a⁻¹ * b) · get b'ax : by simp [heq]
+    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x :
       by { rw [← (compatibility b'ax)]; tauto }
-    ... = (1 : G) ∙ x : by simp [mul_assoc]
+    ... = (1 : G) · x : by simp [mul_assoc]
     ... = some x : by exact identity
 end
 
@@ -176,16 +176,16 @@ theorem is_transitive : transitive (envelope G α) := begin
   unfold transitive,
   rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
   unfold envelope,
-  assume heq₁ : (b⁻¹ * a) ∙ x = some y,
-  assume heq₂ : (c⁻¹ * b) ∙ y = some z,
-  have b'ax : is_some ((b⁻¹ * a) ∙ x), simp *,
-  have c'by : is_some ((c⁻¹ * b) ∙ y), simp *,
-  show (c⁻¹ * a) ∙ x = some z, from calc
-    (c⁻¹ * a) ∙ x = (c⁻¹ * 1 * a) ∙ x : by simp
-    ... = (c⁻¹ * b * b⁻¹ * a) ∙ x : by simp
-    ... = (c⁻¹ * b) ∙ get b'ax :
+  assume heq₁ : (b⁻¹ * a) · x = some y,
+  assume heq₂ : (c⁻¹ * b) · y = some z,
+  have b'ax : is_some ((b⁻¹ * a) · x), simp *,
+  have c'by : is_some ((c⁻¹ * b) · y), simp *,
+  show (c⁻¹ * a) · x = some z, from calc
+    (c⁻¹ * a) · x = (c⁻¹ * 1 * a) · x : by simp
+    ... = (c⁻¹ * b * b⁻¹ * a) · x : by simp
+    ... = (c⁻¹ * b) · get b'ax :
       by { rw ← (compatibility b'ax); simp [mul_assoc]; tauto }
-    ... = (c⁻¹ * b) ∙ y : by simp [heq₁]
+    ... = (c⁻¹ * b) · y : by simp [heq₁]
     ... = some z : by rw heq₂
 end
 
@@ -286,15 +286,15 @@ end
 
 end envelope
 
----------------------------------------------------------------------------------
----- Adherence restrictive
----------------------------------------------------------------------------------
---
---variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
---variables {α : Type*} [convergence_space α] [partial_group_action G α] [continuous_partial_group_action G α]
---
---def adh_restrictive : Prop :=
---∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry act) (g ×ᶠ f))
---
---def weakly_adh_restrictive : Prop :=
---∀ {g : filter G} {f : filter α}, adh (map (@envelope.pure G _ _ _) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry act) (g ×ᶠ f))
+-------------------------------------------------------------------------------
+-- Adherence restrictive
+-------------------------------------------------------------------------------
+
+variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
+variables [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
+
+def adh_restrictive : Prop :=
+∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+
+def weakly_adh_restrictive : Prop :=
+∀ {g : filter G} {f : filter α}, adh (map (@envelope.pure α G _ _) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
