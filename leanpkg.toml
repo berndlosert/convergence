@@ -1,5 +1,5 @@
 [package]
-name = "lean-play"
+name = "convergence"
 version = "0.1"
 lean_version = "leanprover-community/lean:3.39.0"
 path = "src"
