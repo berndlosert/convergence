@@ -16,6 +16,8 @@ set_option old_structure_cmd true
 
 universe u
 
+variables {α β γ : Type*}
+
 -------------------------------------------------------------------------------
 -- Convergence semigroups, monoids, groups
 -------------------------------------------------------------------------------
@@ -144,7 +146,7 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 
 namespace envelope
 
-variables {G α : Type*} [group G] [partial_mul_action G α]
+variables {G : Type*} [group G] [partial_mul_action G α]
 
 theorem is_reflexive : reflexive (envelope G α) := begin
   intros,
@@ -223,6 +225,9 @@ section
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
+lemma map_rlassoc_eq (f : filter α) (g : filter β) (h : filter γ) :
+  map (equiv.prod_assoc α β γ).inv_fun (f ×ᶠ (g ×ᶠ h)) = (f ×ᶠ g) ×ᶠ h := sorry
+
 instance : has_continuous_smul G (G × α) :=
 { continuous_smul :=
   begin
@@ -254,7 +259,15 @@ instance : has_continuous_smul G (G × α) :=
       ... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
         by simp [filter.map_map]
       ... = g₁ ×ᶠ (g₂ ×ᶠ f) : by tauto,
-    have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, sorry,
+    have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, from calc
+      map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map (prod.map mul id ∘ rlassoc) (g₁ ×ᶠ (g₂ ×ᶠ f)) :
+        by rw heq
+      ... = map (prod.map mul id) (map rlassoc (g₁ ×ᶠ (g₂ ×ᶠ f))) :
+        by simp [← filter.map_map]
+      ... = map (prod.map mul id) ((g₁ ×ᶠ g₂) ×ᶠ f) :
+        by rw [map_rlassoc_eq g₁ g₂ f]
+      ... = map mul g ×ᶠ f :
+        by simp [← filter.prod_map_map_eq'],
     have hle' : map act k ≤ map mul g ×ᶠ f, from eq.subst heq' (map_mono hle),
     exact le_converges hle' hconv,
   end }
