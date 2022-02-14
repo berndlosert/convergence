@@ -196,14 +196,14 @@ instance : setoid (G × α) := {
   iseqv := is_equivalence,
 }
 
-def quotient_map : G × α → quot (envelope G α) := λ ⟨a, x⟩, ⟦(a, x)⟧
-
-def pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
+def quot_pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
 @[simp] def act : G → G × α → quot (envelope G α) :=
 λ a ⟨b, x⟩, ⟦(a * b, x)⟧
 
-theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), envelope.act a p₁ = envelope.act a p₂ := begin
+theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), 
+  envelope.act a p₁ = envelope.act a p₂ := 
+begin
   rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
   unfold act,
   simp [quotient.eq],
@@ -224,6 +224,28 @@ section
 
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
+
+lemma quot_is_quotient_map : quotient_map (quot.mk (envelope G α)) :=
+begin
+  rw quotient_map_iff,
+  split,
+  exact quot.exists_rep,
+  assume g : filter (quot (envelope G α)),
+  assume y : quot (envelope G α),
+  split,
+  intro hconv,
+  cases hconv,
+    case or.inl begin
+      obtain ⟨x, hx⟩ := quot.exists_rep y,
+      rw ← hx at hconv,
+      exact ⟨pure x, x, hconv, hx, pure_converges x⟩,
+    end,
+    case or.inr : hexists begin
+      exact hexists,
+    end,
+    intro hexists,
+    exact or.inr hexists,
+end
 
 lemma map_rlassoc_eq (f : filter α) (g : filter β) (h : filter γ) :
   map (equiv.prod_assoc α β γ).inv_fun (f ×ᶠ (g ×ᶠ h)) = (f ×ᶠ g) ×ᶠ h := sorry
@@ -274,15 +296,15 @@ instance : has_continuous_smul G (G × α) :=
 
 end
 
---instance
---[convergence_space G] [convergence_group G]
---[convergence_space α] [continuous_mul_action G α] :
---has_continuous_smul G (quot (envelope G α)) :=
---{ continuous_smul :=
---  begin
---    unfold continuous,
---    sorry,
---  end }
+instance
+[convergence_space G] [convergence_group G]
+[convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
+has_continuous_smul G (quot (envelope G α)) :=
+{ continuous_smul :=
+ begin
+   unfold continuous,
+   sorry,
+ end }
 
 end envelope
 
@@ -297,4 +319,4 @@ def adh_restrictive : Prop :=
 ∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
 
 def weakly_adh_restrictive : Prop :=
-∀ {g : filter G} {f : filter α}, adh (map (@envelope.pure α G _ _) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+∀ {g : filter G} {f : filter α}, adh (map (λ x, ⟦(1, x)⟧ : α → quot (envelope G α)) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
