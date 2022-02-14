@@ -467,6 +467,28 @@ begin
     end
 end
 
+lemma coinduced_id [p : convergence_space α] : convergence_space.coinduced id = p :=
+begin
+  rw convergence_space_eq_iff,
+  assume f : filter α,
+  assume x : α,
+  split,
+  assume hconv : converges_ (convergence_space.coinduced id) f x,
+  cases hconv,
+    case or.inl begin
+      exact le_converges_ p hconv (pure_converges_ p x),
+    end,
+    case or.inr : hexists begin
+      obtain ⟨g, y, hle, heq, hconv'⟩ := hexists,
+      simp at hle,
+      simp at heq,
+      rw ← heq,
+      exact le_converges_ p hle hconv',
+    end,
+  assume hconv : converges_ p f x,
+  exact or.inr ⟨f, x, le_refl f, rfl, hconv⟩,
+end
+
 -------------------------------------------------------------------------------
 -- Limits, adherence, interior, closure, open, closed, neighborhoods
 -------------------------------------------------------------------------------
@@ -639,7 +661,7 @@ instance [convergence_space α] [convergence_space β] :
 }
 
 -------------------------------------------------------------------------------
--- Separation aaioms
+-- Separation axioms
 -------------------------------------------------------------------------------
 
 /-- In a T₀ space, the equality of two points can be determined by checking
@@ -780,7 +802,10 @@ begin
   exact le_inf hle₁ hle₂,
 end
 
-lemma quotient_prod_map
+lemma quotient_map.id [convergence_space α] : quotient_map (@id α) :=
+⟨assume a, ⟨a, rfl⟩, coinduced_id.symm⟩
+
+lemma quotient_map.prod_map
   {α₁ β₁ : Type*} [convergence_space α₁] [convergence_space β₁]
   {m₁ : α₁ → β₁} (hquot₁ : quotient_map m₁)
   {α₂ β₂ : Type*} [convergence_space α₂] [convergence_space β₂]
