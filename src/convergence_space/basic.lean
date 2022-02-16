@@ -9,7 +9,7 @@ noncomputable theory
 open set function filter classical option category_theory
 open_locale classical filter
 
-variables {α β γ : Type*}
+variables {α α₁ α₂ β β₁ β₂ γ : Type*}
 
 -------------------------------------------------------------------------------
 -- Definition
@@ -806,9 +806,9 @@ lemma quotient_map.id [convergence_space α] : quotient_map (@id α) :=
 ⟨assume a, ⟨a, rfl⟩, coinduced_id.symm⟩
 
 lemma quotient_map.prod_map
-  {α₁ β₁ : Type*} [convergence_space α₁] [convergence_space β₁]
+  [convergence_space α₁] [convergence_space β₁]
   {m₁ : α₁ → β₁} (hquot₁ : quotient_map m₁)
-  {α₂ β₂ : Type*} [convergence_space α₂] [convergence_space β₂]
+  [convergence_space α₂] [convergence_space β₂]
   {m₂ : α₂ → β₂} (hquot₂ : quotient_map m₂) :
   quotient_map (prod.map m₁ m₂) :=
 begin
