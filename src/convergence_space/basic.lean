@@ -489,6 +489,69 @@ begin
   exact or.inr ⟨f, x, le_refl f, rfl, hconv⟩,
 end
 
+lemma continuous_iff_coinduced_le {m : α → β}
+  [convergence_space α] [q : convergence_space β]  : 
+  continuous m ↔ convergence_space.coinduced m ≤ q :=
+begin
+  split,
+  assume hcont : continuous m,
+  unfold has_le.le,
+  assume g : filter β,
+  assume y : β,
+  assume hconv : converges_ (convergence_space.coinduced m) g y,
+  cases hconv,
+    case or.inl begin
+      exact le_converges_ q hconv (pure_converges_ q y),
+    end,
+    case or.inr : hexists begin
+      obtain ⟨f, x, hle, heq, hconv'⟩ := hexists,
+      rw ← heq,
+      exact le_converges_ q hle (hcont hconv'),
+    end,
+  assume hle : convergence_space.coinduced m ≤ q,
+  assume x : α,
+  assume f : filter α,
+  assume hconv : converges f x,
+  exact hle (or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩),
+end
+
+lemma coinduced_compose [convergence_space α]
+  {m₁ : α → β} {m₂ : β → γ} : 
+  @convergence_space.coinduced _ _ m₂ (convergence_space.coinduced m₁) = 
+  convergence_space.coinduced (m₂ ∘ m₁) :=
+begin
+  rw convergence_space_eq_iff,
+  assume h : filter γ,
+  assume z : γ,
+  let p := @convergence_space.coinduced _ _ m₂ (convergence_space.coinduced m₁),
+  let q := convergence_space.coinduced (m₂ ∘ m₁),
+  split,
+  assume hconv : converges_ p h z,
+  cases hconv,
+    case or.inl begin
+      exact or.inl hconv,
+    end,
+    case or.inr : hg begin
+      obtain ⟨g, y, hg₁, hg₂, hg₃⟩ := hg,
+      cases hg₃,
+        case or.inl begin
+          have hle' : h ≤ pure (m₂ y), from calc
+            h ≤ map m₂ g : hg₁
+            ... ≤ map m₂ (pure y) : map_mono hg₃
+            ... = pure (m₂ y) : by rw filter.map_pure,
+          rw ← hg₂,
+          exact or.inl hle',
+        end,
+        case or.inr : hf begin
+          obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hf,
+          have hle : h ≤ map (m₂ ∘ m₁) f, sorry,
+          have heq : (m₂ ∘ m₁) x = z, sorry,
+          exact or.inr ⟨f, x, hle, heq, hf₃⟩,
+        end
+    end,
+    sorry,
+end
+
 -------------------------------------------------------------------------------
 -- Limits, adherence, interior, closure, open, closed, neighborhoods
 -------------------------------------------------------------------------------
@@ -792,6 +855,11 @@ begin
     end,
     case or.inr { assumption },
 end
+
+lemma quotient_map.continuous_iff [convergence_space α] [convergence_space β]
+  [convergence_space γ] {m₁ : α → β} {m₂ : β → γ} (hquot : quotient_map m₁) :
+  continuous m₂ ↔ continuous (m₂ ∘ m₁) :=
+by rw [continuous_iff_coinduced_le, continuous_iff_coinduced_le, hquot.right, coinduced_compose]
 
 lemma filter.le_prod_map_fst_snd {f : filter (α × β)} :
   f ≤ filter.map prod.fst f ×ᶠ map prod.snd f :=
