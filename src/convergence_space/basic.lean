@@ -544,12 +544,31 @@ begin
         end,
         case or.inr : hf begin
           obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hf,
-          have hle : h ≤ map (m₂ ∘ m₁) f, sorry,
-          have heq : (m₂ ∘ m₁) x = z, sorry,
+          have hle : h ≤ map (m₂ ∘ m₁) f, from calc
+            h ≤ map m₂ (map m₁ f) : le_trans hg₁ (map_mono hf₁)
+            ... = map (m₂ ∘ m₁) f : by rw filter.map_map,
+          have heq : (m₂ ∘ m₁) x = z, from calc
+            (m₂ ∘ m₁) x = m₂ (m₁ x) : by tauto
+            ... = m₂ y : by rw hf₂
+            ... = z : by rw hg₂,
           exact or.inr ⟨f, x, hle, heq, hf₃⟩,
         end
     end,
-    sorry,
+  assume hconv : converges_ q h z,
+  cases hconv,
+    case or.inl begin
+      exact or.inl hconv,
+    end,
+    case or.inr : hexists begin
+      obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hexists,
+      let g : filter β := map m₁ f,
+      let y : β := m₁ x,
+      let hg₁ : h ≤ map m₂ g := by tauto,
+      let hg₂ : m₂ y = z := by tauto,
+      let hg₃ : converges_ (convergence_space.coinduced m₁) g y := 
+        or.inr ⟨f, x, le_refl (map m₁ f), rfl, hf₃⟩,
+      exact or.inr ⟨g, y, hg₁, hg₂, hg₃⟩,
+    end
 end
 
 -------------------------------------------------------------------------------
