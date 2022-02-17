@@ -571,6 +571,15 @@ begin
     end
 end
 
+lemma continuous_coinduced_rng [p : convergence_space α]
+  {m : α → β} : continuous_ p (convergence_space.coinduced m) m :=
+begin
+  assume x : α,
+  assume f : filter α,
+  assume hconv : converges f x,
+  exact or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩,
+end
+
 -------------------------------------------------------------------------------
 -- Limits, adherence, interior, closure, open, closed, neighborhoods
 -------------------------------------------------------------------------------
@@ -950,6 +959,14 @@ begin
     from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
   exact ⟨hg₁, hg₂⟩,
 end
+
+lemma quotient_map_quot_mk [convergence_space α] {r : α → α → Prop} :
+  quotient_map (quot.mk r) :=
+⟨quot.exists_rep, rfl⟩
+
+lemma continuous_quot_mk [convergence_space α] 
+  {r : α → α → Prop} : continuous (quot.mk r) :=
+continuous_coinduced_rng
 
 -------------------------------------------------------------------------------
 -- Categorb Conv of convergence spaces

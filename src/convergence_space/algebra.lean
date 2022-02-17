@@ -225,28 +225,6 @@ section
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
-lemma quot_is_quotient_map : quotient_map (quot.mk (envelope G α)) :=
-begin
-  rw quotient_map_iff,
-  split,
-  exact quot.exists_rep,
-  assume g : filter (quot (envelope G α)),
-  assume y : quot (envelope G α),
-  split,
-  intro hconv,
-  cases hconv,
-    case or.inl begin
-      obtain ⟨x, hx⟩ := quot.exists_rep y,
-      rw ← hx at hconv,
-      exact ⟨pure x, x, hconv, hx, pure_converges x⟩,
-    end,
-    case or.inr : hexists begin
-      exact hexists,
-    end,
-    intro hexists,
-    exact or.inr hexists,
-end
-
 lemma map_rlassoc_eq (f : filter α) (g : filter β) (h : filter γ) :
   map (equiv.prod_assoc α β γ).inv_fun (f ×ᶠ (g ×ᶠ h)) = (f ×ᶠ g) ×ᶠ h := sorry
 
