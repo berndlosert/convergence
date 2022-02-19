@@ -191,10 +191,9 @@ end
 
 lemma is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 
-instance : setoid (G × α) := {
-  r := envelope G α,
-  iseqv := is_equivalence,
-}
+instance : setoid (G × α) := 
+{ r := envelope G α,
+  iseqv := is_equivalence }
 
 def quot_pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
@@ -206,7 +205,7 @@ begin
   obtain ⟨c, y⟩ := cy,
   change ((a * c)⁻¹ * (a * b)) · x = some y,
   simp [mul_assoc],
-  assumption
+  assumption,
 end
 
 lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) : 
@@ -297,4 +296,4 @@ def adh_restrictive : Prop :=
 ∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
 
 def weakly_adh_restrictive : Prop :=
-∀ {g : filter G} {f : filter α}, adh (map (λ x, ⟦(1, x)⟧ : α → quot (envelope G α)) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+∀ {g : filter G} {f : filter α}, adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
