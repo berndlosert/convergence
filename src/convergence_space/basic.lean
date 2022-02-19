@@ -11,9 +11,9 @@ open_locale classical filter
 
 variables {α α₁ α₂ β β₁ β₂ γ : Type*}
 
--------------------------------------------------------------------------------
--- Definition
--------------------------------------------------------------------------------
+/-!
+### Definition
+-/
 
 /-- Instances of this class will be refered to as convergence structures. -/
 @[ext] class convergence_space (α : Type*) :=
@@ -36,9 +36,9 @@ theorem convergence_space_eq_iff {p q : convergence_space α} :
   p = q ↔ ∀ f x, @converges _ p f x ↔ @converges _ q f x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
--------------------------------------------------------------------------------
--- Parital ordering
--------------------------------------------------------------------------------
+/-!
+### Parital ordering
+-/
 
 instance : has_le (convergence_space α) :=
 ⟨λ p q, ∀ {f x}, @converges _ p f x → @converges _ q f x⟩
@@ -87,9 +87,9 @@ def discrete : convergence_space α := ⟨λ f x, f ≤ pure x, by tauto, by tau
 
 instance : has_bot (convergence_space α) := ⟨discrete⟩
 
--------------------------------------------------------------------------------
--- Infimum and supremum of convergence spaces
--------------------------------------------------------------------------------
+/-!
+### Infimum and supremum of convergence spaces
+-/
 
 instance : has_inf (convergence_space α) :=
 { inf := λ p q,
@@ -175,9 +175,9 @@ instance : has_Sup (convergence_space α) :=
         end,
     end }}
 
--------------------------------------------------------------------------------
--- Lattice of convergence spaces
--------------------------------------------------------------------------------
+/-!
+### Lattice of convergence spaces
+-/
 
 instance : semilattice_sup (convergence_space α) :=
 { le_sup_left :=
@@ -323,9 +323,9 @@ instance : complete_lattice (convergence_space α) :=
   ..convergence_space.has_top,
   ..convergence_space.has_bot }
 
--------------------------------------------------------------------------------
--- Continuity
--------------------------------------------------------------------------------
+/-!
+### Continuity
+-/
 
 def continuous [convergence_space α] [convergence_space β] (m : α → β) : Prop :=
 ∀ ⦃x f⦄, converges f x → converges (map m f) (m x)
@@ -381,9 +381,9 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 (continuous_to_fun : continuous to_fun)
 (continuous_inv_fun : continuous inv_fun)
 
--------------------------------------------------------------------------------
--- Induced convergence space
--------------------------------------------------------------------------------
+/-!
+### Induced convergence space
+-/
 
 /-- Given `m : α → β`, where `β` is convergence space, the induced convergence
   structure on `α` is the grextest convergence structure making `m`
@@ -423,9 +423,9 @@ begin
   assumption,
 end
 
--------------------------------------------------------------------------------
--- Coinduced convergence space
--------------------------------------------------------------------------------
+/-!
+### Coinduced convergence space
+-/
 
 /-- Given `m : α → β`, where `α` is convergence space, the coinduced convergence
   structure on `β` is the least convergence structure making `m`
@@ -580,9 +580,9 @@ begin
   exact or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩,
 end
 
--------------------------------------------------------------------------------
--- Limits, adherence, interior, closure, open, closed, neighborhoods
--------------------------------------------------------------------------------
+/-!
+### Limits, adherence, interior, closure, open, closed, neighborhoods
+-/
 
 section
 
@@ -631,9 +631,9 @@ def nhds (x : α) : filter α := ⨅ f ∈ {g : filter α | converges g x}, f
 
 end
 
--------------------------------------------------------------------------------
--- Product spaces
--------------------------------------------------------------------------------
+/-!
+### Product spaces
+-/
 
 section
 
@@ -680,9 +680,9 @@ convergence_space.coinduced (quot.mk r)
 instance [convergence_space α] : convergence_space (option α) :=
 convergence_space.coinduced some
 
--------------------------------------------------------------------------------
--- The convergence space C(α,β)
--------------------------------------------------------------------------------
+/-!
+### The convergence space C(α,β)
+-/
 
 /-- Bundled continuous maps. -/
 structure continuous_map (α β : Type*)
@@ -751,9 +751,9 @@ instance [convergence_space α] [convergence_space β] :
   end,
 }
 
--------------------------------------------------------------------------------
--- Separation axioms
--------------------------------------------------------------------------------
+/-!
+### Separation axioms
+-/
 
 /-- In a T₀ space, the equality of two points can be determined by checking
   if the corresponding pure filters converge to the other point. -/
@@ -789,9 +789,9 @@ class r2_space (α : Type*) [convergence_space α] : Prop :=
 class t3_space (α : Type*) [convergence_space α] extends
   t0_space α, r2_space α.
 
--------------------------------------------------------------------------------
--- Compact sets/spaces
--------------------------------------------------------------------------------
+/-!
+### Compact sets/spaces
+-/
 
 def is_compact [convergence_space α] (s : set α) :=
 ∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x
@@ -817,9 +817,9 @@ begin
   tauto,
 end
 
--------------------------------------------------------------------------------
--- Quotient maps
--------------------------------------------------------------------------------
+/-!
+### Quotient maps
+-/
 
 /-- A surjective map `m : α → β` where β has the coinduced convergence is
   called a quotient map. -/
@@ -968,9 +968,9 @@ lemma continuous_quot_mk [convergence_space α]
   {r : α → α → Prop} : continuous (quot.mk r) :=
 continuous_coinduced_rng
 
--------------------------------------------------------------------------------
--- Categorb Conv of convergence spaces
--------------------------------------------------------------------------------
+/-!
+### Category Conv of convergence spaces
+-/
 
 universe u
 
