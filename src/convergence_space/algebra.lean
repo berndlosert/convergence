@@ -276,12 +276,18 @@ instance
 [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
 has_continuous_smul G (quot (envelope G α)) :=
 { continuous_smul :=
-   begin
-     unfold continuous,
-    --  have heq : (uncurry (·) ∘ (prod.map id (quot.mk (envelope G α)) : G × (G × α) → (G × quot (envelope G α))) = 
-    --    (quot.mk (envelope G α) : G × α → quot (envelope G α)) ∘ (uncurry (•) : G × (G × α) → (G × α)), sorry,
-    sorry,
-   end }
+  begin
+    --unfold continuous,
+    let act : G × (G × α) → (G × α) := uncurry (•),
+    let qact : G × quot (envelope G α) → quot (envelope G α) := uncurry (•),
+    let idquot : G × (G × α) → G × quot (envelope G α) := prod.map id (quot.mk (envelope G α)),
+    let quot_mk : G × α → quot (envelope G α) := quot.mk (envelope G α),
+    have heq : qact ∘ idquot = quot_mk ∘ act, sorry,
+    have hqmap : quotient_map idquot, sorry,
+    have hcontr : continuous (quot_mk ∘ act), sorry,
+    have hcont : continuous qact, sorry,
+    exact hcont,
+  end }
 
 end envelope
 
