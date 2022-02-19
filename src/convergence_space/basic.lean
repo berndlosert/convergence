@@ -25,15 +25,15 @@ open convergence_space
 
 section
 variables (p : convergence_space α)
-def converges_ (f : filter α) (x : α) : Prop := @converges _ p f x
-def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
-def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α}
+@[simp] def converges_ (f : filter α) (x : α) : Prop := @converges _ p f x
+@[simp] def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
+@[simp] def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α}
   (hconv : converges g x) : converges f x :=
 @le_converges _ p _ _ hle _ hconv
 end
 
 theorem convergence_space_eq_iff {p q : convergence_space α} :
-  p = q ↔ ∀ f x, @converges _ p f x ↔ @converges _ q f x :=
+  p = q ↔ ∀ f x, converges_ p f x ↔ converges_ q f x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
 /-!
@@ -41,7 +41,7 @@ by simp [funext_iff, convergence_space.ext_iff p q]
 -/
 
 instance : has_le (convergence_space α) :=
-⟨λ p q, ∀ {f x}, @converges _ p f x → @converges _ q f x⟩
+⟨λ p q, ∀ {f x}, converges_ p f x → converges_ q f x⟩
 
 instance : partial_order (convergence_space α) := {
   le_refl :=
