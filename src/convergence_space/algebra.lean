@@ -6,7 +6,7 @@ import category_theory.concrete_category.bundled
 import deprecated.group
 
 noncomputable theory
-open set filter classical option function
+open set filter classical option function prod
 open category_theory
 open convergence_space
 open_locale classical filter
@@ -237,11 +237,11 @@ instance : has_continuous_smul G (G × α) :=
     let mul : G × G → G := uncurry has_mul.mul,
     let rlassoc := (equiv.prod_assoc G G α).inv_fun,
     have heq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
-    let g₁ : filter G := map prod.fst k,
+    let g₁ : filter G := map fst k,
     let hg₁ : converges g₁ a₁ := hk.1,
-    let g₂ : filter G := map (prod.fst ∘ prod.snd) k,
+    let g₂ : filter G := map (fst ∘ snd) k,
     let hg₂ : converges g₂ a₂ := hk.2.1,
-    let f : filter α := map (prod.snd ∘ prod.snd) k,
+    let f : filter α := map (snd ∘ snd) k,
     let hf : converges f x := hk.2.2,
     let g : filter (G × G) := g₁ ×ᶠ g₂,
     let a : G × G := (a₁, a₂),
@@ -250,11 +250,11 @@ instance : has_continuous_smul G (G × α) :=
       from convergence_group.continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
     have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), from calc
-      k ≤ map prod.fst k ×ᶠ map prod.snd k : filter.le_prod_map_fst_snd
-      ... = g₁ ×ᶠ map prod.snd k : by tauto
-      ... ≤ g₁ ×ᶠ (map prod.fst (map prod.snd k) ×ᶠ map prod.snd (map prod.snd k)) :
+      k ≤ map fst k ×ᶠ map snd k : filter.le_prod_map_fst_snd
+      ... = g₁ ×ᶠ map snd k : by tauto
+      ... ≤ g₁ ×ᶠ (map fst (map snd k) ×ᶠ map snd (map snd k)) :
         prod_mono (le_refl g₁) filter.le_prod_map_fst_snd
-      ... = g₁ ×ᶠ (map (prod.fst ∘ prod.snd) k ×ᶠ map (prod.snd ∘ prod.snd) k) :
+      ... = g₁ ×ᶠ (map (fst ∘ snd) k ×ᶠ map (snd ∘ snd) k) :
         by simp [filter.map_map]
       ... = g₁ ×ᶠ (g₂ ×ᶠ f) : by tauto,
     have heq' : map act (g₁ ×ᶠ (g₂ ×ᶠ f)) = map mul g ×ᶠ f, from calc
