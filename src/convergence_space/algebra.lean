@@ -277,15 +277,20 @@ instance
 has_continuous_smul G (quot (envelope G α)) :=
 { continuous_smul :=
   begin
-    --unfold continuous,
     let act : G × (G × α) → (G × α) := uncurry (•),
     let qact : G × quot (envelope G α) → quot (envelope G α) := uncurry (•),
-    let idquot : G × (G × α) → G × quot (envelope G α) := prod.map id (quot.mk (envelope G α)),
+    let idquot : G × (G × α) → G × quot (envelope G α) := 
+      prod.map id (quot.mk (envelope G α)),
     let quot_mk : G × α → quot (envelope G α) := quot.mk (envelope G α),
-    have heq : qact ∘ idquot = quot_mk ∘ act, sorry,
-    have hqmap : quotient_map idquot, sorry,
-    have hcontr : continuous (quot_mk ∘ act), sorry,
-    have hcont : continuous qact, sorry,
+    have heq : qact ∘ idquot = quot_mk ∘ act, by { funext, tidy },
+    have hqmap : quotient_map idquot, 
+      from quotient_map.prod_map quotient_map.id quotient_map_quot_mk,
+    have hcontr : continuous (quot_mk ∘ act), 
+      from continuous.comp continuous_quot_mk has_continuous_smul.continuous_smul,
+    have hcont : continuous qact, begin
+      rw [quotient_map.continuous_iff hqmap, heq],
+      assumption,
+    end,
     exact hcont,
   end }
 
