@@ -148,7 +148,7 @@ namespace envelope
 
 variables {G : Type*} [group G] [partial_mul_action G α]
 
-theorem is_reflexive : reflexive (envelope G α) := begin
+lemma is_reflexive : reflexive (envelope G α) := begin
   intros,
   unfold reflexive,
   rintro (⟨a, x⟩ : G × α),
@@ -156,7 +156,7 @@ theorem is_reflexive : reflexive (envelope G α) := begin
   simp [identity],
 end
 
-theorem is_symmetric : symmetric (envelope G α) := begin
+lemma is_symmetric : symmetric (envelope G α) := begin
   intros,
   unfold symmetric,
   rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
@@ -171,7 +171,7 @@ theorem is_symmetric : symmetric (envelope G α) := begin
     ... = some x : by exact identity
 end
 
-theorem is_transitive : transitive (envelope G α) := begin
+lemma is_transitive : transitive (envelope G α) := begin
   intros,
   unfold transitive,
   rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
@@ -189,7 +189,7 @@ theorem is_transitive : transitive (envelope G α) := begin
     ... = some z : by rw heq₂
 end
 
-theorem is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
+lemma is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 
 instance : setoid (G × α) := {
   r := envelope G α,
@@ -198,27 +198,25 @@ instance : setoid (G × α) := {
 
 def quot_pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
 
-@[simp] def act : G → G × α → quot (envelope G α) :=
-λ a ⟨b, x⟩, ⟦(a * b, x)⟧
+instance : has_scalar G (G × α) := ⟨λ a ⟨b, x⟩, (a * b, x)⟩
 
-theorem act_congr : ∀ (a : G) (p₁ p₂ : G × α) (h : p₁ ≈ p₂), 
-  envelope.act a p₁ = envelope.act a p₂ := 
+lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a • cy := 
 begin
-  rintros (a : G) (⟨b₁, x₁⟩ : G × α) (⟨b₂, x₂⟩ : G × α) h,
-  unfold act,
-  simp [quotient.eq],
-  unfold has_equiv.equiv,
-  unfold setoid.r,
-  unfold envelope,
+  obtain ⟨b, x⟩ := bx,
+  obtain ⟨c, y⟩ := cy,
+  change ((a * c)⁻¹ * (a * b)) · x = some y,
   simp [mul_assoc],
-  assumption,
+  assumption
 end
 
-instance : has_scalar G (G × α) :=
-⟨λ a ⟨b, x⟩, (a * b, x)⟩
+lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) : 
+  ⟦a • bx⟧ = ⟦a • cy⟧ :=
+quotient.sound (act_congr a bx cy heq)
+
+def act_lifted (a : G) (bx : G × α) : quot (envelope G α) := ⟦a • bx⟧
 
 instance : has_scalar G (quot (envelope G α)) :=
-⟨λ a x, quotient.lift (envelope.act a) (envelope.act_congr a) x⟩
+⟨λ a bx, quotient.lift (act_lifted a) (act_congr_sound a) bx⟩
 
 section
 
@@ -279,10 +277,12 @@ instance
 [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
 has_continuous_smul G (quot (envelope G α)) :=
 { continuous_smul :=
- begin
-   unfold continuous,
-   sorry,
- end }
+   begin
+     unfold continuous,
+    --  have heq : (uncurry (·) ∘ (prod.map id (quot.mk (envelope G α)) : G × (G × α) → (G × quot (envelope G α))) = 
+    --    (quot.mk (envelope G α) : G × α → quot (envelope G α)) ∘ (uncurry (•) : G × (G × α) → (G × α)), sorry,
+    sorry,
+   end }
 
 end envelope
 
