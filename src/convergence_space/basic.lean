@@ -43,8 +43,8 @@ by simp [funext_iff, convergence_space.ext_iff p q]
 instance : has_le (convergence_space α) :=
 ⟨λ p q, ∀ {f x}, converges_ p f x → converges_ q f x⟩
 
-instance : partial_order (convergence_space α) := {
-  le_refl :=
+instance : partial_order (convergence_space α) := 
+{ le_refl :=
   begin
     unfold has_le.le,
     intros,
@@ -68,8 +68,7 @@ instance : partial_order (convergence_space α) := {
     ext f x,
     exact iff.intro hpq hqp,
   end,
-  ..convergence_space.has_le
-}
+  ..convergence_space.has_le }
 
 -------------------------------------------------------------------------------
 -- Discrete/indiscrete convergence spaces
