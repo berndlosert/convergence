@@ -222,6 +222,14 @@ section
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
+lemma quot_pure.continuous : continuous (quot_pure : α → quot (envelope G α)) := 
+begin
+  assume x : α,
+  assume f : filter α,
+  assume hconv : converges f x,
+  sorry,
+end
+
 lemma map_rlassoc_eq (f : filter α) (g : filter β) (h : filter γ) :
   map (equiv.prod_assoc α β γ).inv_fun (f ×ᶠ (g ×ᶠ h)) = (f ×ᶠ g) ×ᶠ h := sorry
 

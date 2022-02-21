@@ -855,32 +855,33 @@ lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
 begin
   split,
   -- Proving → direction.
-  assume h : quotient_map m,
+  assume hlhs : quotient_map m,
   split,
-  exact h.1,
+  exact hlhs.1,
   assume g : filter β,
   assume y : β,
-  exact quotient_map.converges h g y,
+  exact quotient_map.converges hlhs g y,
   -- Proving ← direction
-  intro h,
+  intro hrhs,
   unfold quotient_map,
   split,
-  exact h.1,
+  exact hrhs.1,
   rw convergence_space_eq_iff,
   assume g : filter β,
   assume y : β,
-  rw h.2,
+  change converges_ q g y ↔ g ≤ pure y ∨ 
+    ∃ (f : filter α) (x : α), g ≤ map m f ∧ m x = y ∧ converges f x,
   split,
-  intro hexists,
-  exact or.inr hexists,
-  assume hconv : converges_ (convergence_space.coinduced m) g y,
-  cases hconv,
+  assume hconv : converges_ q g y,
+  exact or.inr ((hrhs.2 g y).mp hconv),
+  intro hconj,
+  cases hconj,
     case or.inl begin
-      obtain ⟨x, heq⟩ := h.1 y,
-      rw [← heq, ← filter.map_pure] at hconv,
-      exact ⟨pure x, x, hconv, heq, pure_converges x⟩,
+      exact le_converges_ q hconj (pure_converges_ q y),
     end,
-    case or.inr { assumption },
+    case or.inr begin
+      exact ((hrhs.2 g y).mpr hconj),
+    end,
 end
 
 lemma quotient_map.continuous_iff [convergence_space α] [convergence_space β]
