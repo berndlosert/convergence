@@ -18,9 +18,9 @@ universe u
 
 variables {α β γ : Type*}
 
--------------------------------------------------------------------------------
--- Convergence semigroups, monoids, groups
--------------------------------------------------------------------------------
+/-!
+### Convergence semigroups, monoids, groups
+-/
 
 /-- Basic hypothesis to talk about a convergence monoid or a convergence
   semigroup. A convergence monoid over `M`, for example, is obtained by
@@ -89,9 +89,9 @@ instance : category ConvGroup := {
 }
 -/
 
--------------------------------------------------------------------------------
--- Partial group actions
--------------------------------------------------------------------------------
+/-!
+### Partial group actions
+-/
 
 /-- Typeclass for types with a partial scalar multiplication operation,
   denoted `·`. -/
@@ -137,9 +137,9 @@ structure ContPartAct extends PartAct :=
 (action_is_continuous : continuous (λ p : G × α, act p.1 p.2))
 -/
 
--------------------------------------------------------------------------------
--- Enveloping action
--------------------------------------------------------------------------------
+/-!
+### Enveloping action
+-/
 
 def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
  λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) · x = some y
@@ -304,9 +304,9 @@ has_continuous_smul G (quot (envelope G α)) :=
 
 end envelope
 
--------------------------------------------------------------------------------
--- Adherence restrictive
--------------------------------------------------------------------------------
+/-!
+### Adherence restrictive
+-/
 
 variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
 variables [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
