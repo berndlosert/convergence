@@ -354,6 +354,16 @@ begin
   exact this,
 end
 
+lemma continuous_const [convergence_space α] [convergence_space β] {y : β} :
+  continuous (λ (x : α), y) :=
+begin
+  assume x : α,
+  assume f : filter α,
+  assume : converges f x,
+  simp,
+  exact le_converges (tendsto_const_pure) (pure_converges y),
+end
+
 lemma continuous_le_dom {p p' : convergence_space α} {q : convergence_space β}
   {m : α → β} (hle : p' ≤ p) (hcont : continuous_ p q m) :
   continuous_ p' q m :=
