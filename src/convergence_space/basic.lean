@@ -899,15 +899,6 @@ lemma quotient_map.continuous_iff [convergence_space α] [convergence_space β]
   continuous m₂ ↔ continuous (m₂ ∘ m₁) :=
 by rw [continuous_iff_coinduced_le, continuous_iff_coinduced_le, hquot.right, coinduced_compose]
 
-lemma filter.le_prod_map_fst_snd {f : filter (α × β)} :
-  f ≤ filter.map prod.fst f ×ᶠ map prod.snd f :=
-begin
-  unfold filter.prod,
-  have hle₁ : f ≤ comap prod.fst (map prod.fst f), from le_comap_map,
-  have hle₂ : f ≤ comap prod.snd (map prod.snd f), from le_comap_map,
-  exact le_inf hle₁ hle₂,
-end
-
 lemma quotient_map.id [convergence_space α] : quotient_map (@id α) :=
 ⟨assume a, ⟨a, rfl⟩, coinduced_id.symm⟩
 

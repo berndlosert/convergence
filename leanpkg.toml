@@ -1,8 +1,8 @@
 [package]
 name = "convergence"
 version = "0.1"
-lean_version = "leanprover-community/lean:3.39.0"
+lean_version = "leanprover-community/lean:3.39.2"
 path = "src"
 
 [dependencies]
-mathlib = {git = "https://github.com/leanprover/mathlib", rev = "a2f3f55e9e14c6f4128a2783994c3b9f6b166a7c"}
+mathlib = {git = "https://github.com/leanprover/mathlib", rev = "f04ad9a19c662d1f0b2206422f774977092e958e"}
