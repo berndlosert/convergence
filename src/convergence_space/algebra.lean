@@ -230,9 +230,6 @@ begin
   sorry,
 end
 
-lemma map_rlassoc_eq (f : filter α) (g : filter β) (h : filter γ) :
-  map (equiv.prod_assoc α β γ).inv_fun (f ×ᶠ (g ×ᶠ h)) = (f ×ᶠ g) ×ᶠ h := sorry
-
 instance : has_continuous_smul G (G × α) :=
 { continuous_smul :=
   begin
@@ -242,7 +239,7 @@ instance : has_continuous_smul G (G × α) :=
     rintro hk : converges k (a₁, (a₂, x)),
     let act : G × (G × α) → G × α := uncurry has_scalar.smul,
     let mul : G × G → G := uncurry has_mul.mul,
-    let rlassoc := (equiv.prod_assoc G G α).inv_fun,
+    let rlassoc := (equiv.prod_assoc G G α).symm.to_fun,
     have heq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
     let g₁ : filter G := map fst k,
     let hg₁ : converges g₁ a₁ := hk.1,
@@ -269,8 +266,10 @@ instance : has_continuous_smul G (G × α) :=
         by rw heq
       ... = map (prod.map mul id) (map rlassoc (g₁ ×ᶠ (g₂ ×ᶠ f))) :
         by simp [← filter.map_map]
+      ... = map (prod.map mul id) (map (equiv.prod_assoc G G α).symm (g₁ ×ᶠ (g₂ ×ᶠ f))) :
+        by tauto
       ... = map (prod.map mul id) ((g₁ ×ᶠ g₂) ×ᶠ f) :
-        by rw [map_rlassoc_eq g₁ g₂ f]
+        by simp [← prod_assoc, filter.map_map]
       ... = map mul g ×ᶠ f :
         by simp [← filter.prod_map_map_eq'],
     have hle' : map act k ≤ map mul g ×ᶠ f, from eq.subst heq' (map_mono hle),
