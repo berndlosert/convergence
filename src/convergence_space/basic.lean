@@ -354,6 +354,9 @@ begin
   exact this,
 end
 
+lemma continuous_id' {α : Type*} [convergence_space α] : continuous (λ x : α, x) :=
+continuous_id
+
 lemma continuous_const [convergence_space α] [convergence_space β] {y : β} :
   continuous (λ (x : α), y) :=
 begin
@@ -429,6 +432,17 @@ begin
   assume f : filter α,
   let p := @convergence_space.induced α β m q,
   assume hconv : converges_ p f x,
+  assumption,
+end
+
+lemma continuous_induced_rng {m₁ : α → β} {m₂ : β → γ}
+  [p : convergence_space α] [q : convergence_space β] [r : convergence_space γ]
+  (hcont : continuous (m₂ ∘ m₁)) : continuous_ p (convergence_space.induced m₂) m₁ :=
+begin
+  assume x : α,
+  assume f : filter α,
+  assume hconv : converges f x,
+  have : converges (map m₂ (map m₁ f)) (m₂ (m₁ x)), from hcont hconv,
   assumption,
 end
 
@@ -589,6 +603,21 @@ begin
   exact or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩,
 end
 
+lemma continuous_inf_rng {p : convergence_space α} {q q' : convergence_space β} {m : α → β}
+  (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
+begin
+  have : @convergence_space.coinduced α β m p ≤ q, begin
+    let foo := (@continuous_iff_coinduced_le α β m p q).mp,
+    have : continuous_ p q m, sorry,
+    exact foo this : convergence_space.coinduced α β m p ≤ q,
+  end,
+
+end
+-- (@continuous_iff_coinduced_le α β m p (q ⊓ q')).mpr $ le_inf
+--   ((@continuous_iff_coinduced_le α β m p q).mp hcont)
+--   ((@continuous_iff_coinduced_le α β m p q').mp hcont')
+
+
 /-!
 ### Limits, adherence, interior, closure, open, closed, neighborhoods
 -/
@@ -673,6 +702,15 @@ lemma prod.converges' {f : filter (α × β)} {x : α × β}
   (hsnd : converges (map prod.snd f) (prod.snd x)) :
   (converges f x) :=
 ⟨hfst, hsnd⟩
+
+lemma continuous.prod_mk [convergence_space α] [convergence_space β₁]
+  [convergence_space β₂] {m₁ : α → β₁} {m₂ : α → β₂}
+  (hcont₁ : continuous m₁) (hcont₂ : continuous m₂) : continuous (λx, (m₁ x, m₂ x)) :=
+continuous_inf_rng (continuous_induced_rng hcont₁) (continuous_induced_rng hcont₂)
+
+lemma continuous.prod.mk [convergence_space α] [convergence_space β] (x : α) : 
+  continuous (prod.mk x : β → α × β) :=
+continuous_const.prod_mk continuous_id'
 
 end
 
