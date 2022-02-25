@@ -388,6 +388,17 @@ lemma continuous_inf_dom_right {p p' : convergence_space α}
   continuous_ p' q m → continuous_ (p ⊓ p') q m :=
 continuous_le_dom inf_le_right
 
+lemma continuous_inf_rng [p : convergence_space α] {q q' : convergence_space β} {m : α → β}
+  (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
+begin
+  assume x : α,
+  assume f : filter α,
+  assume hp : converges f x,
+  have hq : converges_ q (map m f) (m x), from hcont hp,
+  have hq' : converges_ q' (map m f) (m x), from hcont' hp,
+  exact and.intro hq hq',
+end
+
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
 (continuous_to_fun : continuous to_fun)
@@ -602,21 +613,6 @@ begin
   assume hconv : converges f x,
   exact or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩,
 end
-
-lemma continuous_inf_rng {p : convergence_space α} {q q' : convergence_space β} {m : α → β}
-  (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
-begin
-  have : @convergence_space.coinduced α β m p ≤ q, begin
-    let foo := (@continuous_iff_coinduced_le α β m p q).mp,
-    have : continuous_ p q m, sorry,
-    exact foo this : convergence_space.coinduced α β m p ≤ q,
-  end,
-
-end
--- (@continuous_iff_coinduced_le α β m p (q ⊓ q')).mpr $ le_inf
---   ((@continuous_iff_coinduced_le α β m p q).mp hcont)
---   ((@continuous_iff_coinduced_le α β m p q').mp hcont')
-
 
 /-!
 ### Limits, adherence, interior, closure, open, closed, neighborhoods
