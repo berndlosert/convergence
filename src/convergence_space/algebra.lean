@@ -331,5 +331,6 @@ begin
   obtain ⟨h', hnb', hle', hconv'⟩ := hadh,
   haveI : h'.ne_bot := hnb',
   let k := ultrafilter.of h',
-  have : converges k.to_filter (some x), from le_converges (ultrafilter.of_le h') hconv',
+  have hconv : converges k.to_filter (some x), from le_converges (ultrafilter.of_le h') hconv',
+  have hnb : ne_bot ((map group.inv g) ×ᶠ k.to_filter), sorry,
 end
