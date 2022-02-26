@@ -306,11 +306,30 @@ end envelope
 ### Adherence restrictive
 -/
 
-variables {G : Type*} [group G] [convergence_space G] [convergence_group G]
-variables [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
+def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α}, adh f = ∅ → 
+  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
 
-def adh_restrictive : Prop :=
-∀ {g : filter G} {f : filter α}, adh f = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α}, adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → 
+  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
 
-def weakly_adh_restrictive : Prop :=
-∀ {g : filter G} {f : filter α}, adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+lemma theorem5_1 {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : 
+  adh_restrictive G α :=
+classical.by_contradiction 
+begin
+  assume hcontra : ¬ adh_restrictive G α,
+  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map (uncurry (·)) (g ×ᶠ f)), from sorry,
+  obtain ⟨g, f, a, x, hf, hg, hadh⟩ := hcontra',
+  let h := map (uncurry partial_mul_action.partial_smul) (g ×ᶠ f),
+  change some x ∈ adh h at hadh,
+  change adheres h (some x) at hadh,
+  unfold adheres at hadh,
+  obtain ⟨h', hnb', hle', hconv'⟩ := hadh,
+  haveI : h'.ne_bot := hnb',
+  let k := ultrafilter.of h',
+  have : converges k.to_filter (some x), from le_converges (ultrafilter.of_le h') hconv',
+end

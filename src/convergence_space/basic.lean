@@ -628,7 +628,7 @@ def lim (f : filter α) : set α := { x | converges f x }
 /-- A point `x` adheres to a filter `f` there is some proper filter
   smaller than `f` that converges to `x`. -/
 def adheres (f : filter α) (x : α) : Prop :=
-∃ (g : filter α) [ne_bot f], g ≤ f → converges g x
+∃ (g : filter α) [ne_bot g], g ≤ f ∧ converges g x
 
 /-- The set of all point that adhere to a filter. -/
 def adh (f : filter α) : set α := { x | adheres f x }
@@ -913,7 +913,7 @@ begin
   rw convergence_space_eq_iff,
   assume g : filter β,
   assume y : β,
-  change converges_ q g y ↔ g ≤ pure y ∨ 
+  change converges_ q g y ↔ g ≤ pure y ∨
     ∃ (f : filter α) (x : α), g ≤ map m f ∧ m x = y ∧ converges f x,
   split,
   assume hconv : converges_ q g y,
