@@ -300,16 +300,6 @@ has_continuous_smul G (quot (envelope G α)) :=
     exact hcont,
   end }
 
-lemma quot_pure_continuous [convergence_space G] [convergence_group G]
-[convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
- continuous (quot_pure : α → quot (envelope G α)) :=
- begin
-   assume x : α,
-   assume f : filter α,
-   assume hconv : converges f x,
-   sorry,
- end
-
 end envelope
 
 /-!
