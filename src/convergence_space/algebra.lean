@@ -224,17 +224,8 @@ variables [convergence_space α]
 
 lemma quot_pure.continuous : continuous (quot_pure : α → quot (envelope G α)) := 
 begin
-  -- assume x : α,
-  -- assume f : filter α,
-  -- assume hconv : converges f x,
   set m : α → G × α := λ x, (1, x) with heq,
-  have hcont : continuous m, begin
-    assume x : α,
-    assume f : filter α,
-    assume hconv : converges f x,
-    simp [heq],
-    sorry,
-  end,
+  have hcont : continuous m, from continuous.prod.mk 1,
   exact continuous.comp continuous_quot_mk hcont,
 end
 

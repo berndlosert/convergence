@@ -710,9 +710,9 @@ continuous_const.prod_mk continuous_id'
 
 end
 
--------------------------------------------------------------------------------
--- Other convergence spaces constructions
--------------------------------------------------------------------------------
+/-!
+### Other convergence spaces constructions
+-/
 
 instance {p : α → Prop} [convergence_space α] : convergence_space (subtype p) :=
 convergence_space.induced (coe : subtype p → α)
