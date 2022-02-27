@@ -16,7 +16,7 @@ open_locale classical filter
 
 universe u
 
-variables {α β γ : Type*}
+variables {M G α β γ : Type*}
 
 /-!
 ### Convergence semigroups, monoids, groups
@@ -102,12 +102,18 @@ open has_partial_scalar
 
 infixr ` · `:73 := curry has_partial_scalar.partial_smul
 
+instance [has_partial_scalar M α] : has_scalar M (option α) :=
+⟨λ a x, x.elim none (curry partial_smul a)⟩
+
+lemma partial_smul_some [has_partial_scalar M α] : ∀ {a : M} {x : α},
+  a · x = a • some x := by tauto
+
 /-- Typeclass for partial actions by monoids. -/
 class partial_mul_action (M α : Type*) [monoid M]
   extends has_partial_scalar M α :=
 (identity : ∀ {x : α}, (1 : M) · x = option.some x)
-(compatibility : ∀ {a b : M} {x : α} (bx : is_some (b · x)),
-  (a * b) · x = a · get bx)
+(compatibility : ∀ {a b : M} {x : α}, is_some (b · x) → 
+  (a * b) · x = a • (b · x))
 (injective : ∀ {a : M} {x : α}, is_some (a · x) → ∀ y, a · x = a · y → x = y)
 
 open partial_mul_action
@@ -145,7 +151,7 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 
 namespace envelope
 
-variables {G : Type*} [group G] [partial_mul_action G α]
+variables [group G] [partial_mul_action G α]
 
 lemma is_reflexive : reflexive (envelope G α) := begin
   intros,
@@ -161,11 +167,11 @@ lemma is_symmetric : symmetric (envelope G α) := begin
   rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
   unfold envelope,
   intro heq,
-  have b'ax : is_some ((b⁻¹ * a) · x), simp [heq],
+  have hsome : is_some ((b⁻¹ * a) · x), simp [heq],
   show (a⁻¹ * b) · y = some x, from calc
-    (a⁻¹ * b) · y = (a⁻¹ * b) · get b'ax : by simp [heq]
-    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x :
-      by { rw [← (compatibility b'ax)]; tauto }
+    (a⁻¹ * b) · y = (a⁻¹ * b) • some y : by rw partial_smul_some 
+    ... = (a⁻¹ * b) • ((b⁻¹ * a) · x) : by simp [heq]
+    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x : by { rw [← (compatibility hsome)]; tauto }
     ... = (1 : G) · x : by simp [mul_assoc]
     ... = some x : by exact identity
 end
@@ -177,14 +183,14 @@ lemma is_transitive : transitive (envelope G α) := begin
   unfold envelope,
   assume heq₁ : (b⁻¹ * a) · x = some y,
   assume heq₂ : (c⁻¹ * b) · y = some z,
-  have b'ax : is_some ((b⁻¹ * a) · x), simp *,
-  have c'by : is_some ((c⁻¹ * b) · y), simp *,
+  have hsome₁ : is_some ((b⁻¹ * a) · x), simp *,
+  have hsome₂ : is_some ((c⁻¹ * b) · y), simp *,
   show (c⁻¹ * a) · x = some z, from calc
     (c⁻¹ * a) · x = (c⁻¹ * 1 * a) · x : by simp
     ... = (c⁻¹ * b * b⁻¹ * a) · x : by simp
-    ... = (c⁻¹ * b) · get b'ax :
-      by { rw ← (compatibility b'ax); simp [mul_assoc]; tauto }
-    ... = (c⁻¹ * b) · y : by simp [heq₁]
+    ... = (c⁻¹ * b) • ((b⁻¹ * a) · x) :
+      by { rw ← (compatibility hsome₁); simp [mul_assoc]; tauto }
+    ... = (c⁻¹ * b) · y : by simp [partial_smul_some, heq₁]
     ... = some z : by rw heq₂
 end
 
