@@ -12,7 +12,7 @@ open convergence_space
 open_locale classical filter
 
 -- For multiple inheritance used by cont_monoid_hom
-set_option old_structure_cmd true
+--set_option old_structure_cmd true
 
 universe u
 
@@ -96,12 +96,11 @@ instance : category ConvGroup := {
 /-- Typeclass for types with a partial scalar multiplication operation,
   denoted `·`. -/
 class has_partial_scalar (M α : Type*) :=
-(partial_smul : M → α → option α)
-(partial_smul' : M × α → option α := uncurry partial_smul)
+(partial_smul : M × α → option α)
 
 open has_partial_scalar
 
-infixr ` · `:73 := has_partial_scalar.partial_smul
+infixr ` · `:73 := curry has_partial_scalar.partial_smul
 
 /-- Typeclass for partial actions by monoids. -/
 class partial_mul_action (M α : Type*) [monoid M]
@@ -117,7 +116,7 @@ open partial_mul_action
   `(·) : M → α → α` is continuous in both arguments. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
-(continuous_partial_smul : continuous (partial_smul' : M × α → option α))
+(continuous_partial_smul : continuous (partial_smul : M × α → option α))
 
 /-
 structure PartAct :=
@@ -249,8 +248,7 @@ instance : has_continuous_smul G (G × α) :=
     let g : filter (G × G) := g₁ ×ᶠ g₂,
     let a : G × G := (a₁, a₂),
     have hg : converges g a := prod.converges hg₁ hg₂,
-    have : converges (map mul g) (mul a),
-      from convergence_group.continuous_mul hg,
+    have : converges (map mul g) (mul a), from continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
     have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), from calc
       k ≤ map fst k ×ᶠ map snd k : filter.le_prod_map_fst_snd
@@ -309,12 +307,12 @@ end envelope
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α}, adh f = ∅ → 
-  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
 
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α}, adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → 
-  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map (uncurry (·)) (g ×ᶠ f))
+  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
 
 lemma theorem5_1 {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : 
@@ -322,9 +320,9 @@ lemma theorem5_1 {G α : Type*} [group G] [convergence_space G] [convergence_gro
 classical.by_contradiction 
 begin
   assume hcontra : ¬ adh_restrictive G α,
-  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map (uncurry (·)) (g ×ᶠ f)), from sorry,
+  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map partial_smul (g ×ᶠ f)), from sorry,
   obtain ⟨g, f, a, x, hf, hg, hadh⟩ := hcontra',
-  let h := map (uncurry partial_mul_action.partial_smul) (g ×ᶠ f),
+  let h := map partial_smul (g ×ᶠ f),
   change some x ∈ adh h at hadh,
   change adheres h (some x) at hadh,
   unfold adheres at hadh,
@@ -333,4 +331,5 @@ begin
   let k := ultrafilter.of h',
   have hconv : converges k.to_filter (some x), from le_converges (ultrafilter.of_le h') hconv',
   have hnb : ne_bot ((map group.inv g) ×ᶠ k.to_filter), sorry,
+  sorry,
 end
