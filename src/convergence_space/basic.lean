@@ -723,6 +723,9 @@ convergence_space.coinduced (quot.mk r)
 instance [convergence_space α] : convergence_space (option α) :=
 convergence_space.coinduced some
 
+instance [convergence_space α] : convergence_space (part α) :=
+convergence_space.coinduced part.some
+
 /-!
 ### The convergence space C(α,β)
 -/
