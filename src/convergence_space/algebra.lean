@@ -312,21 +312,38 @@ end envelope
 
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α}, adh f = ∅ → 
-  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
+∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh f = ∅ → 
+   ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
 
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α}, adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → 
-  ∃ a : G, converges g a → ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
+∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → 
+  ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
 
 lemma theorem5_1 {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
+  (hcl : is_closed { x : option α | is_some x }) : 
   adh_restrictive G α :=
 classical.by_contradiction 
 begin
   assume hcontra : ¬ adh_restrictive G α,
-  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map partial_smul (g ×ᶠ f)), from sorry,
+  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
+    adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map partial_smul (g ×ᶠ f)), 
+  begin
+      unfold adh_restrictive at hcontra,
+      rw not_forall at hcontra,
+      obtain ⟨g, rest₁⟩ := hcontra,
+      rw not_forall at rest₁,
+      obtain ⟨f, rest₂⟩ := rest₁,
+      rw not_forall at rest₂,
+      obtain ⟨a, rest₃⟩ := rest₂,
+      rw not_imp at rest₃,
+      obtain ⟨⟨hg, hf⟩, rest₄⟩ := rest₃,
+      rw not_forall at rest₄,
+      obtain ⟨x, hadh⟩ := rest₄,
+      rw set.not_not_mem at hadh,
+      exact ⟨g, f, a, x, hf, hg, hadh⟩,
+  end,
   obtain ⟨g, f, a, x, hf, hg, hadh⟩ := hcontra',
   let h := map partial_smul (g ×ᶠ f),
   change some x ∈ adh h at hadh,
@@ -334,8 +351,13 @@ begin
   unfold adheres at hadh,
   obtain ⟨h', hnb', hle', hconv'⟩ := hadh,
   haveI : h'.ne_bot := hnb',
-  let k := ultrafilter.of h',
-  have hconv : converges k.to_filter (some x), from le_converges (ultrafilter.of_le h') hconv',
-  have hnb : ne_bot ((map group.inv g) ×ᶠ k.to_filter), sorry,
+  let k := map (uncurry (•)) (map has_inv.inv g ×ᶠ h'),
+  cases hconv',
+    case or.inl begin
+      
+    end,
+    case or.inr : hexists begin
+
+    end,
   sorry,
 end
