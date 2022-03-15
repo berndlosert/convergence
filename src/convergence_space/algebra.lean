@@ -116,13 +116,32 @@ class partial_mul_action (M α : Type*) [monoid M]
   (a * b) · x = a • (b · x))
 (injective : ∀ {a : M} {x : α}, is_some (a · x) → ∀ y, a · x = a · y → x = y)
 
-open partial_mul_action
-
 /-- Class `has_continuous_smul M α` says that the partial scalar multiplication
   `(·) : M → α → α` is continuous in both arguments. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : continuous (partial_smul : M × α → option α))
+
+/-- `partial_smul` lifted to filters. -/
+def filter.partial_smul [has_partial_scalar M α] (g : filter M) (f : filter α) := 
+map partial_smul (g ×ᶠ f)
+
+infix ` ·ᶠ `:73 := filter.partial_smul
+
+instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
+⟨λ g f, map (uncurry has_scalar.smul) (g ×ᶠ f)⟩
+
+instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
+
+lemma filter.inv_smul_le_of_le_smul [group G] [mul_action G α] 
+  {g : filter G} {f₁ f₂ : filter α} (hle : f₁ ≤ g • f₂) : g⁻¹ • f₁ ≤ f₂ :=
+begin
+  rw filter.le_def at *,
+  assume s : set α,
+  assume hmem : s ∈ f₂,
+  
+end
+
 
 /-
 structure PartAct :=
@@ -158,7 +177,7 @@ lemma is_reflexive : reflexive (envelope G α) := begin
   unfold reflexive,
   rintro (⟨a, x⟩ : G × α),
   unfold envelope,
-  simp [identity],
+  simp [partial_mul_action.identity],
 end
 
 lemma is_symmetric : symmetric (envelope G α) := begin
@@ -171,9 +190,9 @@ lemma is_symmetric : symmetric (envelope G α) := begin
   show (a⁻¹ * b) · y = some x, from calc
     (a⁻¹ * b) · y = (a⁻¹ * b) • some y : by rw partial_smul_some 
     ... = (a⁻¹ * b) • ((b⁻¹ * a) · x) : by simp [heq]
-    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x : by { rw [← (compatibility hsome)]; tauto }
+    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x : by { rw [← (partial_mul_action.compatibility hsome)]; tauto }
     ... = (1 : G) · x : by simp [mul_assoc]
-    ... = some x : by exact identity
+    ... = some x : by exact partial_mul_action.identity
 end
 
 lemma is_transitive : transitive (envelope G α) := begin
@@ -189,7 +208,7 @@ lemma is_transitive : transitive (envelope G α) := begin
     (c⁻¹ * a) · x = (c⁻¹ * 1 * a) · x : by simp
     ... = (c⁻¹ * b * b⁻¹ * a) · x : by simp
     ... = (c⁻¹ * b) • ((b⁻¹ * a) · x) :
-      by { rw ← (compatibility hsome₁); simp [mul_assoc]; tauto }
+      by { rw ← (partial_mul_action.compatibility hsome₁); simp [mul_assoc]; tauto }
     ... = (c⁻¹ * b) · y : by simp [partial_smul_some, heq₁]
     ... = some z : by rw heq₂
 end
@@ -311,26 +330,77 @@ end envelope
 -/
 
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh f = ∅ → 
-   ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
+  [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh f = ∅
+  → adh (g • f) = ∅
 
-def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅ → 
-  ∀ x, option.some x ∉ adh (map partial_smul (g ×ᶠ f))
-
-lemma theorem5_1 {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
-  (hcl : is_closed { x : option α | is_some x }) : 
+lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [mul_action G α] [has_continuous_smul G α] : 
   adh_restrictive G α :=
 classical.by_contradiction 
 begin
   assume hcontra : ¬ adh_restrictive G α,
   have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (map partial_smul (g ×ᶠ f)), 
+    adh f = ∅ ∧ converges g a ∧ x ∈ adh (g • f), 
   begin
       unfold adh_restrictive at hcontra,
+      rw not_forall at hcontra,
+      obtain ⟨g, rest₁⟩ := hcontra,
+      rw not_forall at rest₁,
+      obtain ⟨f, rest₂⟩ := rest₁,
+      rw not_forall at rest₂,
+      obtain ⟨a, rest₃⟩ := rest₂,
+      rw not_imp at rest₃,
+      obtain ⟨⟨hg, hf⟩, rest₄⟩ := rest₃,
+      rw set.eq_empty_iff_forall_not_mem at rest₄,
+      rw not_forall at rest₄,
+      obtain ⟨x, hadh⟩ := rest₄,
+      rw set.not_not_mem at hadh,
+      exact ⟨g, f, a, x, hf, hg, hadh⟩,
+  end,
+  obtain ⟨g, f, a, x, hf, hg, hadh⟩ := hcontra',
+  let h := g • f,
+  change x ∈ adh h at hadh,
+  change adheres h x at hadh,
+  unfold adheres at hadh,
+  obtain ⟨h', hnb', hle', hconv'⟩ := hadh,
+  haveI : h'.ne_bot := hnb',
+  let k' := ultrafilter.of h',
+  let k := g⁻¹ • k'.to_filter,
+  have hconv : converges k (a⁻¹ • x),
+  begin
+    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hg,
+    have hconv_k' : converges k'.to_filter x, 
+      from le_converges (ultrafilter.of_le h') hconv',
+    exact continuous_smul (prod.converges hconv_inv_g hconv_k'),
+  end,
+  have hmem : a⁻¹ • x ∈ adh f, sorry,
+  rw set.eq_empty_iff_forall_not_mem at hf,
+  unfold adh at hf,
+  exact absurd hmem (hf (a⁻¹ • x)),
+end  
+
+def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh f = ∅ 
+  → ∀ x, option.some x ∉ adh (g ·ᶠ f)
+
+def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅
+  → ∀ x, option.some x ∉ adh (g ·ᶠ f)
+
+lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
+  (hcl : is_closed { x : option α | is_some x }) : 
+  partial_adh_restrictive G α :=
+classical.by_contradiction 
+begin
+  assume hcontra : ¬ partial_adh_restrictive G α,
+  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
+    adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (g ·ᶠ f), 
+  begin
+      unfold partial_adh_restrictive at hcontra,
       rw not_forall at hcontra,
       obtain ⟨g, rest₁⟩ := hcontra,
       rw not_forall at rest₁,
@@ -345,13 +415,14 @@ begin
       exact ⟨g, f, a, x, hf, hg, hadh⟩,
   end,
   obtain ⟨g, f, a, x, hf, hg, hadh⟩ := hcontra',
-  let h := map partial_smul (g ×ᶠ f),
+  let h := (g ·ᶠ f),
   change some x ∈ adh h at hadh,
   change adheres h (some x) at hadh,
   unfold adheres at hadh,
   obtain ⟨h', hnb', hle', hconv'⟩ := hadh,
   haveI : h'.ne_bot := hnb',
-  let k := map (uncurry (•)) (map has_inv.inv g ×ᶠ h'),
+  let k' := ultrafilter.of h',
+  let k := g⁻¹ • k'.to_filter,
   cases hconv',
     case or.inl begin
       
