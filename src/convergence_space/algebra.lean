@@ -133,15 +133,6 @@ instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α)
 
 instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
 
-lemma filter.inv_smul_le_of_le_smul [group G] [mul_action G α] 
-  {g : filter G} {f₁ f₂ : filter α} (hle : f₁ ≤ g • f₂) : g⁻¹ • f₁ ≤ f₂ :=
-begin
-  rw filter.le_def at *,
-  assume s : set α,
-  assume hmem : s ∈ f₂,
-  
-end
-
 
 /-
 structure PartAct :=
