@@ -358,7 +358,8 @@ begin
   obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
   haveI : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
-  let k := g⁻¹ • k'.to_filter,
+  have hle'' : k'.to_filter ≤ h, from (le_trans (ultrafilter.of_le h') hle'),
+  set k := g⁻¹ • k'.to_filter with hdef,
   haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
   have hconv : converges k (a⁻¹ • x),
   begin
@@ -371,7 +372,35 @@ begin
   begin
     have hconv' : converges (k ⊓ f) (a⁻¹ • x), 
       from le_converges inf_le_left hconv,
-    haveI hnbI : (k ⊓ f).ne_bot := sorry,
+    haveI hnbI : (k ⊓ f).ne_bot :=
+    begin
+      rw filter.ne_bot_iff,
+      simp [filter.inf_eq_bot_iff],
+      intros s₁ hs₁ s₂ hs₂,
+      rw [← ne.def, set.ne_empty_iff_nonempty, set.nonempty_def],
+      rw hdef at hs₁,
+      rw filter.has_scalar at hs₁,
+      rw filter.mem_map at hs₁,
+      rw filter.mem_prod_iff at hs₁,
+      obtain ⟨t, ht, s, hs, hsub⟩ := hs₁,
+      rw filter.has_inv at ht,
+      rw filter.mem_map at ht,
+      have hsub' : (uncurry has_scalar.smul) '' (t ×ˢ s) ⊆ s₁, from calc
+        (uncurry has_scalar.smul) '' (t ×ˢ s) ⊆ (uncurry has_scalar.smul) '' (uncurry has_scalar.smul ⁻¹' s₁) : set.image_subset (uncurry has_scalar.smul) hsub
+        ... ⊆ s₁ : set.image_preimage_subset (uncurry has_scalar.smul) s₁,
+      have : (uncurry has_scalar.smul) '' (t ×ˢ s₂) ∈ k',
+      begin
+        have : (uncurry has_scalar.smul) '' (t ×ˢ s₂) ∈ h, sorry,
+        exact (filter.le_def.mp hle'') ((uncurry has_scalar.smul) '' (t ×ˢ s₂) ) this,
+      end,
+      let s' := s ∩ (uncurry has_scalar.smul) '' (t ×ˢ s₂),
+      have hs' : s'.nonempty := sorry,
+      let x := hs'.some,
+      have hmem1 : x ∈ s₁, sorry,
+      have hmem2 : x ∈ s₂, sorry,
+      use x,
+      exact set.mem_inter hmem1 hmem2,
+    end,
     have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
     assumption,
   end,
