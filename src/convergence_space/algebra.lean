@@ -394,7 +394,7 @@ begin
         exact (filter.le_def.mp hle'') ((uncurry has_scalar.smul) '' (t ×ˢ s₂) ) this,
       end,
       let s' := s ∩ (uncurry has_scalar.smul) '' (t ×ˢ s₂),
-      have hs' : s'.nonempty := sorry,
+      have hs' : s'.nonempty := ultrafilter.nonempty_of_mem (k'.to_filter.inter_sets hs this),
       let x := hs'.some,
       have hmem1 : x ∈ s₁, sorry,
       have hmem2 : x ∈ s₂, sorry,
