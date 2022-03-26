@@ -180,6 +180,29 @@ begin
   exact mem_of_superset (filter.inv_mem_inv ht) hsub,
 end
 
+lemma filter.inf_ne_bot {f g : filter α} [f.ne_bot] (hle : f ≤ g) : (f ⊓ g).ne_bot :=
+begin
+  rw inf_of_le_left hle,
+  assumption
+end
+
+theorem set.subset_eq_nonempty {s t : set α} (hsub : t ⊆ s) (hne : t.nonempty) : s.nonempty :=
+begin
+  rw ← empty_ssubset at *,
+  exact ssubset_of_ssubset_of_subset hne hsub,
+end
+
+lemma filter.inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
+  (hle : f' ≤ g • f) [g.ne_bot] [f.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
+begin
+  rw ← forall_mem_nonempty_iff_ne_bot,
+  intros s hmem,
+  obtain ⟨s₁, hs₁, s₂, hs₂, hsub⟩ := mem_inf_iff_superset.mp hmem,
+  obtain ⟨t₁, ht₁, s₃, hs₃, hsub'⟩ := filter.mem_smul_iff.mp hs₁,
+  refine set.subset_eq_nonempty hsub _,
+  refine set.subset_eq_nonempty (inter_subset_inter_left s₂ hsub') _,
+end
+
 /-
 structure PartAct :=
 (G α : Type*)
@@ -397,14 +420,13 @@ begin
   end,
   obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := hcontra',
   haveI : g.ne_bot := hnb,
-  let h := g • f,
-  change x ∈ adh h at hmem,
-  change adheres h x at hmem,
+  change x ∈ adh (g • f) at hmem,
+  change adheres (g • f) x at hmem,
   unfold adheres at hmem,
   obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
   haveI : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
-  have hle'' : k'.to_filter ≤ h, from (le_trans (ultrafilter.of_le h') hle'),
+  have hle'' : k'.to_filter ≤ g • f, from (le_trans (ultrafilter.of_le h') hle'),
   set k := g⁻¹ • k'.to_filter with hdef,
   haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
   have hconv : converges k (a⁻¹ • x),
@@ -424,22 +446,13 @@ begin
       simp [filter.inf_eq_bot_iff],
       intros s₁ hs₁ s₂ hs₂,
       rw [← ne.def, set.ne_empty_iff_nonempty, set.nonempty_def],
-      rw hdef at hs₁,
-      rw filter.has_scalar at hs₁,
-      rw filter.mem_map at hs₁,
-      rw filter.mem_prod_iff at hs₁,
-      obtain ⟨t, ht, s, hs, hsub⟩ := hs₁,
-      rw filter.has_inv at ht,
-      rw filter.mem_map at ht,
-      have hsub' : t • s ⊆ s₁, from calc
-        t • s ⊆ (uncurry (•)) '' (uncurry (•) ⁻¹' s₁) : set.image_subset (uncurry (•)) hsub
-        ... ⊆ s₁ : set.image_preimage_subset (uncurry (•)) s₁,
+      obtain ⟨t, ht, s, hs, hsub⟩ := filter.mem_smul_iff.mp hs₁,
       have : t • s₂ ∈ k',
       begin
-        have : t • s₂ ∈ h, from filter.smul_mem_smul t ht s hs,
+        have : t • s₂ ∈ g • f, from sorry,
         exact (filter.le_def.mp hle'') (t • s₂) this,
       end,
-      let s' := s ∩ t • s₂,
+      let s' := s ∩ (t • s₂),
       have hs' : s'.nonempty := ultrafilter.nonempty_of_mem (k'.to_filter.inter_sets hs this),
       let x := hs'.some,
       have hmem1 : x ∈ s₁, sorry,
