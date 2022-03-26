@@ -192,15 +192,45 @@ begin
   exact ssubset_of_ssubset_of_subset hne hsub,
 end
 
+lemma set.smul_subset_smul_left [has_scalar M α] {t t' : set M} 
+  (s : set α) (hsub : t ⊆ t') : t • s ⊆ t' • s :=
+begin
+  change uncurry (•) '' (t ×ˢ s) ⊆ uncurry (•) '' (t' ×ˢ s),
+  exact image_subset (uncurry (•)) (prod_mono hsub (subset_refl s))
+end
+
 lemma filter.inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
-  (hle : f' ≤ g • f) [g.ne_bot] [f.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
+  (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
 begin
   rw ← forall_mem_nonempty_iff_ne_bot,
   intros s hmem,
-  obtain ⟨s₁, hs₁, s₂, hs₂, hsub⟩ := mem_inf_iff_superset.mp hmem,
-  obtain ⟨t₁, ht₁, s₃, hs₃, hsub'⟩ := filter.mem_smul_iff.mp hs₁,
-  refine set.subset_eq_nonempty hsub _,
-  refine set.subset_eq_nonempty (inter_subset_inter_left s₂ hsub') _,
+  obtain ⟨s₁, hs₁, s₂, hs₂, hsub₁⟩ := mem_inf_iff_superset.mp hmem,
+  obtain ⟨t₁, ht₁, s₃, hs₃, hsub₂⟩ := filter.mem_smul_iff.mp hs₁,
+  refine set.subset_eq_nonempty hsub₁ _,
+  obtain ⟨t₂, ht₂, hsub₃⟩ := filter.mem_inv_iff.mp ht₁,
+  have hsub₄ : t₂⁻¹ • s₃ ⊆ s₁, 
+    from subset_trans (set.smul_subset_smul_left s₃ hsub₃) hsub₂,
+  refine set.subset_eq_nonempty (inter_subset_inter_left s₂ hsub₄) _,
+  let s₄ : set α := s₃ ∩ (t₂ • s₂),
+  have hne : s₄.nonempty, 
+    from forall_mem_nonempty_iff_ne_bot.mpr hf' s₄
+      (f'.inter_sets hs₃ (filter.le_def.mp hle (t₂ • s₂) (filter.smul_mem_smul ht₂ hs₂))),
+  obtain ⟨y, hy⟩ := nonempty_def.mp hne,
+  rw nonempty_def,
+  obtain ⟨hy₁, hy₂⟩ := hy,
+  change y ∈ uncurry (•) '' (t₂ ×ˢ s₂) at hy₂,
+  obtain ⟨⟨a, x⟩, heq⟩ := (mem_image (uncurry (•)) (t₂ ×ˢ s₂) y).mp hy₂,
+  have ha : a ∈ t₂, from heq.1.1,
+  have hx : x ∈ s₂, from heq.1.2,
+  have hy' : a • x = y, from heq.2,
+  have heq' : a⁻¹ • y = x, by simp [← hy', ← mul_smul],
+  have hmem' : x ∈ t₂⁻¹ • s₃,
+  begin
+    simp [← heq'],
+    have : a⁻¹ ∈ t₂⁻¹, from mem_image_of_mem (has_inv.inv) ha,
+    exact mem_image_of_mem (uncurry (•)) (mk_mem_prod this hy₁),
+  end,
+  exact ⟨x, hmem', hx⟩,
 end
 
 /-
