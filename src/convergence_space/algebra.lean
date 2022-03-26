@@ -128,11 +128,25 @@ map partial_smul (g ×ᶠ f)
 
 infix ` ·ᶠ `:73 := filter.partial_smul
 
+instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
+⟨λ t s, uncurry (•) '' (t ×ˢ s)⟩
+
 instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
-⟨λ g f, map (uncurry has_scalar.smul) (g ×ᶠ f)⟩
+⟨λ g f, map (uncurry (•)) (g ×ᶠ f)⟩
 
 instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
 
+lemma filter.mem_of_smul [has_scalar M α] {g : filter M} {f : filter α} :
+  ∀ (t ∈ g) (s ∈ f), t • s ∈ g • f :=
+begin
+  assume t : set M,
+  assume ht : t ∈ g,
+  assume s : set α,
+  assume hs : s ∈ f,
+  change uncurry (•) '' (t ×ˢ s) ∈ map (uncurry (•)) (g ×ᶠ f),
+  refine image_mem_map _,
+  exact prod_mem_prod ht hs,
+end
 
 /-
 structure PartAct :=
@@ -385,15 +399,15 @@ begin
       obtain ⟨t, ht, s, hs, hsub⟩ := hs₁,
       rw filter.has_inv at ht,
       rw filter.mem_map at ht,
-      have hsub' : (uncurry has_scalar.smul) '' (t ×ˢ s) ⊆ s₁, from calc
-        (uncurry has_scalar.smul) '' (t ×ˢ s) ⊆ (uncurry has_scalar.smul) '' (uncurry has_scalar.smul ⁻¹' s₁) : set.image_subset (uncurry has_scalar.smul) hsub
-        ... ⊆ s₁ : set.image_preimage_subset (uncurry has_scalar.smul) s₁,
-      have : (uncurry has_scalar.smul) '' (t ×ˢ s₂) ∈ k',
+      have hsub' : t • s ⊆ s₁, from calc
+        t • s ⊆ (uncurry (•)) '' (uncurry (•) ⁻¹' s₁) : set.image_subset (uncurry (•)) hsub
+        ... ⊆ s₁ : set.image_preimage_subset (uncurry (•)) s₁,
+      have : t • s₂ ∈ k',
       begin
-        have : (uncurry has_scalar.smul) '' (t ×ˢ s₂) ∈ h, sorry,
-        exact (filter.le_def.mp hle'') ((uncurry has_scalar.smul) '' (t ×ˢ s₂) ) this,
+        have : t • s₂ ∈ h, sorry,
+        exact (filter.le_def.mp hle'') (t • s₂) this,
       end,
-      let s' := s ∩ (uncurry has_scalar.smul) '' (t ×ˢ s₂),
+      let s' := s ∩ t • s₂,
       have hs' : s'.nonempty := ultrafilter.nonempty_of_mem (k'.to_filter.inter_sets hs this),
       let x := hs'.some,
       have hmem1 : x ∈ s₁, sorry,
