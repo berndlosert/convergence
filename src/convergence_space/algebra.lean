@@ -134,9 +134,7 @@ instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
 instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
 ⟨λ g f, map (uncurry (•)) (g ×ᶠ f)⟩
 
-instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
-
-lemma filter.mem_of_smul [has_scalar M α] {g : filter M} {f : filter α} :
+lemma filter.smul_mem_smul [has_scalar M α] {g : filter M} {f : filter α} :
   ∀ (t ∈ g) (s ∈ f), t • s ∈ g • f :=
 begin
   assume t : set M,
@@ -147,6 +145,27 @@ begin
   refine image_mem_map _,
   exact prod_mem_prod ht hs,
 end
+
+lemma filter.mem_smul_iff [has_scalar M α] {s : set α} {g : filter M} {f : filter α} :
+  s ∈ g • f ↔ (∃ t ∈ g, ∃ s' ∈ f, t • s' ⊆ s) :=
+begin
+  split,
+  -- → direction
+  assume hmem : s ∈ g • f,
+  change s ∈ map (uncurry (•)) (g ×ᶠ f) at hmem,
+  rw mem_map_iff_exists_image at hmem,
+  obtain ⟨u, hu₁, hu₂⟩ := hmem,
+  obtain ⟨t, ht, s', hs', hsub⟩ := mem_prod_iff.mp hu₁,
+  have : t • s' ⊆ s, from subset_trans (image_subset (uncurry (•)) hsub) hu₂,
+  exact ⟨t, ht, s', hs', this⟩,
+  -- ← direction
+  rintro ⟨t, ht, s', hs', hsub⟩,
+  exact mem_of_superset (filter.smul_mem_smul t ht s' hs') hsub,
+end
+
+instance set.has_inv [has_inv α] : has_inv (set α) := ⟨λ s, has_inv.inv '' s⟩
+
+instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
 
 /-
 structure PartAct :=
@@ -404,7 +423,7 @@ begin
         ... ⊆ s₁ : set.image_preimage_subset (uncurry (•)) s₁,
       have : t • s₂ ∈ k',
       begin
-        have : t • s₂ ∈ h, sorry,
+        have : t • s₂ ∈ h, from filter.smul_mem_smul t ht s hs,
         exact (filter.le_def.mp hle'') (t • s₂) this,
       end,
       let s' := s ∩ t • s₂,
