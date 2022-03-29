@@ -419,6 +419,8 @@ end envelope
 ### Adherence restrictive
 -/
 
+/-- A continuous action of a monoid `G` on `α` is adherence restrictive if for all convergent
+  filters `g` on `G` and all filters `f` on `α` with `adh f = ∅`, `adh (g • f) = ∅`. -/
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅
@@ -483,11 +485,14 @@ begin
   exact absurd hmem (hadh (a⁻¹ • x)),
 end  
 
+/-- This is the "partial" version of `adh_restrictive`. -/
 def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ 
   → ∀ x, option.some x ∉ adh (g ·ᶠ f)
 
+/-- This is a weaker version of `partial_adh_restrictive` where instead of consider the adherence in `α`
+  it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅
