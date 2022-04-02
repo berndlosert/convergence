@@ -495,7 +495,8 @@ def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_spac
   it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, converges g a ∧ adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
+  adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅
   → ∀ x, option.some x ∉ adh (g ·ᶠ f)
 
 lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
@@ -506,7 +507,7 @@ classical.by_contradiction
 begin
   assume hcontra : ¬ partial_adh_restrictive G α,
   have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (g ·ᶠ f), 
+    adh f = ∅ ∧ converges g a ∧ option.some x ∈ adh (g ·ᶠ f),
   begin
       unfold partial_adh_restrictive at hcontra,
       rw not_forall at hcontra,
