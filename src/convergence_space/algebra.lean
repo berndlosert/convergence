@@ -491,7 +491,7 @@ def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_spac
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ 
   → ∀ x, option.some x ∉ adh (g ·ᶠ f)
 
-/-- This is a weaker version of `partial_adh_restrictive` where instead of consider the adherence in `α`
+/-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
