@@ -496,7 +496,7 @@ def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_spac
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (envelope.quot_pure : α → quot (envelope G α)) f) = ∅
+  adh (map (@envelope.quot_pure G α _ _) f) = ∅
   → ∀ x, option.some x ∉ adh (g ·ᶠ f)
 
 lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
