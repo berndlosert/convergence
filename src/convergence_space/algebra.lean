@@ -530,8 +530,16 @@ begin
   obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
   haveI : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
+  cases hconv',
+    case or.inl 
+    begin
+      
+    end,
+    case or.inr : hexists 
+    begin
+    end,
   have hle'' : ↑k' ≤ g ·ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
-  set k : filter α := g⁻¹ ·ᶠ ↑k' with hdef,
+  set k : filter α := g⁻¹ • ↑k' with hdef,
   haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
   have hconv : converges k (a⁻¹ · x),
   begin

@@ -160,11 +160,14 @@ instance : has_Sup (convergence_space α) :=
       assume hor : (g ≤ pure x) ∨
         (∃ p : convergence_space α, p ∈ ps ∧ converges_ p g x),
       cases hor,
-        case or.inl : hle' begin
+        case or.inl : hle' 
+        begin
           exact or.inl (le_trans hle hle')
         end,
-        case or.inr : hconv begin
-          exact exists.elim hconv begin
+        case or.inr : hconv 
+        begin
+          exact exists.elim hconv 
+          begin
             assume p : convergence_space α,
             assume hconv' : p ∈ ps ∧ converges_ p g x,
             exact or.inr
@@ -230,11 +233,14 @@ instance : complete_semilattice_Sup (convergence_space α) :=
     assume x : α,
     assume : converges_ (Sup qs) f x,
     cases this,
-      case or.inl : hle' begin
+      case or.inl : hle' 
+      begin
         exact le_converges_ p hle' (pure_converges_ p x)
       end,
-      case or.inr : hconv begin
-        exact exists.elim hconv begin
+      case or.inr : hconv 
+      begin
+        exact exists.elim hconv 
+        begin
           assume q : convergence_space α,
           assume hconv' : q ∈ qs ∧ converges_ q f x,
           exact (hle q hconv'.left) hconv'.right
@@ -490,7 +496,8 @@ begin
   assume y : β,
   assume hconv : converges_ (convergence_space.coinduced m) g y,
   cases hconv,
-    case or.inl begin
+    case or.inl 
+    begin
       exact le_converges_ q hconv (pure_converges_ q y),
     end,
     case or.inr : hexists begin
@@ -509,10 +516,12 @@ begin
   split,
   assume hconv : converges_ (convergence_space.coinduced id) f x,
   cases hconv,
-    case or.inl begin
+    case or.inl 
+    begin
       exact le_converges_ p hconv (pure_converges_ p x),
     end,
-    case or.inr : hexists begin
+    case or.inr : hexists 
+    begin
       obtain ⟨g, y, hle, heq, hconv'⟩ := hexists,
       simp at hle,
       simp at heq,
@@ -534,10 +543,12 @@ begin
   assume y : β,
   assume hconv : converges_ (convergence_space.coinduced m) g y,
   cases hconv,
-    case or.inl begin
+    case or.inl 
+    begin
       exact le_converges_ q hconv (pure_converges_ q y),
     end,
-    case or.inr : hexists begin
+    case or.inr : hexists 
+    begin
       obtain ⟨f, x, hle, heq, hconv'⟩ := hexists,
       rw ← heq,
       exact le_converges_ q hle (hcont hconv'),
@@ -562,13 +573,16 @@ begin
   split,
   assume hconv : converges_ p h z,
   cases hconv,
-    case or.inl begin
+    case or.inl 
+    begin
       exact or.inl hconv,
     end,
-    case or.inr : hg begin
+    case or.inr : hg 
+    begin
       obtain ⟨g, y, hg₁, hg₂, hg₃⟩ := hg,
       cases hg₃,
-        case or.inl begin
+        case or.inl 
+        begin
           have hle' : h ≤ pure (m₂ y), from calc
             h ≤ map m₂ g : hg₁
             ... ≤ map m₂ (pure y) : map_mono hg₃
@@ -576,7 +590,8 @@ begin
           rw ← hg₂,
           exact or.inl hle',
         end,
-        case or.inr : hf begin
+        case or.inr : hf 
+        begin
           obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hf,
           have hle : h ≤ map (m₂ ∘ m₁) f, from calc
             h ≤ map m₂ (map m₁ f) : le_trans hg₁ (map_mono hf₁)
@@ -590,10 +605,12 @@ begin
     end,
   assume hconv : converges_ q h z,
   cases hconv,
-    case or.inl begin
+    case or.inl 
+    begin
       exact or.inl hconv,
     end,
-    case or.inr : hexists begin
+    case or.inr : hexists 
+    begin
       obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hexists,
       let g : filter β := map m₁ f,
       let y : β := m₁ x,
@@ -881,13 +898,15 @@ begin
   assume : converges g y,
   rw hquot.2 at this,
   cases this,
-    case or.inl begin
+    case or.inl 
+    begin
       obtain ⟨x, heq⟩ := hquot.1 y,
       rw ← heq at this,
       rw ← filter.map_pure at this,
       exact ⟨pure x, x, this, heq, pure_converges x⟩,
     end,
-    case or.inr : hexists begin
+    case or.inr : hexists 
+    begin
       exact hexists,
     end,
   -- Proof of ← direction.
@@ -923,10 +942,12 @@ begin
   exact or.inr ((hrhs.2 g y).mp hconv),
   intro hconj,
   cases hconj,
-    case or.inl begin
+    case or.inl 
+    begin
       exact le_converges_ q hconj (pure_converges_ q y),
     end,
-    case or.inr begin
+    case or.inr 
+    begin
       exact ((hrhs.2 g y).mpr hconj),
     end,
 end
