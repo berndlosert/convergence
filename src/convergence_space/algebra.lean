@@ -4,12 +4,14 @@ import algebra.support
 import convergence_space.basic
 import category_theory.concrete_category.bundled
 import deprecated.group
+import data.set.pointwise
+import order.filter.pointwise
 
 noncomputable theory
 open set filter classical option function prod
 open category_theory
 open convergence_space
-open_locale classical filter
+open_locale classical filter pointwise
 
 -- For multiple inheritance used by cont_monoid_hom
 --set_option old_structure_cmd true
@@ -100,6 +102,14 @@ class has_partial_scalar (M α : Type*) :=
 
 open has_partial_scalar
 
+/-- The domain of definition of a `partial_smul`. -/
+def partial_smul.dom (M α : Type*) [has_partial_scalar M α] := 
+{ p : M × α | is_some (partial_smul p) }
+
+/-- This is `partial_smul`, but with the input type restricted. -/
+def partial_smul.fn (M α : Type*) [has_partial_scalar M α]
+  (p : partial_smul.dom M α) : α := get p.2
+
 infixr ` · `:73 := curry has_partial_scalar.partial_smul
 
 instance [has_partial_scalar M α] : has_scalar M (option α) :=
@@ -123,50 +133,58 @@ class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
 (continuous_partial_smul : continuous (partial_smul : M × α → option α))
 
 /-- `partial_smul` lifted to filters. -/
-def filter.partial_smul [has_partial_scalar M α] (g : filter M) (f : filter α) := 
+def filter.partial_smul [has_partial_scalar M α] 
+  (g : filter M) (f : filter α) : filter (option α) := 
 map partial_smul (g ×ᶠ f)
 
 infix ` ·ᶠ `:73 := filter.partial_smul
 
-instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
-⟨λ t s, uncurry (•) '' (t ×ˢ s)⟩
+/-- `partial_smul.fn` lifted to filters. -/
+def filter.partial_smul.fn [has_partial_scalar M α] 
+  (g : filter M) (f : filter α) : filter (option α) := 
+map partial_smul ((g ×ᶠ f) ⊓ 𝓟 (partial_smul.dom M α))
 
-instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
-⟨λ g f, map (uncurry (•)) (g ×ᶠ f)⟩
+infix ` ᶠ· `:73 := filter.partial_smul.fn
 
-lemma filter.smul_mem_smul [has_scalar M α] {t : set M} {s : set α} 
-  {g : filter M} {f : filter α} (ht : t ∈ g) (hs : s ∈ f) : t • s ∈ g • f :=
-begin
-  change uncurry (•) '' (t ×ˢ s) ∈ map (uncurry (•)) (g ×ᶠ f),
-  refine image_mem_map _,
-  exact prod_mem_prod ht hs,
-end
+-- instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
+-- ⟨λ t s, uncurry (•) '' (t ×ˢ s)⟩
 
-lemma filter.mem_smul_iff [has_scalar M α] {s : set α} {g : filter M} {f : filter α} :
-  s ∈ g • f ↔ ∃ t ∈ g, ∃ s' ∈ f, t • s' ⊆ s :=
-begin
-  split,
-  -- → direction
-  assume hmem : s ∈ g • f,
-  change s ∈ map (uncurry (•)) (g ×ᶠ f) at hmem,
-  rw mem_map_iff_exists_image at hmem,
-  obtain ⟨u, hu₁, hu₂⟩ := hmem,
-  obtain ⟨t, ht, s', hs', hsub⟩ := mem_prod_iff.mp hu₁,
-  have : t • s' ⊆ s, from subset_trans (image_subset (uncurry (•)) hsub) hu₂,
-  exact ⟨t, ht, s', hs', this⟩,
-  -- ← direction
-  rintro ⟨t, ht, s', hs', hsub⟩,
-  exact mem_of_superset (filter.smul_mem_smul ht hs') hsub,
-end
+-- instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
+-- ⟨λ g f, map (uncurry (•)) (g ×ᶠ f)⟩
 
-instance set.has_inv [has_inv α] : has_inv (set α) := ⟨λ s, has_inv.inv '' s⟩
+-- lemma filter.smul_mem_smul [has_scalar M α] {t : set M} {s : set α} 
+--   {g : filter M} {f : filter α} (ht : t ∈ g) (hs : s ∈ f) : t • s ∈ g • f :=
+-- begin
+--   change uncurry (•) '' (t ×ˢ s) ∈ map (uncurry (•)) (g ×ᶠ f),
+--   refine image_mem_map _,
+--   exact prod_mem_prod ht hs,
+-- end
 
-instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
+-- lemma filter.mem_smul_iff [has_scalar M α] {s : set α} {g : filter M} {f : filter α} :
+--   s ∈ g • f ↔ ∃ t ∈ g, ∃ s' ∈ f, t • s' ⊆ s :=
+-- begin
+--   split,
+--   -- → direction
+--   assume hmem : s ∈ g • f,
+--   change s ∈ map (uncurry (•)) (g ×ᶠ f) at hmem,
+--   rw mem_map_iff_exists_image at hmem,
+--   obtain ⟨u, hu₁, hu₂⟩ := hmem,
+--   obtain ⟨t, ht, s', hs', hsub⟩ := mem_prod_iff.mp hu₁,
+--   have : t • s' ⊆ s, from subset_trans (image_subset (uncurry (•)) hsub) hu₂,
+--   exact ⟨t, ht, s', hs', this⟩,
+--   -- ← direction
+--   rintro ⟨t, ht, s', hs', hsub⟩,
+--   exact mem_of_superset (filter.smul_mem_smul ht hs') hsub,
+-- end
 
-lemma filter.inv_mem_inv [has_inv α] {s : set α} {f : filter α} (hs : s ∈ f) : s⁻¹ ∈ f⁻¹ :=
-image_mem_map hs
+-- instance set.has_inv [has_inv α] : has_inv (set α) := ⟨λ s, has_inv.inv '' s⟩
 
-lemma filter.mem_inv_iff [has_inv α] {s : set α} {f : filter α} : 
+-- instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
+
+-- lemma filter.inv_mem_inv [has_inv α] {s : set α} {f : filter α} (hs : s ∈ f) : s⁻¹ ∈ f⁻¹ :=
+-- image_mem_map hs
+
+lemma filter.mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
   s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
 begin
   split,
@@ -174,7 +192,9 @@ begin
   assume hmem : s ∈ f⁻¹,
   change s ∈ map has_inv.inv f at hmem,
   rw mem_map_iff_exists_image at hmem,
-  exact hmem,
+  obtain ⟨t, ht, hsub⟩ := hmem,
+  rw [set.image_inv] at hsub,
+  exact ⟨t, ht, hsub⟩,
   -- ← direction
   rintro ⟨t, ht, hsub⟩,
   exact mem_of_superset (filter.inv_mem_inv ht) hsub,
@@ -192,12 +212,12 @@ begin
   exact ssubset_of_ssubset_of_subset hne hsub,
 end
 
-lemma set.smul_subset_smul_left [has_scalar M α] {t t' : set M} 
-  (s : set α) (hsub : t ⊆ t') : t • s ⊆ t' • s :=
-begin
-  change uncurry (•) '' (t ×ˢ s) ⊆ uncurry (•) '' (t' ×ˢ s),
-  exact image_subset (uncurry (•)) (prod_mono hsub (subset_refl s))
-end
+-- lemma set.smul_subset_smul_left [has_scalar M α] {t t' : set M} 
+--   (s : set α) (hsub : t ⊆ t') : t • s ⊆ t' • s :=
+-- begin
+--   change uncurry (•) '' (t ×ˢ s) ⊆ uncurry (•) '' (t' ×ˢ s),
+--   exact image_subset (uncurry (•)) (prod_mono hsub (subset_refl s))
+-- end
 
 lemma filter.inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
   (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
@@ -205,11 +225,11 @@ begin
   rw ← forall_mem_nonempty_iff_ne_bot,
   intros s hmem,
   obtain ⟨s₁, hs₁, s₂, hs₂, hsub₁⟩ := mem_inf_iff_superset.mp hmem,
-  obtain ⟨t₁, ht₁, s₃, hs₃, hsub₂⟩ := filter.mem_smul_iff.mp hs₁,
+  obtain ⟨t₁, s₃, ht₁, hs₃, hsub₂⟩ := filter.mem_smul.mp hs₁,
   refine set.subset_eq_nonempty hsub₁ _,
   obtain ⟨t₂, ht₂, hsub₃⟩ := filter.mem_inv_iff.mp ht₁,
   have hsub₄ : t₂⁻¹ • s₃ ⊆ s₁, 
-    from subset_trans (set.smul_subset_smul_left s₃ hsub₃) hsub₂,
+    from subset_trans (set.smul_subset_smul_right hsub₃) hsub₂,
   refine set.subset_eq_nonempty (inter_subset_inter_left s₂ hsub₄) _,
   let s₄ : set α := s₃ ∩ (t₂ • s₂),
   have hne : s₄.nonempty, 
@@ -218,17 +238,15 @@ begin
   obtain ⟨y, hy⟩ := nonempty_def.mp hne,
   rw nonempty_def,
   obtain ⟨hy₁, hy₂⟩ := hy,
-  change y ∈ uncurry (•) '' (t₂ ×ˢ s₂) at hy₂,
-  obtain ⟨⟨a, x⟩, heq⟩ := (mem_image (uncurry (•)) (t₂ ×ˢ s₂) y).mp hy₂,
-  have ha : a ∈ t₂, from heq.1.1,
-  have hx : x ∈ s₂, from heq.1.2,
-  have hy' : a • x = y, from heq.2,
+  change y ∈ set.image2 (•) t₂ s₂ at hy₂,
+  obtain ⟨a, x, ha, hx, hy'⟩ := set.mem_image2.mp hy₂,
   have heq' : a⁻¹ • y = x, by simp [← hy', ← mul_smul],
   have hmem' : x ∈ t₂⁻¹ • s₃,
   begin
     simp [← heq'],
-    have : a⁻¹ ∈ t₂⁻¹, from mem_image_of_mem (has_inv.inv) ha,
-    exact mem_image_of_mem (uncurry (•)) (mk_mem_prod this hy₁),
+    have : a⁻¹ ∈ has_inv.inv '' t₂, from mem_image_of_mem (has_inv.inv) ha,
+    have : a⁻¹ ∈ t₂⁻¹, by rwa image_inv at this, 
+    exact mem_image2_of_mem this hy₁,
   end,
   exact ⟨x, hmem', hx⟩,
 end
@@ -464,7 +482,7 @@ begin
   let k' := ultrafilter.of h',
   have hle'' : ↑k' ≤ g • f, from (le_trans (ultrafilter.of_le h') hle'),
   set k : filter α := g⁻¹ • ↑k' with hdef,
-  haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
+  haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hnb) k'.ne_bot,
   have hconv : converges k (a⁻¹ • x),
   begin
     have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
@@ -533,7 +551,12 @@ begin
   cases hconv',
     case or.inl 
     begin
-      
+      have : h' = pure (some x), from sorry,
+      have : h' = map some (pure x), from sorry,
+      set k := g⁻¹ • h' with hdef,
+      have : k.ne_bot, from sorry,
+      have : have hconv : converges k (a⁻¹ · x), from sorry,
+      have : a⁻¹ · x ∈ adh f, from sorry
     end,
     case or.inr : hexists 
     begin
