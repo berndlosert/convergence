@@ -92,59 +92,51 @@ instance : category ConvGroup := {
 -/
 
 /-!
-### Partial group actions
+### Partial scalar actions
 -/
 
-/-- Typeclass for types with a partial scalar multiplication operation,
-  denoted `·`. -/
-class has_partial_scalar (M α : Type*) :=
-(partial_smul : M × α → option α)
+/-- Typeclass for partial scalar actions. `smul_defined a x` means that `a • x` is defined. -/
+class has_partial_scalar (M α : Type*) extends has_scalar M α :=
+(smul_defined : M → α → Prop)
 
 open has_partial_scalar
 
-/-- The domain of definition of a `partial_smul`. -/
-def partial_smul.dom (M α : Type*) [has_partial_scalar M α] := 
-{ p : M × α | is_some (partial_smul p) }
+notation a ` • ` x ` defined` := smul_defined a x
 
-/-- This is `partial_smul`, but with the input type restricted. -/
-def partial_smul.fn (M α : Type*) [has_partial_scalar M α]
-  (p : partial_smul.dom M α) : α := get p.2
+/-- The domain of defintion of a partial action. -/
+def smul_dom {M α : Type*} [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
 
-infixr ` · `:73 := curry has_partial_scalar.partial_smul
+/-- Typeclass for partial actions of groups. -/
+class partial_mul_action (G α : Type*) [group G]
+  extends has_partial_scalar G α :=
+(identity : ∀ (x : α), (1 : G) • x defined ∧ (1 : G) • x = x)
+(compatibility : ∀ {a b : G} {x : α}, b • x defined → a • (b • x) defined →
+  (a * b) • x defined ∧ (a * b) • x = a • (b • x))
+(invertible : ∀ {a : G} {x y : α}, a • x defined → a • x = y → a⁻¹ • y defined ∧ x = a⁻¹ • y)
 
-instance [has_partial_scalar M α] : has_scalar M (option α) :=
-⟨λ a x, x.elim none (curry partial_smul a)⟩
+lemma partial_mul_action.injective [group G] [partial_mul_action G α]: 
+  ∀ {a : G} {x y : α}, a • x defined → a • y defined → a • x = a • y → x = y :=
+begin
+  intros a x y hdef₁ hdef₂ heq₁,
+  obtain ⟨hdef₃, heq₂⟩ := partial_mul_action.invertible hdef₁ heq₁,
+  obtain ⟨hdef₄, heq₃⟩ := partial_mul_action.compatibility hdef₂ hdef₃,
+  simp [(partial_mul_action.identity y).2] at heq₃,
+  exact (rfl.congr (eq.symm heq₃)).mp heq₂,
+end
 
-lemma partial_smul_some [has_partial_scalar M α] : ∀ {a : M} {x : α},
-  a · x = a • some x := by tauto
-
-/-- Typeclass for partial actions by monoids. -/
-class partial_mul_action (M α : Type*) [monoid M]
-  extends has_partial_scalar M α :=
-(identity : ∀ {x : α}, (1 : M) · x = option.some x)
-(compatibility : ∀ {a b : M} {x : α}, is_some (b · x) → 
-  (a * b) · x = a • (b · x))
-(injective : ∀ {a : M} {x : α}, is_some (a · x) → ∀ y, a · x = a · y → x = y)
-
-/-- Class `has_continuous_smul M α` says that the partial scalar multiplication
-  `(·) : M → α → α` is continuous in both arguments. -/
+/-- Class `has_continuous_partial_smul M α` says that the partial scalar multiplication
+  is continuous on `smul_dom`. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
-(continuous_partial_smul : continuous (partial_smul : M × α → option α))
+(continuous_partial_smul : ∀ {a : M} {x : α}, a • x defined 
+  → continuous_at (uncurry (•) : M × α → α) (a, x))
 
 /-- `partial_smul` lifted to filters. -/
 def filter.partial_smul [has_partial_scalar M α] 
-  (g : filter M) (f : filter α) : filter (option α) := 
-map partial_smul (g ×ᶠ f)
+  (g : filter M) (f : filter α) : filter α := 
+map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 smul_dom)
 
-infix ` ·ᶠ `:73 := filter.partial_smul
-
-/-- `partial_smul.fn` lifted to filters. -/
-def filter.partial_smul.fn [has_partial_scalar M α] 
-  (g : filter M) (f : filter α) : filter (option α) := 
-map partial_smul ((g ×ᶠ f) ⊓ 𝓟 (partial_smul.dom M α))
-
-infix ` ᶠ· `:73 := filter.partial_smul.fn
+infix ` •ᶠ `:73 := filter.partial_smul
 
 -- instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
 -- ⟨λ t s, uncurry (•) '' (t ×ˢ s)⟩
@@ -274,7 +266,7 @@ structure ContPartAct extends PartAct :=
 -/
 
 def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
- λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) · x = some y
+ λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) • x defined ∧ (b⁻¹ * a) • x = y
 
 namespace envelope
 
@@ -285,7 +277,8 @@ lemma is_reflexive : reflexive (envelope G α) := begin
   unfold reflexive,
   rintro (⟨a, x⟩ : G × α),
   unfold envelope,
-  simp [partial_mul_action.identity],
+  simp,
+  exact partial_mul_action.identity x,
 end
 
 lemma is_symmetric : symmetric (envelope G α) := begin
@@ -293,14 +286,11 @@ lemma is_symmetric : symmetric (envelope G α) := begin
   unfold symmetric,
   rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
   unfold envelope,
-  intro heq,
-  have hsome : is_some ((b⁻¹ * a) · x), simp [heq],
-  show (a⁻¹ * b) · y = some x, from calc
-    (a⁻¹ * b) · y = (a⁻¹ * b) • some y : by rw partial_smul_some 
-    ... = (a⁻¹ * b) • ((b⁻¹ * a) · x) : by simp [heq]
-    ... = ((a⁻¹ * b) * (b⁻¹ * a)) · x : by { rw [← (partial_mul_action.compatibility hsome)]; tauto }
-    ... = (1 : G) · x : by simp [mul_assoc]
-    ... = some x : by exact partial_mul_action.identity
+  rintro ⟨hdef, heq⟩,
+  obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
+  simp at hdef',
+  simp at heq',
+  exact ⟨hdef', eq.symm heq'⟩,
 end
 
 lemma is_transitive : transitive (envelope G α) := begin

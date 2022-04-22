@@ -1,4 +1,5 @@
 import tactic
+import order.filter.n_ary
 import order.filter.partial
 import order.filter.ultrafilter
 import order.filter.bases
@@ -332,8 +333,13 @@ instance : complete_lattice (convergence_space α) :=
 ### Continuity
 -/
 
+/-- A function `m` between converges spaces is continuous at a point `x`
+  if whenever a filter converges to `x`, it's image under `m` converges to `m x`. --/
+def continuous_at [convergence_space α] [convergence_space β] (m : α → β) (x : α) := 
+∀ ⦃f⦄, converges f x → converges (map m f) (m x)
+
 def continuous [convergence_space α] [convergence_space β] (m : α → β) : Prop :=
-∀ ⦃x f⦄, converges f x → converges (map m f) (m x)
+∀ ⦃x⦄, continuous_at m x
 
 def continuous_ (p : convergence_space α) (q : convergence_space β)
   (m : α → β) : Prop :=
@@ -724,6 +730,13 @@ continuous_inf_rng (continuous_induced_rng hcont₁) (continuous_induced_rng hco
 lemma continuous.prod.mk [convergence_space α] [convergence_space β] (x : α) : 
   continuous (prod.mk x : β → α × β) :=
 continuous_const.prod_mk continuous_id'
+
+def continuous2 [convergence_space α] [convergence_space β] [convergence_space γ]
+  (m : α → β → γ) : Prop :=
+∀ ⦃x y f g⦄, converges f x → converges g y → converges (map₂ m f g) (m x y)
+
+lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [convergence_space γ]
+  {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) := sorry
 
 end
 
