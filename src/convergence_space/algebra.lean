@@ -298,17 +298,13 @@ lemma is_transitive : transitive (envelope G α) := begin
   unfold transitive,
   rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
   unfold envelope,
-  assume heq₁ : (b⁻¹ * a) · x = some y,
-  assume heq₂ : (c⁻¹ * b) · y = some z,
-  have hsome₁ : is_some ((b⁻¹ * a) · x), simp *,
-  have hsome₂ : is_some ((c⁻¹ * b) · y), simp *,
-  show (c⁻¹ * a) · x = some z, from calc
-    (c⁻¹ * a) · x = (c⁻¹ * 1 * a) · x : by simp
-    ... = (c⁻¹ * b * b⁻¹ * a) · x : by simp
-    ... = (c⁻¹ * b) • ((b⁻¹ * a) · x) :
-      by { rw ← (partial_mul_action.compatibility hsome₁); simp [mul_assoc]; tauto }
-    ... = (c⁻¹ * b) · y : by simp [partial_smul_some, heq₁]
-    ... = some z : by rw heq₂
+  rintro ⟨hdef₁, heq₁⟩ ⟨hdef₂, heq₂⟩,
+  rw [← heq₁] at hdef₂,
+  rw [← heq₁] at heq₂,
+  obtain ⟨hdef₃, heq₃⟩ := partial_mul_action.compatibility hdef₁ hdef₂,
+  simp [mul_assoc] at hdef₃,
+  simp [mul_assoc, heq₂] at heq₃,
+  exact ⟨hdef₃, heq₃⟩,
 end
 
 lemma is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
@@ -325,7 +321,7 @@ lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a •
 begin
   obtain ⟨b, x⟩ := bx,
   obtain ⟨c, y⟩ := cy,
-  change ((a * c)⁻¹ * (a * b)) · x = some y,
+  change ((a * c)⁻¹ * (a * b)) • x defined ∧ ((a * c)⁻¹ * (a * b)) • x = y,
   simp [mul_assoc],
   assumption,
 end
