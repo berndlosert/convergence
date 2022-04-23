@@ -29,7 +29,7 @@ variables {M G α β γ : Type*}
   requiring both the instances monoid `M` and has_continuous_mul `M`. -/
 class has_continuous_mul (α : Type*)
   [convergence_space α] [has_mul α] : Prop :=
-(continuous_mul : continuous (uncurry (*) : α × α → α))
+(continuous_mul : continuous2 ((*) : α → α → α))
 
 open has_continuous_mul
 
@@ -37,7 +37,7 @@ open has_continuous_mul
   `(•) : M → α → α` is continuous in both arguments. -/
 class has_continuous_smul (M α : Type*)
   [has_scalar M α] [convergence_space M] [convergence_space α] : Prop :=
-(continuous_smul : continuous (uncurry (•) : M × α → α))
+(continuous_smul : continuous2 ((•) : M → α → α))
 
 open has_continuous_smul
 
@@ -350,6 +350,7 @@ end
 instance : has_continuous_smul G (G × α) :=
 { continuous_smul :=
   begin
+    rw continuous2_continuous_iff,
     unfold continuous,
     rintro ⟨a₁, ⟨a₂, x⟩⟩ : G × (G × α),
     rintro k : filter (G × (G × α)),
@@ -367,7 +368,7 @@ instance : has_continuous_smul G (G × α) :=
     let g : filter (G × G) := g₁ ×ᶠ g₂,
     let a : G × G := (a₁, a₂),
     have hg : converges g a := prod.converges hg₁ hg₂,
-    have : converges (map mul g) (mul a), from continuous_mul hg,
+    have : converges (map mul g) (mul a), from continuous2_continuous_iff.mp continuous_mul hg,
     have hconv : converges (map mul g ×ᶠ f) (mul a, x), from prod.converges this hf,
     have hle : k ≤ g₁ ×ᶠ (g₂ ×ᶠ f), from calc
       k ≤ map fst k ×ᶠ map snd k : filter.le_prod_map_fst_snd
@@ -409,12 +410,12 @@ has_continuous_smul G (quot (envelope G α)) :=
     have hqmap : quotient_map idquot, 
       from quotient_map.prod_map quotient_map.id quotient_map_quot_mk,
     have hcontr : continuous (quot_mk ∘ act), 
-      from continuous.comp continuous_quot_mk has_continuous_smul.continuous_smul,
+      from continuous.comp continuous_quot_mk (continuous2_continuous_iff.mp has_continuous_smul.continuous_smul),
     have hcont : continuous qact, begin
       rw [quotient_map.continuous_iff hqmap, heq],
       assumption,
     end,
-    exact hcont,
+    exact continuous2_continuous_iff.mpr hcont,
   end }
 
 end envelope
@@ -474,7 +475,7 @@ begin
     have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
     have hconv_k' : converges ↑k' x, 
       from le_converges (ultrafilter.of_le h') hconv',
-    exact continuous_smul (prod.converges hconv_inv_g hconv_k'),
+    exact continuous2_continuous_iff.mpr (continuous_smul (prod.converges hconv_inv_g hconv_k')),
   end,
   have hmem : a⁻¹ • x ∈ adh f, 
   begin

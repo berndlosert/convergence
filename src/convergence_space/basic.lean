@@ -736,7 +736,22 @@ def continuous2 [convergence_space α] [convergence_space β] [convergence_space
 ∀ ⦃x y f g⦄, converges f x → converges g y → converges (map₂ m f g) (m x y)
 
 lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [convergence_space γ]
-  {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) := sorry
+  {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) :=
+begin
+  split,
+  { unfold continuous2, 
+    rintros hcont2 ⟨x, y⟩ h hconv,
+    obtain ⟨hconv₁, hconv₂⟩ := hconv,
+    have : converges (map₂ m (map prod.fst h) (map prod.snd h)) (m x y), 
+      from hcont2 hconv₁ hconv₂,
+    rw ← map_prod_eq_map₂ at this,
+    exact le_converges (map_mono le_prod_map_fst_snd) this },
+  { intro hcont,
+    unfold continuous2,
+    intros x y f g hf hg,
+    rw ← map_prod_eq_map₂,
+    exact hcont (prod.converges hf hg) },
+end
 
 end
 
