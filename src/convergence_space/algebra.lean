@@ -97,16 +97,14 @@ lemma filter.mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} :
   s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
 begin
   split,
-  -- → direction
-  assume hmem : s ∈ f⁻¹,
-  change s ∈ map has_inv.inv f at hmem,
-  rw mem_map_iff_exists_image at hmem,
-  obtain ⟨t, ht, hsub⟩ := hmem,
-  rw [set.image_inv] at hsub,
-  exact ⟨t, ht, hsub⟩,
-  -- ← direction
-  rintro ⟨t, ht, hsub⟩,
-  exact mem_of_superset (filter.inv_mem_inv ht) hsub,
+  { assume hmem : s ∈ f⁻¹,
+    change s ∈ map has_inv.inv f at hmem,
+    rw mem_map_iff_exists_image at hmem,
+    obtain ⟨t, ht, hsub⟩ := hmem,
+    rw [set.image_inv] at hsub,
+    exact ⟨t, ht, hsub⟩ },
+  { rintro ⟨t, ht, hsub⟩,
+    exact mem_of_superset (filter.inv_mem_inv ht) hsub }
 end
 
 lemma filter.inf_ne_bot {f g : filter α} [f.ne_bot] (hle : f ≤ g) : (f ⊓ g).ne_bot :=
@@ -120,13 +118,6 @@ begin
   rw ← empty_ssubset at *,
   exact ssubset_of_ssubset_of_subset hne hsub,
 end
-
--- lemma set.smul_subset_smul_left [has_scalar M α] {t t' : set M} 
---   (s : set α) (hsub : t ⊆ t') : t • s ⊆ t' • s :=
--- begin
---   change uncurry (•) '' (t ×ˢ s) ⊆ uncurry (•) '' (t' ×ˢ s),
---   exact image_subset (uncurry (•)) (prod_mono hsub (subset_refl s))
--- end
 
 lemma filter.inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
   (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
