@@ -428,8 +428,19 @@ end envelope
   filters `g` on `G` and all filters `f` on `α` with `adh f = ∅`, `adh (g • f) = ∅`. -/
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅
-  → adh (g • f) = ∅
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g • f) = ∅
+
+/-- This is the "partial" version of `adh_restrictive`. -/
+def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g •ᶠ f) = ∅
+
+/-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
+  it considers the adherence in the enveloping space. -/
+def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
+  adh (map (@envelope.quot_pure G α _ _) f) = ∅ → adh (g •ᶠ f) = ∅
 
 lemma not_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
@@ -451,7 +462,51 @@ begin
   obtain ⟨x, hmem⟩ := rest₄,
   rw set.not_not_mem at hmem,
   exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
-end  
+end
+
+lemma not_partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
+  [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
+  ¬ (partial_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
+    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ x ∈ adh (g •ᶠ f) :=
+begin
+  intro hcontra,
+  unfold partial_adh_restrictive at hcontra,
+  rw not_forall at hcontra,
+  obtain ⟨g, rest₁⟩ := hcontra,
+  rw not_forall at rest₁,
+  obtain ⟨f, rest₂⟩ := rest₁,
+  rw not_forall at rest₂,
+  obtain ⟨a, rest₃⟩ := rest₂,
+  rw not_imp at rest₃,
+  obtain ⟨⟨hnb, hconv, hadh⟩, rest₄⟩ := rest₃,
+  rw set.eq_empty_iff_forall_not_mem at rest₄,
+  rw not_forall at rest₄,
+  obtain ⟨x, hmem⟩ := rest₄,
+  rw set.not_not_mem at hmem,
+  exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
+end
+
+lemma not_weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
+  [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
+  ¬ (weakly_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
+    g.ne_bot ∧ converges g a ∧ adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ x ∈ adh (g •ᶠ f) :=
+begin
+  intro hcontra,
+  unfold weakly_adh_restrictive at hcontra,
+  rw not_forall at hcontra,
+  obtain ⟨g, rest₁⟩ := hcontra,
+  rw not_forall at rest₁,
+  obtain ⟨f, rest₂⟩ := rest₁,
+  rw not_forall at rest₂,
+  obtain ⟨a, rest₃⟩ := rest₂,
+  rw not_imp at rest₃,
+  obtain ⟨⟨hnb, hconv, hadh⟩, rest₄⟩ := rest₃,
+  rw set.eq_empty_iff_forall_not_mem at rest₄,
+  rw not_forall at rest₄,
+  obtain ⟨x, hmem⟩ := rest₄,
+  rw set.not_not_mem at hmem,
+  exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
+end
 
 lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [mul_action G α] [has_continuous_smul G α] : 
@@ -483,85 +538,6 @@ begin
       from le_converges inf_le_left hconv,
     haveI hnbI : (k ⊓ f).ne_bot := filter.inv_smul_of_smul hle'',
     have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
-    assumption,
-  end,
-  rw set.eq_empty_iff_forall_not_mem at hadh,
-  unfold adh at hadh,
-  exact absurd hmem (hadh (a⁻¹ • x)),
-end  
-
-/-- This is the "partial" version of `adh_restrictive`. -/
-def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g •ᶠ f) = ∅
-
-/-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
-  it considers the adherence in the enveloping space. -/
-def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (@envelope.quot_pure G α _ _) f) = ∅ → adh (g •ᶠ f) = ∅
-
-lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
-  (hcl : is_closed (@smul_dom G α _)) : 
-  partial_adh_restrictive G α :=
-classical.by_contradiction 
-begin
-  assume hcontra : ¬ partial_adh_restrictive G α,
-  have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ option.some x ∈ adh (g •ᶠ f),
-  begin
-      unfold partial_adh_restrictive at hcontra,
-      rw not_forall at hcontra,
-      obtain ⟨g, rest₁⟩ := hcontra,
-      rw not_forall at rest₁,
-      obtain ⟨f, rest₂⟩ := rest₁,
-      rw not_forall at rest₂,
-      obtain ⟨a, rest₃⟩ := rest₂,
-      rw not_imp at rest₃,
-      obtain ⟨⟨hbn, hg, hf⟩, rest₄⟩ := rest₃,
-      rw not_forall at rest₄,
-      obtain ⟨x, hadh⟩ := rest₄,
-      rw set.not_not_mem at hadh,
-      exact ⟨g, f, a, x, hbn, hg, hf, hadh⟩,
-  end,
-  obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := hcontra',
-  haveI : g.ne_bot := hnb,
-  change adheres (g •ᶠ f) (some x) at hmem,
-  unfold adheres at hmem,
-  obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
-  haveI : h'.ne_bot := hnb',
-  let k' := ultrafilter.of h',
-  cases hconv',
-    case or.inl 
-    begin
-      have : h' = pure (some x), from sorry,
-      have : h' = map some (pure x), from sorry,
-      set k := g⁻¹ • h' with hdef,
-      have : k.ne_bot, from sorry,
-      have : have hconv : converges k (a⁻¹ · x), from sorry,
-      have : a⁻¹ • x ∈ adh f, from sorry
-    end,
-    case or.inr : hexists 
-    begin
-    end,
-  have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
-  set k : filter α := g⁻¹ • ↑k' with hdef,
-  haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
-  have hconv : converges k (a⁻¹ • x),
-  begin
-    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
-    have hconv_k' : converges ↑k' x, 
-      from le_converges (ultrafilter.of_le h') hconv',
-    exact continuous_smul (prod.converges hconv_inv_g hconv_k'),
-  end,
-  have hmem : a⁻¹ • x ∈ adh f, 
-  begin
-    have hconv' : converges (k ⊓ f) (a⁻¹ · x), 
-      from le_converges inf_le_left hconv,
-    haveI hnbI : (k ⊓ f).ne_bot := filter.inv_smul_of_smul hle'',
-    have hadh'' : adheres f (a⁻¹ · x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
     assumption,
   end,
   rw set.eq_empty_iff_forall_not_mem at hadh,
