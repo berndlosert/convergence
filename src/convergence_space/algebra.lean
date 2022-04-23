@@ -493,26 +493,24 @@ end
 /-- This is the "partial" version of `adh_restrictive`. -/
 def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ 
-  → ∀ x, option.some x ∉ adh (g ·ᶠ f)
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g •ᶠ f) = ∅
 
 /-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (@envelope.quot_pure G α _ _) f) = ∅
-  → ∀ x, option.some x ∉ adh (g ·ᶠ f)
+  adh (map (@envelope.quot_pure G α _ _) f) = ∅ → adh (g •ᶠ f) = ∅
 
 lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α]
-  (hcl : is_closed { x : option α | is_some x }) : 
+  (hcl : is_closed (@smul_dom G α _)) : 
   partial_adh_restrictive G α :=
 classical.by_contradiction 
 begin
   assume hcontra : ¬ partial_adh_restrictive G α,
   have hcontra' : ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ option.some x ∈ adh (g ·ᶠ f),
+    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ option.some x ∈ adh (g •ᶠ f),
   begin
       unfold partial_adh_restrictive at hcontra,
       rw not_forall at hcontra,
@@ -530,7 +528,7 @@ begin
   end,
   obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := hcontra',
   haveI : g.ne_bot := hnb,
-  change adheres (g ·ᶠ f) (some x) at hmem,
+  change adheres (g •ᶠ f) (some x) at hmem,
   unfold adheres at hmem,
   obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
   haveI : h'.ne_bot := hnb',
@@ -543,15 +541,15 @@ begin
       set k := g⁻¹ • h' with hdef,
       have : k.ne_bot, from sorry,
       have : have hconv : converges k (a⁻¹ · x), from sorry,
-      have : a⁻¹ · x ∈ adh f, from sorry
+      have : a⁻¹ • x ∈ adh f, from sorry
     end,
     case or.inr : hexists 
     begin
     end,
-  have hle'' : ↑k' ≤ g ·ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
+  have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
   set k : filter α := g⁻¹ • ↑k' with hdef,
   haveI : k.ne_bot := filter.ne_bot.map (filter.ne_bot.prod (filter.ne_bot.map hnb has_inv.inv) k'.ne_bot) (uncurry (•)),
-  have hconv : converges k (a⁻¹ · x),
+  have hconv : converges k (a⁻¹ • x),
   begin
     have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
     have hconv_k' : converges ↑k' x, 
