@@ -475,7 +475,7 @@ begin
     have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
     have hconv_k' : converges ↑k' x, 
       from le_converges (ultrafilter.of_le h') hconv',
-    exact continuous2_continuous_iff.mpr (continuous_smul (prod.converges hconv_inv_g hconv_k')),
+    exact continuous_smul hconv_inv_g hconv_k',
   end,
   have hmem : a⁻¹ • x ∈ adh f, 
   begin
