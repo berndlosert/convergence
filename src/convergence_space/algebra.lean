@@ -124,13 +124,6 @@ begin
   exact (rfl.congr (eq.symm heq₃)).mp heq₂,
 end
 
-/-- Class `has_continuous_partial_smul M α` says that the partial scalar multiplication
-  is continuous on `smul_dom`. -/
-class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
-  [convergence_space M] [convergence_space α] : Prop :=
-(continuous_partial_smul : ∀ {a : M} {x : α}, a • x defined 
-  → continuous_at (uncurry (•) : M × α → α) (a, x))
-
 /-- `partial_smul` lifted to filters. -/
 def filter.partial_smul [has_partial_scalar M α] 
   (g : filter M) (f : filter α) : filter α := 
@@ -138,43 +131,12 @@ map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 smul_dom)
 
 infix ` •ᶠ `:73 := filter.partial_smul
 
--- instance set.has_scalar [has_scalar M α] : has_scalar (set M) (set α) :=
--- ⟨λ t s, uncurry (•) '' (t ×ˢ s)⟩
-
--- instance filter.has_scalar [has_scalar M α] : has_scalar (filter M) (filter α) :=
--- ⟨λ g f, map (uncurry (•)) (g ×ᶠ f)⟩
-
--- lemma filter.smul_mem_smul [has_scalar M α] {t : set M} {s : set α} 
---   {g : filter M} {f : filter α} (ht : t ∈ g) (hs : s ∈ f) : t • s ∈ g • f :=
--- begin
---   change uncurry (•) '' (t ×ˢ s) ∈ map (uncurry (•)) (g ×ᶠ f),
---   refine image_mem_map _,
---   exact prod_mem_prod ht hs,
--- end
-
--- lemma filter.mem_smul_iff [has_scalar M α] {s : set α} {g : filter M} {f : filter α} :
---   s ∈ g • f ↔ ∃ t ∈ g, ∃ s' ∈ f, t • s' ⊆ s :=
--- begin
---   split,
---   -- → direction
---   assume hmem : s ∈ g • f,
---   change s ∈ map (uncurry (•)) (g ×ᶠ f) at hmem,
---   rw mem_map_iff_exists_image at hmem,
---   obtain ⟨u, hu₁, hu₂⟩ := hmem,
---   obtain ⟨t, ht, s', hs', hsub⟩ := mem_prod_iff.mp hu₁,
---   have : t • s' ⊆ s, from subset_trans (image_subset (uncurry (•)) hsub) hu₂,
---   exact ⟨t, ht, s', hs', this⟩,
---   -- ← direction
---   rintro ⟨t, ht, s', hs', hsub⟩,
---   exact mem_of_superset (filter.smul_mem_smul ht hs') hsub,
--- end
-
--- instance set.has_inv [has_inv α] : has_inv (set α) := ⟨λ s, has_inv.inv '' s⟩
-
--- instance filter.has_inv [has_inv α] : has_inv (filter α) := ⟨map has_inv.inv⟩
-
--- lemma filter.inv_mem_inv [has_inv α] {s : set α} {f : filter α} (hs : s ∈ f) : s⁻¹ ∈ f⁻¹ :=
--- image_mem_map hs
+/-- Class `has_continuous_partial_smul M α` says that the partial scalar multiplication
+  is continuous on `smul_dom`. -/
+class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
+  [convergence_space M] [convergence_space α] : Prop :=
+(continuous_partial_smul : ∀ {a : M} {x : α} {g : filter M} {f : filter α},
+  converges g a → converges f x → converges (g •ᶠ f) (a • x))
 
 lemma filter.mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
   s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
@@ -242,24 +204,6 @@ begin
   end,
   exact ⟨x, hmem', hx⟩,
 end
-
-/-
-structure PartAct :=
-(G α : Type*)
-[group_is_group : group G]
-[the_action : partial_group_action G α]
-
-def the_group (action : PartAct) : Type* := action.G
-def the_set (action : PartAct) : Type* := action.α
-
---instance : has_coe_to_fun (PartAct) (λ action, action.G × action.α → action.α) := ⟨action.the_action.act⟩
-
-structure ContPartAct extends PartAct :=
-[group_is_convergence_space : convergence_space G]
-[group_is_convergence_group : convergence_group G]
-[set_is_convergence_space : convergence_space α]
-(action_is_continuous : continuous (λ p : G × α, act p.1 p.2))
--/
 
 /-!
 ### Enveloping action
@@ -531,6 +475,43 @@ begin
     have hconv_k' : converges ↑k' x, 
       from le_converges (ultrafilter.of_le h') hconv',
     exact continuous_smul hconv_inv_g hconv_k',
+  end,
+  have hmem : a⁻¹ • x ∈ adh f, 
+  begin
+    have hconv' : converges (k ⊓ f) (a⁻¹ • x), 
+      from le_converges inf_le_left hconv,
+    haveI hnbI : (k ⊓ f).ne_bot := filter.inv_smul_of_smul hle'',
+    have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
+    assumption,
+  end,
+  rw set.eq_empty_iff_forall_not_mem at hadh,
+  unfold adh at hadh,
+  exact absurd hmem (hadh (a⁻¹ • x)),
+end
+
+lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : 
+  partial_adh_restrictive G α :=
+classical.by_contradiction 
+begin
+  assume hcontra : ¬ partial_adh_restrictive G α,
+  obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := not_partial_adh_restrictive G α hcontra,
+  haveI : g.ne_bot := hnb,
+  change x ∈ adh (g •ᶠ f) at hmem,
+  change adheres (g •ᶠ f) x at hmem,
+  unfold adheres at hmem,
+  obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
+  haveI : h'.ne_bot := hnb',
+  let k' := ultrafilter.of h',
+  have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
+  set k : filter α := g⁻¹ • ↑k' with hdef,
+  haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hnb) k'.ne_bot,
+  have hconv : converges k (a⁻¹ • x),
+  begin
+    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
+    have hconv_k' : converges ↑k' x, 
+      from le_converges (ultrafilter.of_le h') hconv',
+    exact continuous_partial_smul hconv_inv_g hconv_k',
   end,
   have hmem : a⁻¹ • x ∈ adh f, 
   begin
