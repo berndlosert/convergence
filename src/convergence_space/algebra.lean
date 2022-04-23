@@ -13,11 +13,6 @@ open category_theory
 open convergence_space
 open_locale classical filter pointwise
 
--- For multiple inheritance used by cont_monoid_hom
---set_option old_structure_cmd true
-
-universe u
-
 variables {M G α β γ : Type*}
 
 /-!
@@ -48,48 +43,6 @@ class convergence_group (G : Type*)
 (continuous_inv : continuous (has_inv.inv : G → G))
 
 open convergence_group
-
---structure cont_monoid_hom (M N : Type*) [mul_one_class M] [mul_one_class N] [convergence_space M] [convergence_space N] extends one_hom M N, mul_hom M N :=
---(to_fun_continuous : continuous to_fun)
---
-/-
-structure ConvGroup :=
-(carrier : Type*)
-[is_group : group carrier]
-[is_convergence_space : convergence_space carrier]
-[is_convergence_group : convergence_group carrier]
-
-instance (G : ConvGroup) : group G.carrier := G.is_group
-instance (G : ConvGroup) : convergence_space G.carrier := G.is_convergence_space
-instance : has_coe_to_sort ConvGroup Type* := ⟨ConvGroup.carrier⟩
-
-namespace ConvGroup
-
-structure hom (G H : ConvGroup) :=
-(to_fun : G → H)
-(to_fun_continuous : continuous to_fun)
-(to_fun_group_hom : is_monoid_hom to_fun)
-
-instance (G H : ConvGroup) : has_coe_to_fun (hom G H) (λ _, G → H) := ⟨hom.to_fun⟩
-
-end ConvGroup
-
-instance : category ConvGroup := {
-  hom := ConvGroup.hom,
-  comp := λ α Y Z f g, {
-    to_fun := g ∘ f,
-    to_fun_continuous := begin
-      exact continuous.comp (g.to_fun_continuous) (f.to_fun_continuous),
-    end,
-    to_fun_group_hom := sorry,
-  },
-  id := λ G, {
-    to_fun := λ a, a,
-    to_fun_continuous := continuous_id,
-    to_fun_group_hom := sorry,
-  },
-}
--/
 
 /-!
 ### Partial scalar actions
@@ -137,6 +90,8 @@ class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : ∀ {a : M} {x : α} {g : filter M} {f : filter α},
   converges g a → converges f x → converges (g •ᶠ f) (a • x))
+
+open has_continuous_partial_smul
 
 lemma filter.mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
   s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
@@ -504,7 +459,7 @@ begin
   haveI : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
   have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
-  set k : filter α := g⁻¹ • ↑k' with hdef,
+  set k : filter α := g⁻¹ •ᶠ ↑k' with hdef,
   haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hnb) k'.ne_bot,
   have hconv : converges k (a⁻¹ • x),
   begin
