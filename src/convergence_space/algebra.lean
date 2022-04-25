@@ -57,7 +57,7 @@ open has_partial_scalar
 notation a ` • ` x ` defined` := smul_defined a x
 
 /-- The domain of defintion of a partial action. -/
-def smul_dom {M α : Type*} [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
+def smul_dom (M α : Type*) [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
 
 /-- Typeclass for partial actions of groups. -/
 class partial_mul_action (G α : Type*) [group G]
@@ -80,7 +80,7 @@ end
 /-- `partial_smul` lifted to filters. -/
 def filter.partial_smul [has_partial_scalar M α] 
   (g : filter M) (f : filter α) : filter α := 
-map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 smul_dom)
+map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))
 
 infix ` •ᶠ `:73 := filter.partial_smul
 
@@ -323,14 +323,15 @@ def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G]
 /-- This is the "partial" version of `adh_restrictive`. -/
 def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g •ᶠ f) = ∅
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ (g •ᶠ f).ne_bot
+  → adh (g •ᶠ f) = ∅
 
 /-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (@envelope.quot_pure G α _ _) f) = ∅ → adh (g •ᶠ f) = ∅
+  adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ (g •ᶠ f).ne_bot → adh (g •ᶠ f) = ∅
 
 lemma not_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
@@ -357,7 +358,7 @@ end
 lemma not_partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
   ¬ (partial_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ x ∈ adh (g •ᶠ f) :=
+    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
 begin
   intro hcontra,
   unfold partial_adh_restrictive at hcontra,
@@ -368,18 +369,18 @@ begin
   rw not_forall at rest₂,
   obtain ⟨a, rest₃⟩ := rest₂,
   rw not_imp at rest₃,
-  obtain ⟨⟨hnb, hconv, hadh⟩, rest₄⟩ := rest₃,
+  obtain ⟨⟨hnb, hconv, hadh, hnb'⟩, rest₄⟩ := rest₃,
   rw set.eq_empty_iff_forall_not_mem at rest₄,
   rw not_forall at rest₄,
   obtain ⟨x, hmem⟩ := rest₄,
   rw set.not_not_mem at hmem,
-  exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
+  exact ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩,
 end
 
 lemma not_weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
   ¬ (weakly_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ x ∈ adh (g •ᶠ f) :=
+    g.ne_bot ∧ converges g a ∧ adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
 begin
   intro hcontra,
   unfold weakly_adh_restrictive at hcontra,
@@ -390,12 +391,12 @@ begin
   rw not_forall at rest₂,
   obtain ⟨a, rest₃⟩ := rest₂,
   rw not_imp at rest₃,
-  obtain ⟨⟨hnb, hconv, hadh⟩, rest₄⟩ := rest₃,
+  obtain ⟨⟨hnb, hconv, hadh, hnb'⟩, rest₄⟩ := rest₃,
   rw set.eq_empty_iff_forall_not_mem at rest₄,
   rw not_forall at rest₄,
   obtain ⟨x, hmem⟩ := rest₄,
   rw set.not_not_mem at hmem,
-  exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
+  exact ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩,
 end
 
 lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
@@ -441,7 +442,7 @@ lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space
 classical.by_contradiction 
 begin
   assume hcontra : ¬ partial_adh_restrictive G α,
-  obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := not_partial_adh_restrictive G α hcontra,
+  obtain ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩ := not_partial_adh_restrictive G α hcontra,
   haveI : g.ne_bot := hnb,
   change x ∈ adh (g •ᶠ f) at hmem,
   change adheres (g •ᶠ f) x at hmem,
