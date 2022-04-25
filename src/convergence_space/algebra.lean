@@ -1,9 +1,6 @@
 import tactic
 import order.filter.partial
-import algebra.support
 import convergence_space.basic
-import category_theory.concrete_category.bundled
-import deprecated.group
 import data.set.pointwise
 import order.filter.pointwise
 import algebra.group.extra
@@ -12,7 +9,6 @@ import order.filter.extra
 
 noncomputable theory
 open set filter classical option function prod
-open category_theory
 open convergence_space
 open_locale classical filter pointwise
 
@@ -56,86 +52,16 @@ class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
 
 open has_continuous_partial_smul
 
-/-!
-### Enveloping action
--/
-
-def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
- λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) • x defined ∧ (b⁻¹ * a) • x = y
-
 namespace envelope
 
 variables [group G] [partial_mul_action G α]
-
-lemma is_reflexive : reflexive (envelope G α) := begin
-  intros,
-  unfold reflexive,
-  rintro (⟨a, x⟩ : G × α),
-  unfold envelope,
-  simp,
-  exact partial_mul_action.identity x,
-end
-
-lemma is_symmetric : symmetric (envelope G α) := begin
-  intros,
-  unfold symmetric,
-  rintro ⟨a, x⟩ ⟨b, y⟩ : G × α,
-  unfold envelope,
-  rintro ⟨hdef, heq⟩,
-  obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
-  simp at hdef',
-  simp at heq',
-  exact ⟨hdef', eq.symm heq'⟩,
-end
-
-lemma is_transitive : transitive (envelope G α) := begin
-  intros,
-  unfold transitive,
-  rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
-  unfold envelope,
-  rintro ⟨hdef₁, heq₁⟩ ⟨hdef₂, heq₂⟩,
-  rw [← heq₁] at hdef₂,
-  rw [← heq₁] at heq₂,
-  obtain ⟨hdef₃, heq₃⟩ := partial_mul_action.compatibility hdef₁ hdef₂,
-  simp [mul_assoc] at hdef₃,
-  simp [mul_assoc, heq₂] at heq₃,
-  exact ⟨hdef₃, heq₃⟩,
-end
-
-lemma is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
-
-instance : setoid (G × α) := 
-{ r := envelope G α,
-  iseqv := is_equivalence }
-
-def quot_pure (x : α) : quot (envelope G α) := ⟦(1, x)⟧
-
-instance : has_scalar G (G × α) := ⟨λ a ⟨b, x⟩, (a * b, x)⟩
-
-lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a • cy := 
-begin
-  obtain ⟨b, x⟩ := bx,
-  obtain ⟨c, y⟩ := cy,
-  change ((a * c)⁻¹ * (a * b)) • x defined ∧ ((a * c)⁻¹ * (a * b)) • x = y,
-  simp [mul_assoc],
-  assumption,
-end
-
-lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) : 
-  ⟦a • bx⟧ = ⟦a • cy⟧ :=
-quotient.sound (act_congr a bx cy heq)
-
-def act_lifted (a : G) (bx : G × α) : quot (envelope G α) := ⟦a • bx⟧
-
-instance : has_scalar G (quot (envelope G α)) :=
-⟨λ a bx, quotient.lift (act_lifted a) (act_congr_sound a) bx⟩
 
 section
 
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
-lemma quot_pure.continuous : continuous (quot_pure : α → quot (envelope G α)) := 
+lemma envelope.embed.continuous : continuous (envelope.embed G : α → quot (envelope G α)) := 
 begin
   set m : α → G × α := λ x, (1, x) with heq,
   have hcont : continuous m, from continuous.prod.mk 1,
@@ -236,7 +162,7 @@ def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_spac
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ (g •ᶠ f).ne_bot → adh (g •ᶠ f) = ∅
+  adh (map (envelope.embed G) f) = ∅ ∧ (g •ᶠ f).ne_bot → adh (g •ᶠ f) = ∅
 
 lemma not_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
@@ -285,7 +211,7 @@ end
 lemma not_weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
   ¬ (weakly_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh (map (@envelope.quot_pure G α _ _) f) = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
+    g.ne_bot ∧ converges g a ∧ adh (map (envelope.embed G) f) = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
 begin
   intro hcontra,
   unfold weakly_adh_restrictive at hcontra,
