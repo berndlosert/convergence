@@ -55,13 +55,10 @@ open has_continuous_partial_smul
 namespace envelope
 
 variables [group G] [partial_mul_action G α]
-
-section
-
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
-lemma envelope.embed.continuous : continuous (envelope.embed G : α → quot (envelope G α)) := 
+lemma embed.continuous : continuous (embed G : α → space G α) := 
 begin
   set m : α → G × α := λ x, (1, x) with heq,
   have hcont : continuous m, from continuous.prod.mk 1,
@@ -114,19 +111,17 @@ instance : has_continuous_smul G (G × α) :=
     exact le_converges hle' hconv,
   end }
 
-end
-
 instance
 [convergence_space G] [convergence_group G]
 [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
-has_continuous_smul G (quot (envelope G α)) :=
+has_continuous_smul G (space G α) :=
 { continuous_smul :=
   begin
     let act : G × (G × α) → (G × α) := uncurry (•),
-    let qact : G × quot (envelope G α) → quot (envelope G α) := uncurry (•),
-    let idquot : G × (G × α) → G × quot (envelope G α) := 
+    let qact : G × space G α → space G α := uncurry (•),
+    let idquot : G × (G × α) → G × space G α := 
       prod.map id (quot.mk (envelope G α)),
-    let quot_mk : G × α → quot (envelope G α) := quot.mk (envelope G α),
+    let quot_mk : G × α → space G α := quot.mk (envelope G α),
     have heq : qact ∘ idquot = quot_mk ∘ act, by { funext, tidy },
     have hqmap : quotient_map idquot, 
       from quotient_map.prod_map quotient_map.id quotient_map_quot_mk,

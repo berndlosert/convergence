@@ -28,10 +28,12 @@ end
 def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G × α → Prop :=
  λ ⟨a, x⟩ ⟨b, y⟩, (b⁻¹ * a) • x defined ∧ (b⁻¹ * a) • x = y
 
-def envelope.embed (G : Type*) {a : Type*} [group G] [partial_mul_action G α]
-  (x : α) : quot (envelope G α) := quot.mk (envelope G α) (1, x)
-
 namespace envelope
+
+def space (G α : Type*) [group G] [partial_mul_action G α] := quot (envelope G α)
+
+def embed (G : Type*) {a : Type*} [group G] [partial_mul_action G α]
+  (x : α) : space G α := quot.mk (envelope G α) (1, x)
 
 variables [group G] [partial_mul_action G α]
 
@@ -91,9 +93,9 @@ lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) :
   ⟦a • bx⟧ = ⟦a • cy⟧ :=
 quotient.sound (act_congr a bx cy heq)
 
-def act_lifted (a : G) (bx : G × α) : quot (envelope G α) := ⟦a • bx⟧
+def act_lifted (a : G) (bx : G × α) : space G α := ⟦a • bx⟧
 
-instance : has_scalar G (quot (envelope G α)) :=
+instance : has_scalar G (space G α) :=
 ⟨λ a bx, quotient.lift (act_lifted a) (act_congr_sound a) bx⟩
 
 end envelope
