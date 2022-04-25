@@ -6,6 +6,9 @@ import category_theory.concrete_category.bundled
 import deprecated.group
 import data.set.pointwise
 import order.filter.pointwise
+import algebra.group.extra
+import group_theory.group_action.extra
+import order.filter.extra
 
 noncomputable theory
 open set filter classical option function prod
@@ -44,46 +47,6 @@ class convergence_group (G : Type*)
 
 open convergence_group
 
-/-!
-### Partial scalar actions
--/
-
-/-- Typeclass for partial scalar actions. `smul_defined a x` means that `a • x` is defined. -/
-class has_partial_scalar (M α : Type*) extends has_scalar M α :=
-(smul_defined : M → α → Prop)
-
-open has_partial_scalar
-
-notation a ` • ` x ` defined` := smul_defined a x
-
-/-- The domain of defintion of a partial action. -/
-def smul_dom (M α : Type*) [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
-
-/-- Typeclass for partial actions of groups. -/
-class partial_mul_action (G α : Type*) [group G]
-  extends has_partial_scalar G α :=
-(identity : ∀ (x : α), (1 : G) • x defined ∧ (1 : G) • x = x)
-(compatibility : ∀ {a b : G} {x : α}, b • x defined → a • (b • x) defined →
-  (a * b) • x defined ∧ (a * b) • x = a • (b • x))
-(invertible : ∀ {a : G} {x y : α}, a • x defined → a • x = y → a⁻¹ • y defined ∧ x = a⁻¹ • y)
-
-lemma partial_mul_action.injective [group G] [partial_mul_action G α]: 
-  ∀ {a : G} {x y : α}, a • x defined → a • y defined → a • x = a • y → x = y :=
-begin
-  intros a x y hdef₁ hdef₂ heq₁,
-  obtain ⟨hdef₃, heq₂⟩ := partial_mul_action.invertible hdef₁ heq₁,
-  obtain ⟨hdef₄, heq₃⟩ := partial_mul_action.compatibility hdef₂ hdef₃,
-  simp [(partial_mul_action.identity y).2] at heq₃,
-  exact (rfl.congr (eq.symm heq₃)).mp heq₂,
-end
-
-/-- `partial_smul` lifted to filters. -/
-def filter.partial_smul [has_partial_scalar M α] 
-  (g : filter M) (f : filter α) : filter α := 
-map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))
-
-infix ` •ᶠ `:73 := filter.partial_smul
-
 /-- Class `has_continuous_partial_smul M α` says that the partial scalar multiplication
   is continuous on `smul_dom`. -/
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
@@ -92,64 +55,6 @@ class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   converges g a → converges f x → converges (g •ᶠ f) (a • x))
 
 open has_continuous_partial_smul
-
-lemma filter.mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
-  s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
-begin
-  split,
-  { assume hmem : s ∈ f⁻¹,
-    change s ∈ map has_inv.inv f at hmem,
-    rw mem_map_iff_exists_image at hmem,
-    obtain ⟨t, ht, hsub⟩ := hmem,
-    rw [set.image_inv] at hsub,
-    exact ⟨t, ht, hsub⟩ },
-  { rintro ⟨t, ht, hsub⟩,
-    exact mem_of_superset (filter.inv_mem_inv ht) hsub }
-end
-
-lemma filter.inf_ne_bot {f g : filter α} [f.ne_bot] (hle : f ≤ g) : (f ⊓ g).ne_bot :=
-begin
-  rw inf_of_le_left hle,
-  assumption
-end
-
-theorem set.subset_eq_nonempty {s t : set α} (hsub : t ⊆ s) (hne : t.nonempty) : s.nonempty :=
-begin
-  rw ← empty_ssubset at *,
-  exact ssubset_of_ssubset_of_subset hne hsub,
-end
-
-lemma filter.inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
-  (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
-begin
-  rw ← forall_mem_nonempty_iff_ne_bot,
-  intros s hmem,
-  obtain ⟨s₁, hs₁, s₂, hs₂, hsub₁⟩ := mem_inf_iff_superset.mp hmem,
-  obtain ⟨t₁, s₃, ht₁, hs₃, hsub₂⟩ := filter.mem_smul.mp hs₁,
-  refine set.subset_eq_nonempty hsub₁ _,
-  obtain ⟨t₂, ht₂, hsub₃⟩ := filter.mem_inv_iff.mp ht₁,
-  have hsub₄ : t₂⁻¹ • s₃ ⊆ s₁, 
-    from subset_trans (set.smul_subset_smul_right hsub₃) hsub₂,
-  refine set.subset_eq_nonempty (inter_subset_inter_left s₂ hsub₄) _,
-  let s₄ : set α := s₃ ∩ (t₂ • s₂),
-  have hne : s₄.nonempty, 
-    from forall_mem_nonempty_iff_ne_bot.mpr hf' s₄
-      (f'.inter_sets hs₃ (filter.le_def.mp hle (t₂ • s₂) (filter.smul_mem_smul ht₂ hs₂))),
-  obtain ⟨y, hy⟩ := nonempty_def.mp hne,
-  rw nonempty_def,
-  obtain ⟨hy₁, hy₂⟩ := hy,
-  change y ∈ set.image2 (•) t₂ s₂ at hy₂,
-  obtain ⟨a, x, ha, hx, hy'⟩ := set.mem_image2.mp hy₂,
-  have heq' : a⁻¹ • y = x, by simp [← hy', ← mul_smul],
-  have hmem' : x ∈ t₂⁻¹ • s₃,
-  begin
-    simp [← heq'],
-    have : a⁻¹ ∈ has_inv.inv '' t₂, from mem_image_of_mem (has_inv.inv) ha,
-    have : a⁻¹ ∈ t₂⁻¹, by rwa image_inv at this, 
-    exact mem_image2_of_mem this hy₁,
-  end,
-  exact ⟨x, hmem', hx⟩,
-end
 
 /-!
 ### Enveloping action
@@ -452,23 +357,9 @@ begin
   let k' := ultrafilter.of h',
   have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
   set k : filter α := g⁻¹ •ᶠ ↑k' with hdef,
-  haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hnb) k'.ne_bot,
-  have hconv : converges k (a⁻¹ • x),
+  haveI : k.ne_bot, from
   begin
-    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
-    have hconv_k' : converges ↑k' x, 
-      from le_converges (ultrafilter.of_le h') hconv',
-    exact continuous_partial_smul hconv_inv_g hconv_k',
+
   end,
-  have hmem : a⁻¹ • x ∈ adh f, 
-  begin
-    have hconv' : converges (k ⊓ f) (a⁻¹ • x), 
-      from le_converges inf_le_left hconv,
-    haveI hnbI : (k ⊓ f).ne_bot := filter.inv_smul_of_smul hle'',
-    have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
-    assumption,
-  end,
-  rw set.eq_empty_iff_forall_not_mem at hadh,
-  unfold adh at hadh,
-  exact absurd hmem (hadh (a⁻¹ • x)),
+  sorry,
 end
