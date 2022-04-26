@@ -30,9 +30,9 @@ def envelope (G α : Type*) [group G] [partial_mul_action G α] : G × α → G 
 
 namespace envelope
 
-def space (G α : Type*) [group G] [partial_mul_action G α] := quot (envelope G α)
+abbreviation space (G α : Type*) [group G] [partial_mul_action G α] := quot (envelope G α)
 
-def embed (G : Type*) {a : Type*} [group G] [partial_mul_action G α]
+def embed (G : Type*) {α : Type*} [group G] [partial_mul_action G α]
   (x : α) : space G α := quot.mk (envelope G α) (1, x)
 
 variables [group G] [partial_mul_action G α]
