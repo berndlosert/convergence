@@ -8,7 +8,7 @@ import order.filter.pointwise
 open filter function
 open_locale filter pointwise
 
-variables {α G M : Type*}
+variables {α β G M : Type*}
 
 namespace filter
 
@@ -22,6 +22,27 @@ begin
   let hiff := iff.not inf_eq_bot_iff,
   push_neg at hiff,
   assumption,
+end
+
+lemma prod_inf_principal_mem_iff (f : filter α) (g : filter β) (s : set (α × β)) :
+  ∀ t, t ∈ (f ×ᶠ g) ⊓ 𝓟 s ↔ ∃ (u ∈ f) (v ∈ g), (u ×ˢ v) ∩ s ⊆ t :=
+begin
+  intro t,
+  split,
+  { intro hmem,
+    obtain ⟨l, hl, r, hr, heq⟩ := mem_inf_iff.mp hmem,
+    obtain ⟨u, hu, v, hv, hsub⟩ := mem_prod_iff.mp hl,
+    let hsub' := mem_principal.mp hr,
+    let hsub'' := set.inter_subset_inter hsub hsub',
+    rw ← heq at hsub'',
+    exact ⟨u, hu, v, hv, hsub''⟩,
+  },
+  { rintro ⟨u, hu, v, hv, hsub⟩,
+    rw mem_inf_iff_superset,
+    have hsub' : u ×ˢ v ∈ f ×ᶠ g := 
+      mem_prod_iff.mpr ⟨u, hu, v, hv, subset_refl (u ×ˢ v) ⟩,
+    exact ⟨u ×ˢ v, hsub', s, mem_principal_self s, hsub⟩,
+  },
 end
 
 lemma mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
