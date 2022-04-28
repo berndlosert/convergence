@@ -303,7 +303,14 @@ begin
     have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (k'.inter_sets hv hv'),
     let y : α := hne.some,
     let hy : y ∈ v₀ := hne.some_mem,
-    have hex : ∃ (a ∈ t) (x ∈ s), a • x defined ∧ a • x = y, sorry,
+    have hex : ∃ (a ∈ t) (x ∈ s), a • x defined ∧ a • x = y, from
+    begin
+      have : y ∈ v' :=  set.mem_of_mem_inter_right hy,
+      obtain ⟨⟨a, x⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
+      obtain ⟨hmem', hd⟩ := (set.mem_inter_iff (a, x) (t ×ˢ s) d).mp hmem,
+      obtain ⟨ha, hx⟩ := hmem', 
+      exact ⟨a, ha, x, hx, hd, heq⟩,
+    end,
     obtain ⟨a, ha, x, hx, hdef, heq⟩ := hex,
     obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
     have : (a⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
