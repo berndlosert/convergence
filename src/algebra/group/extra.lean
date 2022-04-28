@@ -1,5 +1,7 @@
 import algebra.group.defs
 
+variables {α M : Type*}
+
 /-!
 ### Partial scalar actions
 -/
@@ -14,3 +16,6 @@ notation a ` • ` x ` defined` := smul_defined a x
 
 /-- The domain of defintion of a partial action. -/
 def smul_dom (M α : Type*) [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
+
+lemma smul_dom_mem_iff [has_partial_scalar M α] {a : M} {x : α} :
+  a • x defined ↔ (a, x) ∈ smul_dom M α := by tautology

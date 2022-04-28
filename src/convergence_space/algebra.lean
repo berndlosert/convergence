@@ -301,18 +301,20 @@ begin
     have hv' : v' ∈ ↑k' := filter.le_def.mp hle'' v' this,
     let v₀ := v ∩ v',
     have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (k'.inter_sets hv hv'),
-    let p : α := hne.some,
-    let hp : p ∈ v₀ := hne.some_mem,
-    have hex : ∃ a x, p = smul (a, x) ∧ (a, x) ∈ d, sorry,
-    obtain ⟨a, x, heq, hmem⟩ := hex,
-    have : (a⁻¹, x) ∈ (t⁻¹ ×ˢ v₀) ∩ d, sorry,
-    have : (a⁻¹, x) ∈ (u ×ˢ v) ∩ d :=
+    let y : α := hne.some,
+    let hy : y ∈ v₀ := hne.some_mem,
+    have hex : ∃ (a ∈ t) (x ∈ s), a • x defined ∧ a • x = y, sorry,
+    obtain ⟨a, ha, x, hx, hdef, heq⟩ := hex,
+    obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
+    have : (a⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
+      set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr ha) hy) hdef',
+    have : (a⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
       set.mem_of_mem_of_subset this 
         (set.inter_subset_inter_left d 
           (set.prod_subset_prod_iff.mpr 
             (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
-    have : (a⁻¹, x) ∈ w := set.mem_of_mem_of_subset this hsub,
-    exact set.nonempty_def.mpr ⟨(a⁻¹, x), this⟩,
+    have : (a⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
+    exact set.nonempty_def.mpr ⟨(a⁻¹, y), this⟩,
   end,
   sorry,
 end
