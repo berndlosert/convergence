@@ -280,7 +280,39 @@ begin
   set k : filter α := g⁻¹ •ᶠ ↑k' with hdef,
   haveI : k.ne_bot, from
   begin
-
+    rw hdef,
+    unfold filter.partial_smul,
+    rw map_ne_bot_iff,
+    rw ← forall_mem_nonempty_iff_ne_bot,
+    let d := smul_dom G α,
+    intros w hw,
+    change w ∈ (g⁻¹ ×ᶠ ↑k') ⊓ 𝓟 d at hw,
+    obtain ⟨u, hu, v, hv, hsub⟩ := (filter.prod_inf_principal_mem_iff w).mp hw,
+    let s : set α := set.univ,
+    let hs : s ∈ f := filter.univ_mem,
+    obtain ⟨t, ht, hsub'⟩ := (filter.mem_inv_iff u).mp hu,
+    have ht' : t⁻¹ ∈ g⁻¹ := filter.inv_mem_inv ht,
+    let w' := (t ×ˢ s) ∩ d,
+    have hw' : w' ∈ (g ×ᶠ f) ⊓ 𝓟 d := 
+      (filter.prod_inf_principal_mem_iff w').mpr ⟨t, ht, s, hs, subset_refl w'⟩,
+    let smul := uncurry (•),
+    let v' := smul '' w',
+    have : v' ∈ g •ᶠ f := filter.image_mem_map hw',
+    have hv' : v' ∈ ↑k' := filter.le_def.mp hle'' v' this,
+    let v₀ := v ∩ v',
+    have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (k'.inter_sets hv hv'),
+    let p : α := hne.some,
+    let hp : p ∈ v₀ := hne.some_mem,
+    have hex : ∃ a x, p = smul (a, x) ∧ (a, x) ∈ d, sorry,
+    obtain ⟨a, x, heq, hmem⟩ := hex,
+    have : (a⁻¹, x) ∈ (t⁻¹ ×ˢ v₀) ∩ d, sorry,
+    have : (a⁻¹, x) ∈ (u ×ˢ v) ∩ d :=
+      set.mem_of_mem_of_subset this 
+        (set.inter_subset_inter_left d 
+          (set.prod_subset_prod_iff.mpr 
+            (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
+    have : (a⁻¹, x) ∈ w := set.mem_of_mem_of_subset this hsub,
+    exact set.nonempty_def.mpr ⟨(a⁻¹, x), this⟩,
   end,
   sorry,
 end

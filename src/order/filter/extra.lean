@@ -24,10 +24,10 @@ begin
   assumption,
 end
 
-lemma prod_inf_principal_mem_iff (f : filter α) (g : filter β) (s : set (α × β)) :
+lemma prod_inf_principal_mem_iff {f : filter α} {g : filter β} {s : set (α × β)} :
   ∀ t, t ∈ (f ×ᶠ g) ⊓ 𝓟 s ↔ ∃ (u ∈ f) (v ∈ g), (u ×ˢ v) ∩ s ⊆ t :=
 begin
-  intro t,
+  intros t,
   split,
   { intro hmem,
     obtain ⟨l, hl, r, hr, heq⟩ := mem_inf_iff.mp hmem,
@@ -45,9 +45,10 @@ begin
   },
 end
 
-lemma mem_inv_iff [has_involutive_inv α] {s : set α} {f : filter α} : 
-  s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
+lemma mem_inv_iff [has_involutive_inv α] {f : filter α} : 
+  ∀ s, s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
 begin
+  intro s,
   split,
   { assume hmem : s ∈ f⁻¹,
     change s ∈ map has_inv.inv f at hmem,
@@ -77,7 +78,7 @@ begin
   obtain ⟨s₁, hs₁, s₂, hs₂, hsub₁⟩ := mem_inf_iff_superset.mp hmem,
   obtain ⟨t₁, s₃, ht₁, hs₃, hsub₂⟩ := filter.mem_smul.mp hs₁,
   refine set.subset_eq_nonempty hsub₁ _,
-  obtain ⟨t₂, ht₂, hsub₃⟩ := filter.mem_inv_iff.mp ht₁,
+  obtain ⟨t₂, ht₂, hsub₃⟩ := (filter.mem_inv_iff t₁).mp ht₁,
   have hsub₄ : t₂⁻¹ • s₃ ⊆ s₁, 
     from subset_trans (set.smul_subset_smul_right hsub₃) hsub₂,
   refine set.subset_eq_nonempty (set.inter_subset_inter_left s₂ hsub₄) _,
