@@ -48,7 +48,7 @@ open convergence_group
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : ∀ {a : M} {x : α} {g : filter M} {f : filter α},
-  converges g a → converges f x → converges (g •ᶠ f) (a • x))
+  converges g a → converges f x → a • x defined → converges (g •ᶠ f) (a • x))
 
 open has_continuous_partial_smul
 
@@ -263,8 +263,8 @@ begin
 end
 
 lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : 
-  partial_adh_restrictive G α :=
+  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] 
+  (hcl : is_closed (smul_dom G α)) : partial_adh_restrictive G α :=
 classical.by_contradiction 
 begin
   assume hcontra : ¬ partial_adh_restrictive G α,
@@ -274,7 +274,7 @@ begin
   change adheres (g •ᶠ f) x at hmem,
   unfold adheres at hmem,
   obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
-  haveI : h'.ne_bot := hnb',
+  haveI hnb_h' : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
   have hle'' : ↑k' ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
   haveI hnb'' : ((g⁻¹ •ᶠ ↑k') ⊓ f).ne_bot, from
@@ -300,33 +300,44 @@ begin
     have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (k'.inter_sets hv hv'),
     let y : α := hne.some,
     let hy : y ∈ v₀ := hne.some_mem,
-    have hex : ∃ (a ∈ t) (x ∈ s), a • x defined ∧ a • x = y, from
+    have hex : ∃ (b ∈ t) (z ∈ s), b • z defined ∧ b • z = y, from
     begin
       have : y ∈ v' :=  set.mem_of_mem_inter_right hy,
-      obtain ⟨⟨a, x⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
-      obtain ⟨hmem', hd⟩ := (set.mem_inter_iff (a, x) (t ×ˢ s) d).mp hmem,
-      obtain ⟨ha, hx⟩ := hmem', 
-      exact ⟨a, ha, x, hx, hd, heq⟩,
+      obtain ⟨⟨b, z⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
+      obtain ⟨hmem', hd⟩ := (set.mem_inter_iff (b, z) (t ×ˢ s) d).mp hmem,
+      obtain ⟨hb, hz⟩ := hmem', 
+      exact ⟨b, hb, z, hz, hd, heq⟩,
     end,
-    obtain ⟨a, ha, x, hx, hdef, heq⟩ := hex,
+    obtain ⟨b, hb, z, hz, hdef, heq⟩ := hex,
     obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
-    have : (a⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
-      set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr ha) hy) hdef',
-    have : (a⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
+    have : (b⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
+      set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr hb) hy) hdef',
+    have : (b⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
       set.mem_of_mem_of_subset this 
         (set.inter_subset_inter_left d 
           (set.prod_subset_prod_iff.mpr 
             (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
-    have : (a⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
-    have : uncurry has_scalar.smul (a⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
-    change a⁻¹ • y ∈ l at this,
-    have : x ∈ l, by { rw heq', assumption },
-    have : x ∈ l ∩ s := ⟨this, hx⟩,
-    exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨x, this⟩),
+    have : (b⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
+    have : uncurry has_scalar.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
+    change b⁻¹ • y ∈ l at this,
+    have : z ∈ l, by { rw heq', assumption },
+    have : z ∈ l ∩ s := ⟨this, hz⟩,
+    exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨z, this⟩),
   end,
+  -- have hdef : a⁻¹ • x defined, from
+  -- begin
+  --   change (a⁻¹, x) ∈ smul_dom G α,
+  --   change smul_dom G α = closure (smul_dom G α) at hcl,
+  --   rw set.ext_iff.mp hcl,
+  --   unfold closure,
+  --   let f' : filter (G × α) := (g⁻¹ ×ᶠ h') ⊓ 𝓟 (smul_dom G α),
+  --   let hnb_f' : f'.ne_bot := ne_bot.prod (ne_bot.map hnb has_inv.inv) hnb_h',
+  --   let hconv_f' : converges f' (a⁻¹, x) := prod.converges (continuous_inv hconv) hconv',
+  --   refine ⟨f', hnb_f', hconv_f', _⟩,
+  -- end
   have : converges g⁻¹ a⁻¹, from continuous_inv hconv, 
   have : converges (g⁻¹ •ᶠ ↑k') (a⁻¹ • x), 
-    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv'),
+    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') _,
   have : converges ((g⁻¹ •ᶠ ↑k') ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
   have : (a⁻¹ • x) ∈ adh f := ⟨(g⁻¹ •ᶠ ↑k') ⊓ f, hnb'', inf_le_right, this⟩,
   rw set.eq_empty_iff_forall_not_mem at hadh,
