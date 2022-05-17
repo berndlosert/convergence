@@ -324,8 +324,8 @@ begin
     have : z ∈ l ∩ s := ⟨this, hz⟩,
     exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨z, this⟩),
   end,
-  -- have hdef : a⁻¹ • x defined, from
-  -- begin
+  have hdef : a⁻¹ • x defined, from
+  begin
   --   change (a⁻¹, x) ∈ smul_dom G α,
   --   change smul_dom G α = closure (smul_dom G α) at hcl,
   --   rw set.ext_iff.mp hcl,
@@ -334,10 +334,11 @@ begin
   --   let hnb_f' : f'.ne_bot := ne_bot.prod (ne_bot.map hnb has_inv.inv) hnb_h',
   --   let hconv_f' : converges f' (a⁻¹, x) := prod.converges (continuous_inv hconv) hconv',
   --   refine ⟨f', hnb_f', hconv_f', _⟩,
-  -- end
+    sorry,
+  end,
   have : converges g⁻¹ a⁻¹, from continuous_inv hconv, 
   have : converges (g⁻¹ •ᶠ ↑k') (a⁻¹ • x), 
-    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') _,
+    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') hdef,
   have : converges ((g⁻¹ •ᶠ ↑k') ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
   have : (a⁻¹ • x) ∈ adh f := ⟨(g⁻¹ •ᶠ ↑k') ⊓ f, hnb'', inf_le_right, this⟩,
   rw set.eq_empty_iff_forall_not_mem at hadh,
