@@ -16,7 +16,7 @@ variables {α α₁ α₂ β β₁ β₂ γ : Type*}
 ### Definition
 -/
 
-/-- Instances of this class will be refered to as convergence structures. -/
+/-- A convergence structure on `α`. -/
 @[ext] class convergence_space (α : Type*) :=
 (converges : filter α → α → Prop)
 (pure_converges : ∀ x, converges (pure x) x)
@@ -75,8 +75,8 @@ instance : partial_order (convergence_space α) :=
 -- Discrete/indiscrete convergence spaces
 -------------------------------------------------------------------------------
 
-/-- The indiscrete convergence structure is the one where everb filter
-  converges to everb point. -/
+/-- The indiscrete convergence structure is the one where every filter
+  converges to every point. -/
 def indiscrete : convergence_space α := ⟨λ f x, true, by tauto, by tauto⟩
 
 instance : has_top (convergence_space α) := ⟨indiscrete⟩
@@ -421,7 +421,7 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 -/
 
 /-- Given `m : α → β`, where `β` is convergence space, the induced convergence
-  structure on `α` is the grextest convergence structure making `m`
+  structure on `α` is the greatest convergence structure making `m`
   continuous. -/
 def convergence_space.induced (m : α → β) [convergence_space β] :
   convergence_space α :=
@@ -851,6 +851,8 @@ instance [convergence_space α] [convergence_space β] :
 class t0_space (α : Type*) [convergence_space α] : Prop :=
 (t0_prop : ∀ x y : α, converges (pure x) y ∧ converges (pure y) x ↔ x = y)
 
+abbreviation kolmogorov_space := t0_space
+
 /-- In an R₀ space, if `pure x` converges to `y`, then `x` and `y` have the
   same convergent filters. -/
 class r0_space (α : Type*) [convergence_space α] : Prop :=
@@ -860,6 +862,8 @@ class r0_space (α : Type*) [convergence_space α] : Prop :=
 /-- In a T₁ space, the `pure` filters have exactly one limit. -/
 class t1_space (α : Type*) [convergence_space α] : Prop :=
 (t1_prop : ∀ x y : α, converges (pure x) y → x = y)
+
+abbreviation frechet_space := t1_space
 
 /-- In an R₁ space, if a `x` and `y` are the limits of a proper filter, then
   they share the same convergent filters. -/
@@ -872,13 +876,18 @@ class t2_space (α : Type*) [convergence_space α] : Prop :=
 (t2_prop : ∀ x y, ∀ (f : filter α) [ne_bot f],
   converges f x ∧ converges f y → x = y)
 
+abbreviation hausdorff_space := t2_space
+
 /-- In an R₂ space, if a filter converges, then so does its closure. -/
 class r2_space (α : Type*) [convergence_space α] : Prop :=
 (r2_prop : ∀ (x : α) (f : filter α), converges f x → converges (cl f) x)
 
+abbreviation regular_space := r2_space
+
 /-- A T₃ space is a T₀ & R₂ space. -/
 class t3_space (α : Type*) [convergence_space α] extends
   t0_space α, r2_space α.
+
 
 /-!
 ### Compact sets/spaces
