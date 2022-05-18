@@ -14,7 +14,7 @@ variables {α β : Type*}
 -/
 
 @[ext] class kent_convergence_space (α : Type*) extends convergence_space α :=
-(kent_converges : ∀ {f x}, converges f x → converges (f ⊔ pure x) x) β 
+(kent_converges : ∀ {f x}, converges f x → converges (f ⊔ pure x) x)
 
 open kent_convergence_space
 
