@@ -8,17 +8,16 @@ noncomputable theory
 open set filter ultrafilter classical limit_space
 open_locale classical filter
 
-variables {X Y : Type*}
+variables {α β : Type*}
 
--------------------------------------------------------------------------------
--- Definition
--------------------------------------------------------------------------------
+/-!
+### Definition
+-/
 
-@[ext] class pseudotopological_space (X : Type*) extends limit_space X :=
-(ultra_converges : ∀ {x ℱ}, (∀ {𝒢 : ultrafilter X}, ↑𝒢 ≤ ℱ → converges 𝒢 x) -> converges ℱ x)
+@[ext] class pseudotopological_space (α : Type*) extends limit_space α :=
+(ultra_converges : ∀ {f x}, (∀ {g : ultrafilter α}, ↑g ≤ f → converges g x) -> converges f x)
 
 open pseudotopological_space
 
-instance : has_coe (pseudotopological_space X) (limit_space X) := {
-  coe := λ p, p.to_limit_space,
-}
+instance : has_coe (pseudotopological_space α) (limit_space α) := 
+{ coe := λ p, p.to_limit_space }

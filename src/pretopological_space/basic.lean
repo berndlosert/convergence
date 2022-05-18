@@ -8,19 +8,16 @@ noncomputable theory
 open set filter ultrafilter classical pseudotopological_space
 open_locale classical filter
 
-variables {X Y : Type*}
+variables {α : Type*}
 
--------------------------------------------------------------------------------
--- Definition
--------------------------------------------------------------------------------
+/-!
+### Definition
+-/
 
-@[ext] class pretopological_space (X : Type*) extends pseudotopological_space X :=
+@[ext] class pretopological_space (α : Type*) extends pseudotopological_space α :=
 (nhds_converges : ∀ x, converges (nhds x) x)
-
-attribute [ext] pretopological_space
 
 open pretopological_space
 
-instance : has_coe (pretopological_space X) (pseudotopological_space X) := {
-  coe := λ p, p.to_pseudotopological_space,
-}
+instance : has_coe (pretopological_space α) (pseudotopological_space α) := 
+{ coe := λ p, p.to_pseudotopological_space }

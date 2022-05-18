@@ -7,17 +7,16 @@ noncomputable theory
 open set filter classical kent_convergence_space
 open_locale classical filter
 
-variables {X Y : Type*}
+variables {α β : Type*} 
 
--------------------------------------------------------------------------------
--- Definition
--------------------------------------------------------------------------------
+/-!
+### Definition
+-/
 
-@[ext] class limit_space (X : Type*) extends kent_convergence_space X :=
-(sup_converges : ∀ {x ℱ 𝒢}, converges ℱ x -> converges 𝒢 x -> converges (ℱ ⊔ 𝒢) x) -- ℱ ⊔ 𝒢 means ℱ ∩ 𝒢
+@[ext] class limit_space (α : Type*) extends kent_convergence_space α :=
+(sup_converges : ∀ {f g x}, converges f x -> converges g x -> converges (f ⊔ g) x) -- f ⊔ g means f ∩ g
 
 open limit_space
 
-instance : has_coe (limit_space X) (kent_convergence_space X) := {
-  coe := λ p, p.to_kent_convergence_space,
-}
+instance : has_coe (limit_space α) (kent_convergence_space α) := 
+{ coe := λ p, p.to_kent_convergence_space }
