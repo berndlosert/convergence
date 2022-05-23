@@ -920,8 +920,12 @@ end
 /-!
 ### Locally compact sets/spaces
 -/
+
 def is_locally_compact [convergence_space α] (s : set α) :=
 ∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x → ∃ t ∈ f, is_compact t
+
+class locally_compact_space (α : Type*) [convergence_space α] : Prop :=
+(locally_compact_prop : is_locally_compact (univ : set α))
 
 /-!
 ### Quotient maps
