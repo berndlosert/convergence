@@ -50,8 +50,7 @@ instance cauchy_space.induced_limit_space [cauchy_space α] : limit_space α :=
     rw sup_sup_distrib_right f g (pure x),
     refine inf_sup_cauchy hf hg _,
     exact ne_bot_of_le (le_inf le_sup_right le_sup_right),
-  end
-}
+  end }
 
 /-- A set `s` is called *complete*, if any Cauchy filter `f` such that `s ∈ f`
 has a limit in `s`. -/

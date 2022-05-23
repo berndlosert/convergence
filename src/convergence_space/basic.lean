@@ -918,6 +918,12 @@ begin
 end
 
 /-!
+### Locally compact sets/spaces
+-/
+def is_locally_compact [convergence_space α] (s : set α) :=
+∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x → ∃ t ∈ f, is_compact t
+
+/-!
 ### Quotient maps
 -/
 
