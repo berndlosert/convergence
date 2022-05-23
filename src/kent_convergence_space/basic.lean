@@ -41,18 +41,17 @@ instance : has_top (kent_convergence_space α) :=
 { top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
 
 instance : has_bot (kent_convergence_space α) :=
-let indiscrete : kent_convergence_space α :=
-{ kent_converges :=
-  begin
-    intros f x hconv,
-    unfold converges at *,
-    have : f ⊔ pure x ≤ pure x, from calc
-      f ⊔ pure x ≤ pure x ⊔ pure x : sup_le_sup_right hconv (pure x)
-      ... = pure x : sup_idem,
-    assumption
-  end,
-  ..convergence_space.has_bot.bot }
-in { bot := indiscrete }
+{ bot := 
+  { kent_converges :=
+    begin
+      intros f x hconv,
+      unfold converges at *,
+      have : f ⊔ pure x ≤ pure x, from calc
+        f ⊔ pure x ≤ pure x ⊔ pure x : sup_le_sup_right hconv (pure x)
+        ... = pure x : sup_idem,
+      assumption
+    end,
+    ..convergence_space.has_bot.bot }}
 
 /-!
 ### Infimum and supremum
@@ -71,6 +70,30 @@ instance : has_inf (kent_convergence_space α) :=
       obtain ⟨hp, hq⟩ := hconv,
       exact ⟨kent_converges_ p hp, kent_converges_ q hq⟩,
     end }}
+
+  instance : has_Inf (kent_convergence_space α) :=
+  { Inf := λ ps, let super : convergence_space α := Inf (coe '' ps) in
+    { converges := converges_ super,
+      pure_converges := pure_converges_ super,
+      le_converges := le_converges_ super,
+      kent_converges :=
+      begin
+        assume f x hconv,
+        have : ∀ {p : kent_convergence_space α}, p ∈ ps → converges_ ↑p (f ⊔ pure x) x,
+        begin
+          intros p hmem,
+          have : converges_ ↑p f x, from hconv (mem_image_of_mem coe hmem),
+          exact kent_converges_ p this,
+        end,
+        have : ∀ {p : convergence_space α}, p ∈ coe '' ps → converges_ p (f ⊔ pure x) x,
+        begin
+          intros p hp,
+          obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
+          rw ← heq,
+          exact this hq,
+        end,
+        assumption
+      end }}
 
 /-!
 ### Induced Kent convergence space
