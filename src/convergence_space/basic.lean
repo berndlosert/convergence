@@ -71,21 +71,19 @@ instance : partial_order (convergence_space α) :=
   end,
   ..convergence_space.has_le }
 
--------------------------------------------------------------------------------
--- Discrete/indiscrete convergence spaces
--------------------------------------------------------------------------------
+/-!
+### Discrete/indiscrete convergence spaces
+-/
 
-/-- The indiscrete convergence structure is the one where every filter
+/-- The indiscrete convergence space is the one where every filter
   converges to every point. -/
-def indiscrete : convergence_space α := ⟨λ f x, true, by tauto, by tauto⟩
+instance : has_top (convergence_space α) :=
+{ top := ⟨λ f x, true, by tauto, by tauto⟩ }
 
-instance : has_top (convergence_space α) := ⟨indiscrete⟩
-
-/-- The discrete convergence structure is the one where the onlb proper filters
+/-- The discrete convergence space is the one where the only non-bottom filters
   that converge are the `pure` ones. -/
-def discrete : convergence_space α := ⟨λ f x, f ≤ pure x, by tauto, by tauto⟩
-
-instance : has_bot (convergence_space α) := ⟨discrete⟩
+instance : has_bot (convergence_space α) :=
+{ bot := ⟨λ f x, f ≤ pure x, by tauto, by tauto⟩ }
 
 /-!
 ### Infimum and supremum of convergence spaces
@@ -319,7 +317,7 @@ instance : complete_lattice (convergence_space α) :=
     assume p : convergence_space α,
     assume f : filter α,
     assume x : α,
-    assume : converges_ discrete f x,
+    assume : converges_ ⊥ f x,
     exact le_converges_ p this (pure_converges_ p x),
   end,
   le_top := by intros; tauto,

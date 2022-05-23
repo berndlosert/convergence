@@ -27,7 +27,35 @@ instance : has_coe (kent_convergence_space α) (convergence_space α) :=
 { coe := λ p, p.to_convergence_space }
 
 /-!
-### Infimum and supremum of Kent convergence spaces
+### Parital ordering
+-/
+
+instance : has_le (kent_convergence_space α) :=
+⟨λ p q, p.to_convergence_space ≤ q.to_convergence_space⟩
+
+/-!
+### Top/bottom
+-/
+
+instance : has_top (kent_convergence_space α) :=
+{ top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
+
+instance : has_bot (kent_convergence_space α) :=
+let indiscrete : kent_convergence_space α :=
+{ kent_converges :=
+  begin
+    intros f x hconv,
+    unfold converges at *,
+    have : f ⊔ pure x ≤ pure x, from calc
+      f ⊔ pure x ≤ pure x ⊔ pure x : sup_le_sup_right hconv (pure x)
+      ... = pure x : sup_idem,
+    assumption
+  end,
+  ..convergence_space.has_bot.bot }
+in { bot := indiscrete }
+
+/-!
+### Infimum and supremum
 -/
 
 instance : has_inf (kent_convergence_space α) := 
