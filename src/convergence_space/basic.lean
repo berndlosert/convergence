@@ -117,34 +117,9 @@ instance : has_Sup (convergence_space α) :=
     end }}
 
 instance : semilattice_sup (convergence_space α) :=
-{ le_sup_left :=
-  begin
-    assume p q : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ p f x,
-    exact or.inl this,
-  end,
-  le_sup_right :=
-  begin
-    assume p q : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ q f x,
-    exact or.inr this,
-  end,
-  sup_le :=
-  begin
-    assume p q r : convergence_space α,
-    assume hle : p ≤ r,
-    assume hle' : q ≤ r,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ (p ⊔ q) f x,
-    cases this,
-      exact hle this,
-      exact hle' this,
-  end,
+{ le_sup_left := λ p q f x hconv, or.inl hconv,
+  le_sup_right := λ p q f x hconv, or.inr hconv,
+  sup_le := λ p q r hle hle' f x hconv, hconv.elim hle hle',
   ..convergence_space.partial_order,
   ..convergence_space.has_sup }
 
