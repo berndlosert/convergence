@@ -260,23 +260,9 @@ def convergence_space.coinduced (m : α → β) [convergence_space α] :
 lemma continuous.le_coinduced (m : α → β) [convergence_space α]
   [q : convergence_space β] (hm : continuous m) :
   convergence_space.coinduced m ≤ q :=
-begin
-  unfold has_le.le,
-  assume g : filter β,
-  assume y : β,
-  assume hconv : converges_ (convergence_space.coinduced m) g y,
-  cases hconv,
-    case or.inl 
-    begin
-      exact le_converges_ q hconv (pure_converges_ q y),
-    end,
-    case or.inr : hexists begin
-      obtain ⟨f, x, h₀, h₁, h₂⟩ := hexists,
-      have : converges_ q (map m f) (m x), from hm h₂,
-      rw ← h₁,
-      exact le_converges_ q h₀ this,
-    end
-end
+λ g y hconv, hconv.elim
+  (λ hle, le_converges_ q hle (pure_converges_ q y))
+  (λ ⟨f, x, h₀, h₁, h₂⟩, by { rw ← h₁, exact le_converges_ q h₀ (hm h₂) })
 
 lemma coinduced_id [p : convergence_space α] : convergence_space.coinduced id = p :=
 begin
