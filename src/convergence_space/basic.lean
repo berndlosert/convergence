@@ -37,9 +37,17 @@ theorem convergence_space_eq_iff {p q : convergence_space α} :
   p = q ↔ ∀ f x, converges_ p f x ↔ converges_ q f x :=
 by simp [funext_iff, convergence_space.ext_iff p q]
 
+/- N.B. In any convergence space, the filter ⊥ converges to every point. -/
+lemma bot_converges [convergence_space α] (x : α) : converges ⊥ x := 
+le_converges bot_le (pure_converges x)
+
 /-!
-### Parital ordering
+### Ordering
 -/
+
+/-- The ordering on convergence structures on the type `α`.
+  `p ≤ q` if p-convergence implies q-convergence (`p` is finer than `q`
+  or `q` is coarser than `p`). -/
 
 instance : has_le (convergence_space α) :=
 ⟨λ p q, ∀ {f x}, converges_ p f x → converges_ q f x⟩
@@ -72,28 +80,27 @@ instance : partial_order (convergence_space α) :=
   ..convergence_space.has_le }
 
 /-!
-### Discrete/indiscrete convergence spaces
+### Lattice of convergence structures
 -/
 
-/-- The indiscrete convergence space is the one where every filter
-  converges to every point. -/
+/-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence 
+  structure (where only filters finer than pure filters converge) and `⊤` the indiscrete 
+  convergence structure (where every filter converges). The infimum of a collection `ps` of 
+  convergence structures is the convergence structure where `converges f x` means 
+  `∀ p ∈ ps, converges_ p f x`, while the supremum is the convergence struture where 
+  `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
+
 instance : has_top (convergence_space α) :=
 { top := 
   { converges := λ f x, true,
     pure_converges := by tauto, 
     le_converges := by tauto }}
 
-/-- The discrete convergence space is the one where the only non-bottom filters
-  that converge are the `pure` ones. -/
 instance : has_bot (convergence_space α) :=
 { bot := 
   { converges := λ f x, f ≤ pure x, 
     pure_converges := by tauto, 
     le_converges := by tauto }}
-
-/-!
-### Infimum and supremum of convergence spaces
--/
 
 instance : has_inf (convergence_space α) :=
 { inf := λ p q,
@@ -164,10 +171,6 @@ instance : has_Sup (convergence_space α) :=
       { exact or.inl (le_trans hle hle') },
       { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
     end }}
-
-/-!
-### Lattice of convergence spaces
--/
 
 instance : semilattice_sup (convergence_space α) :=
 { le_sup_left :=
