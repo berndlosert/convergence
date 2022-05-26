@@ -110,7 +110,7 @@ instance : has_Sup (convergence_space α) :=
     pure_converges := by tauto,
     le_converges :=
     begin
-      intros f g hle x hor,
+      assume f g hle x hor,
       rcases hor with hle'|⟨p, hmem, hconv⟩,
       { exact or.inl (le_trans hle hle') },
       { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
