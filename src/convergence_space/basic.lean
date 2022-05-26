@@ -124,39 +124,11 @@ instance : semilattice_sup (convergence_space α) :=
   ..convergence_space.has_sup }
 
 instance : complete_semilattice_Sup (convergence_space α) :=
-{ le_Sup :=
-  begin
-    assume ps : set (convergence_space α),
-    assume p : convergence_space α,
-    assume hmem : p ∈ ps,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ p f x,
-    exact or.inr (exists.intro p (and.intro hmem this)),
-  end,
-  Sup_le :=
-  begin
-    assume qs : set (convergence_space α),
-    assume p : convergence_space α,
-    assume hle : ∀ q ∈ qs, q ≤ p,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ (Sup qs) f x,
-    cases this,
-      case or.inl : hle' 
-      begin
-        exact le_converges_ p hle' (pure_converges_ p x)
-      end,
-      case or.inr : hconv 
-      begin
-        exact exists.elim hconv 
-        begin
-          assume q : convergence_space α,
-          assume hconv' : q ∈ qs ∧ converges_ q f x,
-          exact (hle q hconv'.left) hconv'.right
-        end,
-      end,
-  end,
+{ le_Sup := λ ps p hmem f x hconv, or.inr (exists.intro p (and.intro hmem hconv)),
+  Sup_le := λ qs p hle f x hconv,
+    hconv.elim 
+      (assume hle', le_converges_ p hle' (pure_converges_ p x))
+      (assume hexists, exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right)),
   ..convergence_space.partial_order,
   ..convergence_space.has_Sup }
 
