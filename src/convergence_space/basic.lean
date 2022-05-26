@@ -214,57 +214,31 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 (continuous_inv_fun : continuous inv_fun)
 
 /-!
-### Induced convergence space
+### Induced convergence structure
 -/
 
-/-- Given `m : α → β`, where `β` is convergence space, the induced convergence
+/-- Given `m : α → β`, where `β` is a convergence space, the induced convergence
   structure on `α` is the greatest convergence structure making `m`
   continuous. -/
 def convergence_space.induced (m : α → β) [convergence_space β] :
   convergence_space α :=
 { converges := λ f x, converges (map m f) (m x),
   pure_converges := by simp [filter.map_pure, pure_converges],
-  le_converges :=
-  begin
-    assume f g : filter α,
-    assume hle : f ≤ g,
-    assume x : α,
-    assume hconv : converges (map m g) (m x),
-    have hle' : map m f ≤ map m g, apply map_mono hle,
-    apply le_converges hle' hconv
-  end }
+  le_converges := λ f g hle x hconv, le_converges (map_mono hle) hconv }
 
 lemma continuous.induced_le (m : α → β) [p : convergence_space α]
   [convergence_space β] (hm : continuous m) :
   p ≤ convergence_space.induced m :=
-begin
-  unfold has_le.le,
-  assume f : filter α,
-  assume x : α,
-  assume : converges_ p f x,
-  exact hm this,
-end
+λ f x hconv, hm hconv
 
 lemma continuous_induced_dom {m : α → β} {q : convergence_space β} :
   continuous_ (@convergence_space.induced α β m q) q m :=
-begin
-  assume x : α,
-  assume f : filter α,
-  let p := @convergence_space.induced α β m q,
-  assume hconv : converges_ p f x,
-  assumption,
-end
+λ x f hconv, hconv
 
 lemma continuous_induced_rng {m₁ : α → β} {m₂ : β → γ}
   [p : convergence_space α] [q : convergence_space β] [r : convergence_space γ]
   (hcont : continuous (m₂ ∘ m₁)) : continuous_ p (convergence_space.induced m₂) m₁ :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume hconv : converges f x,
-  have : converges (map m₂ (map m₁ f)) (m₂ (m₁ x)), from hcont hconv,
-  assumption,
-end
+λ x f hconv, hcont hconv
 
 /-!
 ### Coinduced convergence space
