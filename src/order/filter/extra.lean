@@ -45,12 +45,12 @@ begin
   },
 end
 
-lemma mem_inv_iff [has_involutive_inv α] {f : filter α} : 
+lemma mem_inv_iff [_root_.has_involutive_inv α] {f : filter α} : 
   ∀ s, s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
 begin
   intro s,
   split,
-  { assume hmem : s ∈ f⁻¹,
+  { assume hmem,
     change s ∈ map has_inv.inv f at hmem,
     rw mem_map_iff_exists_image at hmem,
     obtain ⟨t, ht, hsub⟩ := hmem,
