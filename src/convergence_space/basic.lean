@@ -53,30 +53,9 @@ instance : has_le (convergence_space α) :=
 ⟨λ p q, ∀ {f x}, converges_ p f x → converges_ q f x⟩
 
 instance : partial_order (convergence_space α) := 
-{ le_refl :=
-  begin
-    unfold has_le.le,
-    intros,
-    assumption,
-  end,
-  le_trans :=
-  begin
-    assume p q r : convergence_space α,
-    assume hpq : p ≤ q,
-    assume hqr : q ≤ r,
-    assume f : filter α,
-    assume x : α,
-    assume hconv : converges_ p f x,
-    exact (hqr (hpq hconv))
-  end,
-  le_antisymm :=
-  begin
-    assume p q : convergence_space α,
-    assume hpq : p ≤ q,
-    assume hqp : q ≤ p,
-    ext f x,
-    exact iff.intro hpq hqp,
-  end,
+{ le_refl := by { unfold has_le.le, intros, assumption },
+  le_trans := by { assume p q r hpq hqr f x hconv, exact (hqr (hpq hconv)) },
+  le_antisymm := by { assume p q hpq hqp, ext f x, exact iff.intro hpq hqp },
   ..convergence_space.has_le }
 
 /-!
