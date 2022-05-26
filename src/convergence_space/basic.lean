@@ -159,27 +159,10 @@ instance : has_Sup (convergence_space α) :=
     pure_converges := by tauto,
     le_converges :=
     begin
-      assume f g : filter α,
-      assume hle : f ≤ g,
-      assume x : α,
-      assume hor : (g ≤ pure x) ∨
-        (∃ p : convergence_space α, p ∈ ps ∧ converges_ p g x),
-      cases hor,
-        case or.inl : hle' 
-        begin
-          exact or.inl (le_trans hle hle')
-        end,
-        case or.inr : hconv 
-        begin
-          exact exists.elim hconv 
-          begin
-            assume p : convergence_space α,
-            assume hconv' : p ∈ ps ∧ converges_ p g x,
-            exact or.inr
-              (exists.intro p
-                (and.intro hconv'.left (le_converges_ p hle hconv'.right)))
-          end,
-        end,
+      intros f g hle x hor,
+      rcases hor with hle'|⟨p, hmem, hconv⟩,
+      { exact or.inl (le_trans hle hle') },
+      { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
     end }}
 
 /-!
