@@ -193,28 +193,8 @@ instance : semilattice_inf (convergence_space α) :=
   ..convergence_space.has_inf }
 
 instance : complete_semilattice_Inf (convergence_space α) :=
-{ Inf_le :=
-  begin
-    assume ps : set (convergence_space α),
-    assume p : convergence_space α,
-    assume hmem : p ∈ ps,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ (Inf ps) f x,
-    exact this hmem,
-  end,
-  le_Inf :=
-  begin
-    assume ps : set (convergence_space α),
-    assume q : convergence_space α,
-    assume hle : ∀ p : convergence_space α, p ∈ ps → q ≤ p,
-    assume f : filter α,
-    assume x : α,
-    assume hconv : converges_ q f x,
-    assume p : convergence_space α,
-    assume hmem : p ∈ ps,
-    exact (hle p hmem) hconv,
-  end,
+{ Inf_le := λ ps p hmem f x hconv, hconv hmem,
+  le_Inf := λ ps q hle f x hconv p hmem, (hle p hmem) hconv,
   ..convergence_space.partial_order,
   ..convergence_space.has_Inf }
 
@@ -223,14 +203,7 @@ instance : lattice (convergence_space α) :=
   ..convergence_space.semilattice_inf }
 
 instance : complete_lattice (convergence_space α) :=
-{ bot_le :=
-  begin
-    assume p : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ ⊥ f x,
-    exact le_converges_ p this (pure_converges_ p x),
-  end,
+{ bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
   le_top := by intros; tauto,
   ..convergence_space.lattice,
   ..convergence_space.complete_semilattice_Sup,
