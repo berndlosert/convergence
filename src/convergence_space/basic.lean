@@ -161,34 +161,9 @@ instance : complete_semilattice_Sup (convergence_space α) :=
   ..convergence_space.has_Sup }
 
 instance : semilattice_inf (convergence_space α) :=
-{ inf_le_left :=
-  begin
-    assume p q : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ (p ⊓ q) f x,
-    exact this.left,
-  end,
-  inf_le_right :=
-  begin
-    assume p q : convergence_space α,
-    assume f : filter α,
-    assume x : α,
-    assume : converges_ (p ⊓ q) f x,
-    exact this.right,
-  end,
-  le_inf :=
-  begin
-    assume p q r : convergence_space α,
-    assume hle : p ≤ q,
-    assume hle' : p ≤ r,
-    assume f : filter α,
-    assume x : α,
-    assume hp : converges_ p f x,
-    have hq : converges_ q f x, from hle hp,
-    have hr : converges_ r f x, from hle' hp,
-    exact and.intro hq hr,
-  end,
+{ inf_le_left := λ p q f x hconv, hconv.left,
+  inf_le_right := λ p q f x hconv, hconv.right,
+  le_inf := λ p q r hle hle' f x hp, and.intro (hle hp) (hle' hp),
   ..convergence_space.partial_order,
   ..convergence_space.has_inf }
 
