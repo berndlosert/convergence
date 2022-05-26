@@ -177,47 +177,22 @@ def continuous_ (p : convergence_space α) (q : convergence_space β)
 lemma continuous.comp [convergence_space α] [convergence_space β]
   [convergence_space γ] {m' : β → γ} {m : α → β} (hcont' : continuous m')
   (hcont : continuous m) : continuous (m' ∘ m) :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume : converges f x,
-  have : converges (map m f) (m x), from hcont this,
-  have : converges (map m' (map m f)) (m' (m x)), from hcont' this,
-  convert this,
-end
+λ x f hconv, by convert (hcont' (hcont hconv))
 
 lemma continuous_id [convergence_space α] : continuous (id : α → α) :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume : converges f x,
-  simp [filter.map_id],
-  exact this,
-end
+λ x f hconv, by simpa [filter.map_id]
 
 lemma continuous_id' {α : Type*} [convergence_space α] : continuous (λ x : α, x) :=
 continuous_id
 
 lemma continuous_const [convergence_space α] [convergence_space β] {y : β} :
   continuous (λ (x : α), y) :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume : converges f x,
-  simp,
-  exact le_converges (tendsto_const_pure) (pure_converges y),
-end
+λ x f hconv, le_converges (tendsto_const_pure) (pure_converges y)
 
 lemma continuous_le_dom {p p' : convergence_space α} {q : convergence_space β}
   {m : α → β} (hle : p' ≤ p) (hcont : continuous_ p q m) :
   continuous_ p' q m :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume : converges_ p' f x,
-  have : converges_ p f x, from hle this,
-  exact hcont this,
-end
+λ x f hconv, hcont (hle hconv)
 
 lemma continuous_inf_dom_left {p p' : convergence_space α}
   {q : convergence_space β} {m : α → β} :
@@ -231,14 +206,7 @@ continuous_le_dom inf_le_right
 
 lemma continuous_inf_rng [p : convergence_space α] {q q' : convergence_space β} {m : α → β}
   (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume hp : converges f x,
-  have hq : converges_ q (map m f) (m x), from hcont hp,
-  have hq' : converges_ q' (map m f) (m x), from hcont' hp,
-  exact and.intro hq hq',
-end
+λ x f hp, and.intro (hcont hp) (hcont' hp)
 
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
