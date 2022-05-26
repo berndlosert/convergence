@@ -218,7 +218,7 @@ structure homeomorph (α β : Type*) [convergence_space α] [convergence_space �
 -/
 
 /-- Given `m : α → β`, where `β` is a convergence space, the induced convergence
-  structure on `α` is the greatest convergence structure making `m`
+  structure on `α` is the greatest (coarsest) convergence structure making `m` 
   continuous. -/
 def convergence_space.induced (m : α → β) [convergence_space β] :
   convergence_space α :=
@@ -241,28 +241,21 @@ lemma continuous_induced_rng {m₁ : α → β} {m₂ : β → γ}
 λ x f hconv, hcont hconv
 
 /-!
-### Coinduced convergence space
+### Coinduced convergence structure
 -/
 
-/-- Given `m : α → β`, where `α` is convergence space, the coinduced convergence
-  structure on `β` is the least convergence structure making `m`
-  continuous. -/
+/-- Given `m : α → β`, where `α` is a convergence space, the coinduced convergence
+  structure on `β` is the least (finest) convergence structure making `m` continuous. -/
 def convergence_space.coinduced (m : α → β) [convergence_space α] :
   convergence_space β :=
 { converges := λ g y, (g ≤ pure y) ∨
     ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x),
   pure_converges := λ b, or.inl (le_refl (pure b)),
-  le_converges :=
-  begin
-    assume g₁ g₂ : filter β,
-    assume hle : g₁ ≤ g₂,
-    assume y : β,
-    intro hconv,
-    exact or.elim hconv
+  le_converges := λ g₁ g₂ hle y hconv,
+    or.elim hconv
       (λ hle' : g₂ ≤ pure y, or.inl (le_trans hle hle'))
       (λ ⟨f, x, hle', heq, hconv'⟩,
-        or.inr ⟨f, x, le_trans hle hle', heq, hconv'⟩)
-  end }
+        or.inr ⟨f, x, le_trans hle hle', heq, hconv'⟩) }
 
 lemma continuous.le_coinduced (m : α → β) [convergence_space α]
   [q : convergence_space β] (hm : continuous m) :
