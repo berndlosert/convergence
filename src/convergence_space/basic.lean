@@ -78,12 +78,18 @@ instance : partial_order (convergence_space α) :=
 /-- The indiscrete convergence space is the one where every filter
   converges to every point. -/
 instance : has_top (convergence_space α) :=
-{ top := ⟨λ f x, true, by tauto, by tauto⟩ }
+{ top := 
+  { converges := λ f x, true,
+    pure_converges := by tauto, 
+    le_converges := by tauto }}
 
 /-- The discrete convergence space is the one where the only non-bottom filters
   that converge are the `pure` ones. -/
 instance : has_bot (convergence_space α) :=
-{ bot := ⟨λ f x, f ≤ pure x, by tauto, by tauto⟩ }
+{ bot := 
+  { converges := λ f x, f ≤ pure x, 
+    pure_converges := by tauto, 
+    le_converges := by tauto }}
 
 /-!
 ### Infimum and supremum of convergence spaces
@@ -91,7 +97,7 @@ instance : has_bot (convergence_space α) :=
 
 instance : has_inf (convergence_space α) :=
 { inf := λ p q,
-  { converges := fun f x, (converges_ p f x) ∧ (converges_ q f x),
+  { converges := λ f x, (converges_ p f x) ∧ (converges_ q f x),
     pure_converges :=
     begin
       assume x : α,
