@@ -627,56 +627,49 @@ lemma quotient_map.prod_map
   {m₂ : α₂ → β₂} (hquot₂ : quotient_map m₂) :
   quotient_map (prod.map m₁ m₂) :=
 begin
-  rw quotient_map_iff,
-  rw quotient_map_iff at hquot₁,
-  rw quotient_map_iff at hquot₂,
-  split,
-  exact surjective.prod_map hquot₁.1 hquot₂.1,
+  rw quotient_map_iff at *,
+  refine and.intro (surjective.prod_map hquot₁.1 hquot₂.1) _,
   rintros (g : filter (β₁ × β₂)) (⟨y₁, y₂⟩ : β₁ × β₂),
   split,
-  assume hconv : convergence_space.converges g (y₁, y₂),
-  let g₁ := map prod.fst g,
-  let g₂ := map prod.snd g,
-  have hg₁ : converges g₁ y₁, from continuous_fst hconv,
-  have hg₂ : converges g₂ y₂, from continuous_snd hconv,
-  obtain ⟨f₁, x₁, hle₁, heq₁, hf₁⟩ := (hquot₁.2 g₁ y₁).mp hg₁,
-  obtain ⟨f₂, x₂, hle₂, heq₂, hf₂⟩ := (hquot₂.2 g₂ y₂).mp hg₂,
-  let f := f₁ ×ᶠ f₂,
-  let x := (x₁, x₂),
-  use f,
-  use x,
-  have hle : g ≤ map (prod.map m₁ m₂) f, from calc
-    g ≤ map prod.fst g ×ᶠ map prod.snd g : filter.le_prod_map_fst_snd
-    ... = g₁ ×ᶠ g₂ : by tauto
-    ... ≤ map m₁ f₁ ×ᶠ map m₂ f₂ : prod_mono hle₁ hle₂
-    ... = map (prod.map m₁ m₂) (f₁ ×ᶠ f₂) : prod_map_map_eq' m₁ m₂ f₁ f₂,
-  have heq : prod.map m₁ m₂ x = (y₁, y₂), from calc
-    prod.map m₁ m₂ x = prod.map m₁ m₂ (x₁, x₂) : by tauto
-      ... = (m₁ x₁, m₂ x₂) : by rw (prod.map_mk m₁ m₂ x₁ x₂)
-      ... = (y₁, y₂) : by rw [heq₁, heq₂],
-  have hconv' : converges f x, from prod.converges hf₁ hf₂,
-  exact ⟨hle, heq, hconv'⟩,
-  rintro ⟨f, x, hle, heq, hf⟩,
-  let f₁ := map prod.fst f,
-  let f₂ := map prod.snd f,
-  simp [prod.map_mk m₁ m₂ x.1 x.2] at heq,
-  let g₁ := map prod.fst g,
-  let g₂ := map prod.snd g,
-  have hle₁ : g₁ ≤ map m₁ f₁, from calc
-    g₁ ≤ map prod.fst (map (prod.map m₁ m₂) f) : map_mono hle
-    ... = map (prod.fst ∘ prod.map m₁ m₂) f : map_map
-    ... = map (m₁ ∘ prod.fst) f : by rw (prod.map_fst' m₁ m₂)
-    ... = map m₁ f₁ : by simp,
-  have hle₂ : g₂ ≤ map m₂ f₂, from calc
-    g₂ ≤ map prod.snd (map (prod.map m₁ m₂) f) : map_mono hle
-    ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
-    ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
-    ... = map m₂ f₂ : by simp,
-  have hg₁ : converges g₁ y₁,
-    from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
-  have hg₂ : converges g₂ y₂,
-    from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
-  exact ⟨hg₁, hg₂⟩,
+  { assume hconv,
+    let g₁ := map prod.fst g,
+    let g₂ := map prod.snd g,
+    have hg₁ : converges g₁ y₁, from continuous_fst hconv,
+    have hg₂ : converges g₂ y₂, from continuous_snd hconv,
+    obtain ⟨f₁, x₁, hle₁, heq₁, hf₁⟩ := (hquot₁.2 g₁ y₁).mp hg₁,
+    obtain ⟨f₂, x₂, hle₂, heq₂, hf₂⟩ := (hquot₂.2 g₂ y₂).mp hg₂,
+    let f := f₁ ×ᶠ f₂,
+    let x := (x₁, x₂),
+    have hle : g ≤ map (prod.map m₁ m₂) f, from calc
+      g ≤ map prod.fst g ×ᶠ map prod.snd g : le_prod_map_fst_snd
+      ... = g₁ ×ᶠ g₂ : by tauto
+      ... ≤ map m₁ f₁ ×ᶠ map m₂ f₂ : prod_mono hle₁ hle₂
+      ... = map (prod.map m₁ m₂) (f₁ ×ᶠ f₂) : prod_map_map_eq' m₁ m₂ f₁ f₂,
+    have heq : prod.map m₁ m₂ x = (y₁, y₂), 
+      by { rw [prod.map_mk m₁ m₂ x₁ x₂, heq₁, heq₂] },
+    have hconv' : converges f x, from prod.converges hf₁ hf₂,
+    exact ⟨f, x, hle, heq, hconv'⟩ },
+  { rintro ⟨f, x, hle, heq, hf⟩,
+    let f₁ := map prod.fst f,
+    let f₂ := map prod.snd f,
+    simp [prod.map_mk m₁ m₂ x.1 x.2] at heq,
+    let g₁ := map prod.fst g,
+    let g₂ := map prod.snd g,
+    have hle₁ : g₁ ≤ map m₁ f₁, from calc
+      g₁ ≤ map prod.fst (map (prod.map m₁ m₂) f) : map_mono hle
+      ... = map (prod.fst ∘ prod.map m₁ m₂) f : map_map
+      ... = map (m₁ ∘ prod.fst) f : by rw (prod.map_fst' m₁ m₂)
+      ... = map m₁ f₁ : by simp,
+    have hle₂ : g₂ ≤ map m₂ f₂, from calc
+      g₂ ≤ map prod.snd (map (prod.map m₁ m₂) f) : map_mono hle
+      ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
+      ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
+      ... = map m₂ f₂ : by simp,
+    have hg₁ : converges g₁ y₁,
+      from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
+    have hg₂ : converges g₂ y₂,
+      from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
+    exact ⟨hg₁, hg₂⟩ }
 end
 
 lemma quotient_map_quot_mk [convergence_space α] {r : α → α → Prop} :
