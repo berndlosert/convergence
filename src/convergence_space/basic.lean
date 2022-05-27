@@ -336,6 +336,9 @@ variables [convergence_space α]
 /-- The set of all limits of a filter. -/
 def lim (f : filter α) : set α := { x | converges f x }
 
+/-- A filter is convergent if it has a limit. -/
+def convergent (f : filter α) : Prop := ∃ x, converges f x
+
 /-- A point `x` adheres to a filter `f` if there is some non-trivial filter
   smaller than `f` that converges to `x`. -/
 def adheres (f : filter α) (x : α) : Prop :=
@@ -367,7 +370,7 @@ def is_dense (s : set α) : Prop := ∀ x, x ∈ closure s
 def cl (f : filter α) : filter α := filter.generate (closure '' f.sets)
 
 /-- A set `s` is strictly dense if `converges f x` implies there is a filter `g`
-  that contains `s`, converges to `s` and satisfies `f ≤ cl g`. -/
+  that contains `s`, converges to `x` and satisfies `f ≤ cl g`. -/
 def is_strictly_dense (s : set α) : Prop :=
 ∀ {x : α} {f : filter α}, converges f x → ∃ g, (s ∈ g) ∧ (converges g x) ∧ (f ≤ cl g)
 
@@ -563,8 +566,10 @@ end
 ### Locally compact sets/spaces
 -/
 
+/-- A set `s` is locally compact if every convergent ultrafilter containing `s` contains
+  a compact set. -/
 def is_locally_compact [convergence_space α] (s : set α) :=
-∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x → ∃ t ∈ f, is_compact t
+∀ ⦃f : ultrafilter α⦄, s ∈ f → (∃ x : α, converges ↑f x) → ∃ t ∈ f, is_compact t
 
 class locally_compact_space (α : Type*) [convergence_space α] : Prop :=
 (locally_compact_prop : is_locally_compact (univ : set α))
