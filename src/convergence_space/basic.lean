@@ -395,14 +395,9 @@ continuous_inf_dom_right continuous_induced_dom
 
 lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
-begin
-  unfold converges,
-  have hf' : converges (map prod.fst (f ×ᶠ g)) x,
-    from le_converges tendsto_fst hf,
-  have hg' : converges (map prod.snd (f ×ᶠ g)) y,
-    from le_converges tendsto_snd hg,
-  exact and.intro hf' hg',
-end
+and.intro 
+  (le_converges tendsto_fst hf : converges (map prod.fst (f ×ᶠ g)) x) 
+  (le_converges tendsto_snd hg : converges (map prod.snd (f ×ᶠ g)) y)
 
 lemma prod.converges' {f : filter (α × β)} {x : α × β}
   (hfst : converges (map prod.fst f) (prod.fst x))
@@ -427,16 +422,12 @@ lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [
   {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) :=
 begin
   split,
-  { unfold continuous2, 
-    rintros hcont2 ⟨x, y⟩ h hconv,
-    obtain ⟨hconv₁, hconv₂⟩ := hconv,
+  { rintros hcont2 ⟨x, y⟩ h ⟨hconv₁, hconv₂⟩,
     have : converges (map₂ m (map prod.fst h) (map prod.snd h)) (m x y), 
       from hcont2 hconv₁ hconv₂,
     rw ← map_prod_eq_map₂ at this,
     exact le_converges (map_mono le_prod_map_fst_snd) this },
-  { intro hcont,
-    unfold continuous2,
-    intros x y f g hf hg,
+  { intros hcont x y f g hf hg,
     rw ← map_prod_eq_map₂,
     exact hcont (prod.converges hf hg) },
 end
