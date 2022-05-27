@@ -553,18 +553,10 @@ theorem is_compact.image {m : α → β} {s : set α}
   [convergence_space α] [convergence_space β]
   (hcom : is_compact s) (hcont : continuous m) : is_compact (m '' s) :=
 begin
-  unfold is_compact,
-  assume g : ultrafilter β,
-  assume hmem : m '' s ∈ g,
-  let f := ultrafilter.of_comap_inf_principal hmem,
-  let heq : ultrafilter.map m f = g :=
-    ultrafilter.of_comap_inf_principal_eq_of_map hmem,
-  let hmem' : s ∈ f := ultrafilter.of_comap_inf_principal_mem hmem,
-  obtain ⟨x, hconv : converges f.to_filter x⟩ := hcom hmem',
-  have : converges (map m f) (m x) := hcont hconv,
-  rw ← heq,
-  use m x,
-  tauto,
+  assume g hmem,
+  rw ← ultrafilter.of_comap_inf_principal_eq_of_map hmem,
+  obtain ⟨x, hconv⟩ := hcom (ultrafilter.of_comap_inf_principal_mem hmem),
+  exact ⟨m x, hcont hconv⟩,
 end
 
 /-!
