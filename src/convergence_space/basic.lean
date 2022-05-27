@@ -280,27 +280,11 @@ lemma continuous_iff_coinduced_le {m : α → β}
   continuous m ↔ convergence_space.coinduced m ≤ q :=
 begin
   split,
-  assume hcont : continuous m,
-  unfold has_le.le,
-  assume g : filter β,
-  assume y : β,
-  assume hconv : converges_ (convergence_space.coinduced m) g y,
-  cases hconv,
-    case or.inl 
-    begin
-      exact le_converges_ q hconv (pure_converges_ q y),
-    end,
-    case or.inr : hexists 
-    begin
-      obtain ⟨f, x, hle, heq, hconv'⟩ := hexists,
-      rw ← heq,
-      exact le_converges_ q hle (hcont hconv'),
-    end,
-  assume hle : convergence_space.coinduced m ≤ q,
-  assume x : α,
-  assume f : filter α,
-  assume hconv : converges f x,
-  exact hle (or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩),
+  { assume hcont g y hconv, cases hconv,
+    { exact le_converges_ q hconv (pure_converges_ q y) },
+    { obtain ⟨f, x, hle, heq, hconv'⟩ := hconv,
+      rw ← heq, exact le_converges_ q hle (hcont hconv') }},
+  { assume hle x f hconv, exact hle (or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩) }
 end
 
 lemma coinduced_compose [convergence_space α]
