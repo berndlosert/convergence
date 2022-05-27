@@ -266,26 +266,13 @@ lemma continuous.le_coinduced (m : α → β) [convergence_space α]
 
 lemma coinduced_id [p : convergence_space α] : convergence_space.coinduced id = p :=
 begin
-  rw convergence_space_eq_iff,
-  assume f : filter α,
-  assume x : α,
-  split,
-  assume hconv : converges_ (convergence_space.coinduced id) f x,
-  cases hconv,
-    case or.inl 
-    begin
-      exact le_converges_ p hconv (pure_converges_ p x),
-    end,
-    case or.inr : hexists 
-    begin
-      obtain ⟨g, y, hle, heq, hconv'⟩ := hexists,
-      simp at hle,
-      simp at heq,
-      rw ← heq,
-      exact le_converges_ p hle hconv',
-    end,
-  assume hconv : converges_ p f x,
-  exact or.inr ⟨f, x, le_refl f, rfl, hconv⟩,
+  ext f x, split,
+  { assume hconv, cases hconv,
+    { exact le_converges_ p hconv (pure_converges_ p x) },
+    { obtain ⟨g, y, hle, heq, hconv'⟩ := hconv,
+      simp at *, rw ← heq, exact le_converges_ p hle hconv' }},
+  { assume hconv : converges_ p f x,
+    exact or.inr ⟨f, x, le_refl f, rfl, hconv⟩, }
 end
 
 lemma continuous_iff_coinduced_le {m : α → β}
