@@ -474,11 +474,8 @@ def eval : C(α,β) × α → β := λ ⟨f, x⟩, f x
 
 variables {α β} {f g : continuous_map α β}
 
-@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := begin
-  apply funext,
-  assume x : α,
-  apply comp_apply,
-end
+@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := 
+by { apply funext, intro, apply comp_apply }
 
 protected lemma continuous (f : C(α, β)) : continuous f := f.continuous_to_fun
 
