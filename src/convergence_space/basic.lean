@@ -509,19 +509,19 @@ class r0_space (α : Type*) [convergence_space α] : Prop :=
 (r0_prop : ∀ x y, converges (pure x) y →
 ∀ (f : filter α), converges f x ↔ converges f y)
 
-/-- In a T₁ space, the `pure` filters have exactly one limit. -/
+/-- In a T₁ space, pure filters have exactly one limit. -/
 class t1_space (α : Type*) [convergence_space α] : Prop :=
 (t1_prop : ∀ x y : α, converges (pure x) y → x = y)
 
 abbreviation frechet_space := t1_space
 
-/-- In an R₁ space, if a `x` and `y` are the limits of a proper filter, then
+/-- In an R₁ space, if `x` and `y` are the limits of a non-trivial filter, then
   they share the same convergent filters. -/
 class r1_space (α : Type*) [convergence_space α] : Prop :=
 (r1_prop : ∀ x y, ∃ (f : filter α) [ne_bot f], converges f x ∧ converges f y →
   ∀ (g : filter α), converges g x ↔ converges g y)
 
-/-- In a T₂ space, every proper filter has exactly one limit. -/
+/-- In a T₂ space, every non-trivial filter has exactly one limit. -/
 class t2_space (α : Type*) [convergence_space α] : Prop :=
 (t2_prop : ∀ x y, ∀ (f : filter α) [ne_bot f],
   converges f x ∧ converges f y → x = y)
