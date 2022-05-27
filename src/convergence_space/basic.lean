@@ -7,7 +7,7 @@ import algebra.support
 import category_theory.concrete_category.bundled
 
 noncomputable theory
-open set function filter classical option category_theory
+open set function filter classical option category_theory prod
 open_locale classical filter
 
 variables {α α₁ α₂ β β₁ β₂ γ : Type*}
@@ -388,23 +388,23 @@ section
 variables [convergence_space α] [convergence_space β]
 
 instance : convergence_space (α × β) :=
-convergence_space.induced prod.fst ⊓ convergence_space.induced prod.snd
+convergence_space.induced fst ⊓ convergence_space.induced snd
 
-lemma continuous_fst : continuous (@prod.fst α β) :=
+lemma continuous_fst : continuous (@fst α β) :=
 continuous_inf_dom_left continuous_induced_dom
 
-lemma continuous_snd : continuous (@prod.snd α β) :=
+lemma continuous_snd : continuous (@snd α β) :=
 continuous_inf_dom_right continuous_induced_dom
 
 lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
 and.intro 
-  (le_converges tendsto_fst hf : converges (map prod.fst (f ×ᶠ g)) x) 
-  (le_converges tendsto_snd hg : converges (map prod.snd (f ×ᶠ g)) y)
+  (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x) 
+  (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
 
 lemma prod.converges' {f : filter (α × β)} {x : α × β}
-  (hfst : converges (map prod.fst f) (prod.fst x))
-  (hsnd : converges (map prod.snd f) (prod.snd x)) :
+  (hfst : converges (map fst f) (fst x))
+  (hsnd : converges (map snd f) (snd x)) :
   (converges f x) :=
 ⟨hfst, hsnd⟩
 
@@ -426,7 +426,7 @@ lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [
 begin
   split,
   { rintros hcont2 ⟨x, y⟩ h ⟨hconv₁, hconv₂⟩,
-    have : converges (map₂ m (map prod.fst h) (map prod.snd h)) (m x y), 
+    have : converges (map₂ m (map fst h) (map snd h)) (m x y), 
       from hcont2 hconv₁ hconv₂,
     rw ← map_prod_eq_map₂ at this,
     exact le_converges (map_mono le_prod_map_fst_snd) this },
@@ -632,8 +632,8 @@ begin
   rintros (g : filter (β₁ × β₂)) (⟨y₁, y₂⟩ : β₁ × β₂),
   split,
   { assume hconv,
-    let g₁ := map prod.fst g,
-    let g₂ := map prod.snd g,
+    let g₁ := map fst g,
+    let g₂ := map snd g,
     have hg₁ : converges g₁ y₁, from continuous_fst hconv,
     have hg₂ : converges g₂ y₂, from continuous_snd hconv,
     obtain ⟨f₁, x₁, hle₁, heq₁, hf₁⟩ := (hquot₁.2 g₁ y₁).mp hg₁,
@@ -641,7 +641,7 @@ begin
     let f := f₁ ×ᶠ f₂,
     let x := (x₁, x₂),
     have hle : g ≤ map (prod.map m₁ m₂) f, from calc
-      g ≤ map prod.fst g ×ᶠ map prod.snd g : le_prod_map_fst_snd
+      g ≤ map fst g ×ᶠ map snd g : le_prod_map_fst_snd
       ... = g₁ ×ᶠ g₂ : by tauto
       ... ≤ map m₁ f₁ ×ᶠ map m₂ f₂ : prod_mono hle₁ hle₂
       ... = map (prod.map m₁ m₂) (f₁ ×ᶠ f₂) : prod_map_map_eq' m₁ m₂ f₁ f₂,
@@ -650,20 +650,20 @@ begin
     have hconv' : converges f x, from prod.converges hf₁ hf₂,
     exact ⟨f, x, hle, heq, hconv'⟩ },
   { rintro ⟨f, x, hle, heq, hf⟩,
-    let f₁ := map prod.fst f,
-    let f₂ := map prod.snd f,
+    let f₁ := map fst f,
+    let f₂ := map snd f,
     simp [prod.map_mk m₁ m₂ x.1 x.2] at heq,
-    let g₁ := map prod.fst g,
-    let g₂ := map prod.snd g,
+    let g₁ := map fst g,
+    let g₂ := map snd g,
     have hle₁ : g₁ ≤ map m₁ f₁, from calc
-      g₁ ≤ map prod.fst (map (prod.map m₁ m₂) f) : map_mono hle
-      ... = map (prod.fst ∘ prod.map m₁ m₂) f : map_map
-      ... = map (m₁ ∘ prod.fst) f : by rw (prod.map_fst' m₁ m₂)
+      g₁ ≤ map fst (map (prod.map m₁ m₂) f) : map_mono hle
+      ... = map (fst ∘ prod.map m₁ m₂) f : map_map
+      ... = map (m₁ ∘ fst) f : by rw (prod.map_fst' m₁ m₂)
       ... = map m₁ f₁ : by simp,
     have hle₂ : g₂ ≤ map m₂ f₂, from calc
-      g₂ ≤ map prod.snd (map (prod.map m₁ m₂) f) : map_mono hle
-      ... = map (prod.snd ∘ prod.map m₁ m₂) f : map_map
-      ... = map (m₂ ∘ prod.snd) f : by rw (prod.map_snd' m₁ m₂)
+      g₂ ≤ map snd (map (prod.map m₁ m₂) f) : map_mono hle
+      ... = map (snd ∘ prod.map m₁ m₂) f : map_map
+      ... = map (m₂ ∘ snd) f : by rw (prod.map_snd' m₁ m₂)
       ... = map m₂ f₂ : by simp,
     have hg₁ : converges g₁ y₁,
       from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
