@@ -588,23 +588,12 @@ lemma quotient_map.converges [convergence_space α] [q : convergence_space β]
   converges g y ↔ ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
 begin
   split,
-  { assume : converges g y,
-    rw hquot.2 at this,
-    cases this,
-      case or.inl 
-      begin
-        obtain ⟨x, heq⟩ := hquot.1 y,
-        rw ← heq at this,
-        rw ← filter.map_pure at this,
-        exact ⟨pure x, x, this, heq, pure_converges x⟩,
-      end,
-      case or.inr : hexists 
-      begin
-        exact hexists,
-      end },
-  { rintro hexists,
-    rw hquot.2,
-    exact or.inr hexists }
+  { assume hconv, rw hquot.2 at hconv, cases hconv,
+    { obtain ⟨x, heq⟩ := hquot.1 y,
+      rw [← heq, ← filter.map_pure] at hconv,
+      exact ⟨pure x, x, hconv, heq, pure_converges x⟩ },
+    { exact hconv }},
+  { rintro hexists, rw hquot.2, exact or.inr hexists }
 end
 
 lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
