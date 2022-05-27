@@ -323,12 +323,7 @@ end
 
 lemma continuous_coinduced_rng [p : convergence_space α]
   {m : α → β} : continuous_ p (convergence_space.coinduced m) m :=
-begin
-  assume x : α,
-  assume f : filter α,
-  assume hconv : converges f x,
-  exact or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩,
-end
+λ x f hconv, or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩
 
 /-!
 ### Limits, adherence, interior, closure, open, closed, neighborhoods
