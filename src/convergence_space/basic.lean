@@ -292,61 +292,33 @@ lemma coinduced_compose [convergence_space α]
   @convergence_space.coinduced _ _ m₂ (convergence_space.coinduced m₁) = 
   convergence_space.coinduced (m₂ ∘ m₁) :=
 begin
-  rw convergence_space_eq_iff,
-  assume h : filter γ,
-  assume z : γ,
-  let p := @convergence_space.coinduced _ _ m₂ (convergence_space.coinduced m₁),
-  let q := convergence_space.coinduced (m₂ ∘ m₁),
-  split,
-  assume hconv : converges_ p h z,
-  cases hconv,
-    case or.inl 
-    begin
-      exact or.inl hconv,
-    end,
-    case or.inr : hg 
-    begin
-      obtain ⟨g, y, hg₁, hg₂, hg₃⟩ := hg,
+  ext h z, split,
+  { assume hconv, cases hconv,
+    { exact or.inl hconv },
+    { obtain ⟨g, y, hg₁, hg₂, hg₃⟩ := hconv,
       cases hg₃,
-        case or.inl 
-        begin
-          have hle' : h ≤ pure (m₂ y), from calc
+      { have : h ≤ pure z, from calc
             h ≤ map m₂ g : hg₁
             ... ≤ map m₂ (pure y) : map_mono hg₃
-            ... = pure (m₂ y) : by rw filter.map_pure,
-          rw ← hg₂,
-          exact or.inl hle',
-        end,
-        case or.inr : hf 
-        begin
-          obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hf,
+            ... = pure (m₂ y) : by rw filter.map_pure
+            ... = pure z : by rw hg₂,
+        exact or.inl this },
+      { obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hg₃,
           have hle : h ≤ map (m₂ ∘ m₁) f, from calc
             h ≤ map m₂ (map m₁ f) : le_trans hg₁ (map_mono hf₁)
             ... = map (m₂ ∘ m₁) f : by rw filter.map_map,
-          have heq : (m₂ ∘ m₁) x = z, from calc
-            (m₂ ∘ m₁) x = m₂ (m₁ x) : by tauto
-            ... = m₂ y : by rw hf₂
-            ... = z : by rw hg₂,
-          exact or.inr ⟨f, x, hle, heq, hf₃⟩,
-        end
-    end,
-  assume hconv : converges_ q h z,
-  cases hconv,
-    case or.inl 
-    begin
-      exact or.inl hconv,
-    end,
-    case or.inr : hexists 
-    begin
-      obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hexists,
+          have heq : (m₂ ∘ m₁) x = z, by simp [hf₂, hg₂],
+          exact or.inr ⟨f, x, hle, heq, hf₃⟩ }}},
+  { assume hconv, cases hconv,
+    { exact or.inl hconv },
+    { obtain ⟨f, x, hf₁, hf₂, hf₃⟩ := hconv,
       let g : filter β := map m₁ f,
       let y : β := m₁ x,
       let hg₁ : h ≤ map m₂ g := by tauto,
       let hg₂ : m₂ y = z := by tauto,
       let hg₃ : converges_ (convergence_space.coinduced m₁) g y := 
         or.inr ⟨f, x, le_refl (map m₁ f), rfl, hf₃⟩,
-      exact or.inr ⟨g, y, hg₁, hg₂, hg₃⟩,
-    end
+      exact or.inr ⟨g, y, hg₁, hg₂, hg₃⟩ }}
 end
 
 lemma continuous_coinduced_rng [p : convergence_space α]
