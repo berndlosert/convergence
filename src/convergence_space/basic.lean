@@ -468,16 +468,18 @@ variables [convergence_space α] [convergence_space β]
 
 instance : has_coe_to_fun (C(α, β)) (λ _, α → β) := ⟨continuous_map.to_fun⟩
 
-@[simp] lemma to_fun_eq_coe {f : C(α, β)} : f.to_fun = (f : α → β) := rfl
+@[simp] lemma to_fun_eq_coe {m : C(α, β)} : m.to_fun = (m : α → β) := rfl
 
-def eval : C(α,β) × α → β := λ ⟨f, x⟩, f x
+def eval : C(α, β) × α → β := λ ⟨m, x⟩, m x
 
-variables {α β} {f g : continuous_map α β}
-
-@[simp] theorem eval_comp_prod : eval ∘ prod.mk f = f := 
+@[simp] lemma eval_comp_prod {m : C(α, β)} : eval ∘ prod.mk m = m := 
 by { apply funext, intro, apply comp_apply }
 
-protected lemma continuous (f : C(α, β)) : continuous f := f.continuous_to_fun
+protected lemma continuous (m : C(α, β)) : continuous m := m.continuous_to_fun
+
+lemma map_eval_eq {m : C(α, β)} {f : filter α} : 
+  map continuous_map.eval (pure m ×ᶠ f) = map m f :=
+by simp [pure_prod, filter.map_map, eval_comp_prod]
 
 end continuous_map
 
@@ -485,38 +487,10 @@ instance [convergence_space α] [convergence_space β] :
   convergence_space C(α, β) :=
 { converges := λ f m, ∀ (x : α) (g : filter α),
     converges g x → converges (map continuous_map.eval (f ×ᶠ g)) (m x),
-  pure_converges :=
-  begin
-    assume m : C(α, β),
-    assume x : α,
-    assume g : filter α,
-    assume hconv : converges g x,
-    have hmap : map continuous_map.eval (pure m ×ᶠ g) = map m g, from calc
-      map continuous_map.eval (pure m ×ᶠ g)
-          = map continuous_map.eval (map (prod.mk m) g) :
-            by simp [filter.pure_prod]
-      ... = map (continuous_map.eval ∘ prod.mk m) g :
-            by simp [filter.map_map]
-      ... = map m g : by simp [continuous_map.eval_comp_prod],
-    rw hmap,
-    exact m.continuous_to_fun hconv
-  end,
-  le_converges :=
-  begin
-    assume f g : filter C(α, β),
-    assume hle : f ≤ g,
-    assume m : C(α, β),
-    intros hconv, -- hconv : converges g m,
-    assume x : α,
-    assume f' : filter α,
-    assume hconv' : converges f' x,
-    have hle₁ : f ×ᶠ f' ≤ g ×ᶠ f',
-      from filter.prod_mono hle (partial_order.le_refl f'),
-    have hle₂ : map continuous_map.eval (f ×ᶠ f') ≤
-      map continuous_map.eval (g ×ᶠ f'), from filter.map_mono hle₁,
-    exact le_converges hle₂ (hconv x f' hconv'),
-  end,
-}
+  pure_converges := λ m x g hconv, 
+    by { rw continuous_map.map_eval_eq, exact m.continuous_to_fun hconv},
+  le_converges := λ f g hle m hconv x f' hconv',
+    le_converges (map_mono (prod_mono hle (le_refl f'))) (hconv x f' hconv') }
 
 /-!
 ### Separation axioms
