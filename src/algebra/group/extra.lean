@@ -10,12 +10,10 @@ variables {α M : Type*}
 class has_partial_scalar (M α : Type*) extends has_scalar M α :=
 (smul_defined : M → α → Prop)
 
-open has_partial_scalar
-
-notation a ` • ` x ` defined` := smul_defined a x
+export has_partial_scalar
 
 /-- The domain of defintion of a partial action. -/
-def smul_dom (M α : Type*) [has_partial_scalar M α] := { p : M × α | p.1 • p.2 defined }
+def smul_dom (M α : Type*) [has_partial_scalar M α] := { p : M × α | smul_defined p.1 p.2 }
 
 lemma smul_dom_mem_iff [has_partial_scalar M α] {a : M} {x : α} :
-  a • x defined ↔ (a, x) ∈ smul_dom M α := by tautology
+  smul_defined a x ↔ (a, x) ∈ smul_dom M α := by tautology

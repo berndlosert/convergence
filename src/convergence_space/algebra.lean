@@ -48,9 +48,13 @@ open convergence_group
 class has_continuous_partial_smul (M α : Type*) [has_partial_scalar M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : ∀ {a : M} {x : α} {g : filter M} {f : filter α},
-  converges g a → converges f x → a • x defined → converges (g •ᶠ f) (a • x))
+  converges g a → converges f x → smul_defined a x → converges (g •ᶠ f) (a • x))
 
-open has_continuous_partial_smul
+export has_continuous_partial_smul
+
+/-!
+### Enveloping action
+-/
 
 namespace envelope
 
@@ -59,11 +63,7 @@ variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
 lemma embed.continuous : continuous (embed G : α → space G α) := 
-begin
-  set m : α → G × α := λ x, (1, x) with heq,
-  have hcont : continuous m, from continuous.prod.mk 1,
-  exact continuous.comp continuous_quot_mk hcont,
-end
+continuous.comp continuous_quot_mk (continuous.prod.mk 1)
 
 instance : has_continuous_smul G (G × α) :=
 { continuous_smul :=
@@ -300,7 +300,7 @@ begin
     have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (h.inter_sets hv hv'),
     let y : α := hne.some,
     let hy : y ∈ v₀ := hne.some_mem,
-    have hex : ∃ (b ∈ t) (z ∈ s), b • z defined ∧ b • z = y, from
+    have hex : ∃ (b ∈ t) (z ∈ s), smul_defined b z ∧ b • z = y, from
     begin
       have : y ∈ v' :=  set.mem_of_mem_inter_right hy,
       obtain ⟨⟨b, z⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
@@ -309,7 +309,7 @@ begin
       exact ⟨b, hb, z, hz, hd, heq⟩,
     end,
     obtain ⟨b, hb, z, hz, hdef, heq⟩ := hex,
-    obtain ⟨hdef', heq'⟩ := partial_mul_action.invertible hdef heq,
+    obtain ⟨hdef', heq'⟩ := inv_smul_cancel_left hdef heq,
     have : (b⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
       set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr hb) hy) hdef',
     have : (b⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
@@ -324,7 +324,7 @@ begin
     have : z ∈ l ∩ s := ⟨this, hz⟩,
     exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨z, this⟩),
   end,
-  have hdef : a⁻¹ • x defined, from
+  have hdef : smul_defined a⁻¹ x, from
   begin
     change (a⁻¹, x) ∈ smul_dom G α,
     change smul_dom G α = closure (smul_dom G α) at hcl,
