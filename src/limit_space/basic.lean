@@ -20,3 +20,10 @@ open limit_space
 
 instance : has_coe (limit_space α) (kent_convergence_space α) := 
 { coe := λ p, p.to_kent_convergence_space }
+
+/-!
+### Parital ordering
+-/
+
+instance : has_le (limit_space α) :=
+⟨λ p q, p.to_convergence_space ≤ q.to_convergence_space⟩

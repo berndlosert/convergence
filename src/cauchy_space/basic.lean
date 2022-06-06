@@ -25,24 +25,9 @@ open cauchy_space
 
 instance cauchy_space.induced_limit_space [cauchy_space α] : limit_space α := 
 { converges := λ f x, cauchy (f ⊔ pure x),
-  pure_converges :=
-  begin
-    intros x,
-    rw sup_idem,
-    exact pure_cauchy x,
-  end,
-  le_converges :=
-  begin
-    intros f g hle x hchy,
-    have : f ⊔ pure x ≤ g ⊔ pure x := sup_le_sup_right hle (pure x),
-    exact le_cauchy this hchy,
-  end,
-  kent_converges :=
-  begin
-    intros,
-    simp [sup_idem],
-    assumption,
-  end,
+  pure_converges := λ x, by { rw sup_idem, exact pure_cauchy x},
+  le_converges := λ f g hle x hchy, le_cauchy (sup_le_sup_right hle (pure x)) hchy,
+  kent_converges := by { intros, simp [sup_idem], assumption },
   sup_converges :=
   begin
     unfold converges,
