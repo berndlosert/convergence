@@ -574,6 +574,8 @@ def is_locally_compact [convergence_space α] (s : set α) :=
 class locally_compact_space (α : Type*) [convergence_space α] : Prop :=
 (locally_compact_prop : is_locally_compact (univ : set α))
 
+
+
 /-!
 ### Quotient maps
 -/

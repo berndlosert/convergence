@@ -1,13 +1,13 @@
 import algebra.group.extra
 import algebra.support
 
-open has_partial_scalar
+open has_partial_smul
 
 variables {α G : Type*}
 
 /-- Typeclass for partial actions of groups. -/
 class partial_mul_action (G α : Type*) [group G]
-  extends has_partial_scalar G α :=
+  extends has_partial_smul G α :=
 (one_smul : ∀ (x : α), smul_defined 1 x ∧ (1 : G) • x = x)
 (mul_smul : ∀ {a b : G} {x : α}, smul_defined b x → smul_defined a (b • x) →
   smul_defined (a * b) x ∧ (a * b) • x = a • (b • x))

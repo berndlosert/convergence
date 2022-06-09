@@ -103,7 +103,7 @@ begin
 end
 
 /-- `partial_smul` lifted to filters. -/
-def partial_smul [has_partial_scalar M α] 
+def partial_smul [has_partial_smul M α] 
   (g : filter M) (f : filter α) : filter α := 
 map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))
 
