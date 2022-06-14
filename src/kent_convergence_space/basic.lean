@@ -26,13 +26,6 @@ open kent_convergence_space
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
 
-@[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
-  (↑p : convergence_space α)= ↑q ↔ p = q :=
-by { rw kent_convergence_space.ext_iff, tauto }
-
-lemma coe_injective : function.injective (coe : kent_convergence_space α → convergence_space α) :=
-λ s t, coe_inj.1
-
 /-!
 ### Ordering
 -/
@@ -80,17 +73,10 @@ instance : has_inf (kent_convergence_space α) :=
       le_converges := le_converges_ super,
       kent_converges :=
       begin
-        assume f x hconv,
-        have : ∀ {p : kent_convergence_space α}, p ∈ ps → converges_ ↑p (f ⊔ pure x) x,
-          by { intros p hmem, exact kent_converges_ p (hconv (mem_image_of_mem coe hmem)) },
-        have : ∀ {p : convergence_space α}, p ∈ coe '' ps → converges_ p (f ⊔ pure x) x,
-        begin
-          intros p hp,
-          obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
-          rw ← heq,
-          exact this hq,
-        end,
-        assumption
+        intros f x hconv p hp,
+        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
+        rw ← heq at *,
+        refine kent_converges_ q (hconv hp)
       end }}
 
 instance : has_sup (kent_convergence_space α) :=
@@ -117,11 +103,11 @@ instance : has_Sup (kent_convergence_space α) :=
       cases hconv,
       { rw sup_of_le_right hconv,
         exact pure_converges_ super x },
-      { obtain ⟨p, hmem, hconv'⟩ := hconv,
-        refine or.inr ⟨p, hmem, _⟩,
-        obtain ⟨p', hmem', heq⟩ := (set.mem_image coe ps p).mp hmem,
+      { obtain ⟨p, hp, hconv'⟩ := hconv,
+        refine or.inr ⟨p, hp, _⟩,
+        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
         rw ← heq at *,
-        exact kent_converges_ p' hconv' }
+        exact kent_converges_ q hconv' }
     end }}  
 
 /-!
