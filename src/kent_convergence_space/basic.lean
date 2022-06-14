@@ -26,6 +26,13 @@ open kent_convergence_space
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
 
+@[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
+  (↑p : convergence_space α)= ↑q ↔ p = q :=
+by { rw kent_convergence_space.ext_iff, tauto }
+
+lemma coe_injective : function.injective (coe : kent_convergence_space α → convergence_space α) :=
+λ s t, coe_inj.1
+
 /-!
 ### Ordering
 -/
@@ -34,6 +41,8 @@ instance : has_coe (kent_convergence_space α) (convergence_space α) :=
 
 instance : has_le (kent_convergence_space α) :=
 ⟨λ p q, p.to_convergence_space ≤ q.to_convergence_space⟩
+
+instance : partial_order (kent_convergence_space α) := partial_order.lift coe coe_injective
 
 /-!
 ### Lattice of convergence structures
@@ -108,7 +117,7 @@ instance : has_Sup (kent_convergence_space α) :=
         obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
         rw ← heq at *,
         exact kent_converges_ q hconv' }
-    end }}  
+    end }}
 
 /-!
 ### Induced Kent convergence space
