@@ -119,6 +119,12 @@ instance : has_Sup (kent_convergence_space α) :=
         exact kent_converges_ q hconv' }
     end }}
 
+instance : semilattice_inf (kent_convergence_space α) :=
+by { refine function.injective.semilattice_inf coe coe_injective _, tauto }
+
+instance : semilattice_sup (kent_convergence_space α) :=
+by { refine function.injective.semilattice_sup coe coe_injective _, tauto }
+
 /-!
 ### Induced Kent convergence space
 -/
