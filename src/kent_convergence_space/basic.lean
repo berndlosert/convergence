@@ -26,16 +26,28 @@ open kent_convergence_space
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
 
+@[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
+  (↑p : convergence_space α)= ↑q ↔ p = q :=
+by { rw kent_convergence_space.ext_iff, tauto }
+
+lemma coe_injective : function.injective (coe : kent_convergence_space α → convergence_space α) :=
+λ s t, coe_inj.1
+
 /-!
-### Parital ordering
+### Ordering
 -/
+
+/-- The ordering is the one inherited from convergence spaces. -/
 
 instance : has_le (kent_convergence_space α) :=
 ⟨λ p q, p.to_convergence_space ≤ q.to_convergence_space⟩
 
 /-!
-### Top/bottom
+### Lattice of convergence structures
 -/
+
+/-- Just like convergence spaces, Kent convergence spaces also 
+  form a complete lattice. -/
 
 instance : has_top (kent_convergence_space α) :=
 { top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
@@ -53,23 +65,13 @@ instance : has_bot (kent_convergence_space α) :=
     end,
     ..convergence_space.has_bot.bot }}
 
-/-!
-### Infimum and supremum
--/
-
 instance : has_inf (kent_convergence_space α) := 
 { inf := λ p q, let super : convergence_space α := ↑p ⊓ ↑q in 
   { converges := converges_ super,
     pure_converges := pure_converges_ super,
     le_converges := le_converges_ super,
-    kent_converges := 
-    begin
-      assume f : filter α,
-      assume x : α,
-      assume hconv : converges_ super f x,
-      obtain ⟨hp, hq⟩ := hconv,
-      exact ⟨kent_converges_ p hp, kent_converges_ q hq⟩,
-    end }}
+    kent_converges := λ f x hconv, 
+    ⟨kent_converges_ p hconv.1, kent_converges_ q hconv.2⟩ }}
 
   instance : has_Inf (kent_convergence_space α) :=
   { Inf := λ ps, let super : convergence_space α := Inf (coe '' ps) in
@@ -80,11 +82,7 @@ instance : has_inf (kent_convergence_space α) :=
       begin
         assume f x hconv,
         have : ∀ {p : kent_convergence_space α}, p ∈ ps → converges_ ↑p (f ⊔ pure x) x,
-        begin
-          intros p hmem,
-          have : converges_ ↑p f x, from hconv (mem_image_of_mem coe hmem),
-          exact kent_converges_ p this,
-        end,
+          by { intros p hmem, exact kent_converges_ p (hconv (mem_image_of_mem coe hmem)) },
         have : ∀ {p : convergence_space α}, p ∈ coe '' ps → converges_ p (f ⊔ pure x) x,
         begin
           intros p hp,
@@ -94,6 +92,37 @@ instance : has_inf (kent_convergence_space α) :=
         end,
         assumption
       end }}
+
+instance : has_sup (kent_convergence_space α) :=
+{ sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in 
+  { converges := converges_ super,
+    pure_converges := pure_converges_ super,
+    le_converges := le_converges_ super,
+    kent_converges :=
+    begin
+      intros f x hconv,
+      cases hconv,
+      { exact or.inl (kent_converges_ p hconv) },
+      { exact or.inr (kent_converges_ q hconv) }
+    end }}
+
+instance : has_Sup (kent_convergence_space α) :=
+{ Sup := λ ps, let super : convergence_space α := Sup (coe '' ps) in
+  { converges := converges_ super,
+    pure_converges := pure_converges_ super,
+    le_converges := le_converges_ super,
+    kent_converges := 
+    begin
+      intros f x hconv,
+      cases hconv,
+      { rw sup_of_le_right hconv,
+        exact pure_converges_ super x },
+      { obtain ⟨p, hmem, hconv'⟩ := hconv,
+        refine or.inr ⟨p, hmem, _⟩,
+        obtain ⟨p', hmem', heq⟩ := (set.mem_image coe ps p).mp hmem,
+        rw ← heq at *,
+        exact kent_converges_ p' hconv' }
+    end }}  
 
 /-!
 ### Induced Kent convergence space
