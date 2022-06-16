@@ -26,6 +26,8 @@ open kent_convergence_space
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
 
+namespace kent_convergence_space
+
 @[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
   (↑p : convergence_space α)= ↑q ↔ p = q :=
 by { rw kent_convergence_space.ext_iff, tauto }
@@ -33,19 +35,21 @@ by { rw kent_convergence_space.ext_iff, tauto }
 lemma coe_injective : function.injective (coe : kent_convergence_space α → convergence_space α) :=
 λ s t, coe_inj.1
 
+end kent_convergence_space
+
 /-!
 ### Ordering
 -/
 
 /-- The ordering is the one inherited from convergence spaces. -/
 
-instance : has_le (kent_convergence_space α) :=
-⟨λ p q, p.to_convergence_space ≤ q.to_convergence_space⟩
+instance : has_le (kent_convergence_space α) := ⟨λ p q, ↑p ≤ (↑q : convergence_space α)⟩
 
-instance : partial_order (kent_convergence_space α) := partial_order.lift coe coe_injective
+instance : partial_order (kent_convergence_space α) := 
+  partial_order.lift coe kent_convergence_space.coe_injective
 
 /-!
-### Lattice of convergence structures
+### Lattice of Kent convergence structures
 -/
 
 /-- Just like convergence spaces, Kent convergence spaces also 
@@ -120,10 +124,35 @@ instance : has_Sup (kent_convergence_space α) :=
     end }}
 
 instance : semilattice_inf (kent_convergence_space α) :=
-by { refine function.injective.semilattice_inf coe coe_injective _, tauto }
+by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_injective _, tauto }
 
 instance : semilattice_sup (kent_convergence_space α) :=
-by { refine function.injective.semilattice_sup coe coe_injective _, tauto }
+by { refine function.injective.semilattice_sup coe kent_convergence_space.coe_injective _, tauto }
+
+lemma coe_Inf (ps : set (kent_convergence_space α)) : 
+  (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
+by { ext, tauto }
+
+
+instance : complete_semilattice_Inf (kent_convergence_space α) :=
+{ Inf_le :=
+  begin
+    intros ps p hmem f x hconv,
+    rw coe_Inf at hconv,
+    exact hconv (mem_image_of_mem coe hmem),
+  end,
+  le_Inf :=
+  begin
+    intros ps q hle, 
+    change ↑q ≤ ↑(Inf ps),
+    rw coe_Inf,
+    intros f x hconv p hp,
+    obtain ⟨r, hr, heq⟩ := mem_image_iff_bex.mp hp,
+    rw ← heq,
+    exact hle r hr hconv,
+  end,
+  ..kent_convergence_space.partial_order,
+  ..kent_convergence_space.has_Inf }
 
 /-!
 ### Induced Kent convergence space
@@ -193,6 +222,9 @@ let coind := convergence_space.coinduced m in
 /-!
 ### Constructions
 -/
+
+def kent_modification (p : convergence_space α) : kent_convergence_space α :=
+  Inf { q : kent_convergence_space α | p ≤ q }
 
 instance {p : α → Prop} [kent_convergence_space α] : kent_convergence_space (subtype p) :=
 kent_convergence_space.induced (coe : subtype p → α)
