@@ -18,10 +18,10 @@ variables {α β : Type*}
 
 open kent_convergence_space
 
+namespace kent_convergence_space
+
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
-
-namespace kent_convergence_space
 
 @[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
   (↑p : convergence_space α)= ↑q ↔ p = q :=

@@ -18,24 +18,23 @@ variables {α β : Type*}
 
 open limit_space
 
-@[simp] def sup_converges_ {α : Type*} (p : limit_space α) {f g : filter α} {x : α} 
-  (hf : converges_ p.to_convergence_space f x) (hg : converges_ p.to_convergence_space g x) : 
-  converges_ p.to_convergence_space (f ⊔ g) x
-:= @sup_converges _ p _ _ _ hf hg
-
-instance : has_coe (limit_space α) (kent_convergence_space α) := 
-{ coe := λ p, p.to_kent_convergence_space }
-
 namespace limit_space
 
-@[simp, norm_cast] theorem coe_inj {p q : limit_space α} :
-  (↑p : convergence_space α)= ↑q ↔ p = q :=
-by { rw limit_space.ext_iff, rw kent_convergence_space.ext_iff, tauto }
+instance has_coe : has_coe (limit_space α) (kent_convergence_space α) := 
+{ coe := λ p, p.to_kent_convergence_space }
 
-lemma coe_injective : function.injective (coe : limit_space α → convergence_space α) :=
+@[simp, norm_cast] theorem coe_inj {p q : limit_space α} :
+  (↑p : kent_convergence_space α)= ↑q ↔ p = q :=
+by { rw limit_space.ext_iff, tauto }
+
+lemma coe_injective : function.injective (coe : limit_space α → kent_convergence_space α) :=
 λ s t, coe_inj.1
 
 end limit_space
+
+@[simp] def sup_converges_ {α : Type*} (p : limit_space α) {f g : filter α} {x : α} 
+  (hf : converges_ ↑p f x) (hg : converges_ ↑p g x) : converges_ ↑p (f ⊔ g) x
+:= @sup_converges _ p _ _ _ hf hg
 
 /-!
 ### Ordering
