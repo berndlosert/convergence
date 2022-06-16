@@ -68,28 +68,32 @@ instance : has_bot (limit_space α) :=
       assumption
     end,
     ..kent_convergence_space.has_bot.bot }}
-/-
-instance : has_inf (kent_convergence_space α) := 
-{ inf := λ p q, let super : convergence_space α := ↑p ⊓ ↑q in 
+
+instance : has_inf (limit_space α) := 
+{ inf := λ p q, let super : kent_convergence_space α := ↑p ⊓ ↑q in 
   { converges := converges_ super,
     pure_converges := pure_converges_ super,
     le_converges := le_converges_ super,
-    kent_converges := λ f x hconv, 
-    ⟨kent_converges_ p hconv.1, kent_converges_ q hconv.2⟩ }}
+    kent_converges := λ _ _, kent_converges_ super,
+    sup_converges := λ f g x hf hg,
+     ⟨sup_converges_ p hf.1 hg.1, sup_converges_ q hf.2 hg.2⟩ }}
 
-  instance : has_Inf (kent_convergence_space α) :=
-  { Inf := λ ps, let super : convergence_space α := Inf (coe '' ps) in
+instance : has_Inf (limit_space α) :=
+  { Inf := λ ps, let super : kent_convergence_space α := Inf (coe '' ps) in
     { converges := converges_ super,
       pure_converges := pure_converges_ super,
       le_converges := le_converges_ super,
-      kent_converges :=
+      kent_converges := λ _ _, kent_converges_ super,
+      sup_converges :=
       begin
-        intros f x hconv p hp,
+        intros f g x hf hg p hp,
         obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
         rw ← heq at *,
-        refine kent_converges_ q (hconv hp)
+        obtain ⟨q', hq', heq'⟩ := mem_image_iff_bex.mp hq,
+        rw ← heq' at *,
+        exact sup_converges_ q' (hf hp) (hg hp)
       end }}
-
+/-
 instance : has_sup (kent_convergence_space α) :=
 { sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in 
   { converges := converges_ super,

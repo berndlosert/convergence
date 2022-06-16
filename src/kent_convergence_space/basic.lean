@@ -18,11 +18,6 @@ variables {α β : Type*}
 
 open kent_convergence_space
 
-@[simp] def kent_converges_ {α : Type*} (p : kent_convergence_space α)
-  {f : filter α} {x : α} (h : converges_ p.to_convergence_space f x) : 
-  converges_ p.to_convergence_space (f ⊔ pure x) x
-:= @kent_converges _ p _ _ h
-
 instance : has_coe (kent_convergence_space α) (convergence_space α) := 
 { coe := λ p, p.to_convergence_space }
 
@@ -36,6 +31,10 @@ lemma coe_injective : function.injective (coe : kent_convergence_space α → co
 λ s t, coe_inj.1
 
 end kent_convergence_space
+
+@[simp] def kent_converges_ {α : Type*} (p : kent_convergence_space α)
+  {f : filter α} {x : α} (h : converges_ ↑p f x) : converges_ ↑p (f ⊔ pure x) x
+:= @kent_converges _ p _ _ h
 
 /-!
 ### Ordering
@@ -89,7 +88,7 @@ instance : has_inf (kent_convergence_space α) :=
         intros f x hconv p hp,
         obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
         rw ← heq at *,
-        refine kent_converges_ q (hconv hp)
+        exact kent_converges_ q (hconv hp)
       end }}
 
 instance : has_sup (kent_convergence_space α) :=
