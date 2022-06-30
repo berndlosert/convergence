@@ -4,7 +4,7 @@ import algebra.support
 import kent_convergence_space.basic
 
 noncomputable theory
-open set filter classical kent_convergence_space
+open set filter classical kent_convergence_space convergence_space
 open_locale classical filter
 
 variables {α β : Type*} 
@@ -92,20 +92,26 @@ instance : has_Inf (limit_space α) :=
         rw ← heq' at *,
         exact sup_converges_ q' (hf hp) (hg hp)
       end }}
-/-
-instance : has_sup (kent_convergence_space α) :=
-{ sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in 
-  { converges := converges_ super,
-    pure_converges := pure_converges_ super,
-    le_converges := le_converges_ super,
+
+instance : has_sup (limit_space α) :=
+{ sup := λ p q,
+  { converges := λ f x, ∃ g h, converges_ ↑p g x ∧ converges_ ↑q h x ∧ f ≤ g ⊔ h,
+    pure_converges := λ x, 
+      ⟨pure x, pure x, pure_converges_ ↑p x, pure_converges_ ↑q x, le_of_eq (sup_idem.symm)⟩,
+    le_converges :=
+    begin
+      rintros f g hle x ⟨g', h', hg', hh', hle'⟩,
+      exact ⟨g', h', hg', hh', trans hle hle'⟩
+    end,
     kent_converges :=
     begin
-      intros f x hconv,
-      cases hconv,
-      { exact or.inl (kent_converges_ p hconv) },
-      { exact or.inr (kent_converges_ q hconv) }
-    end }}
-
+      rintros f x ⟨g, h, hg, hh, hle⟩,
+      refine ⟨g ⊔ pure x, h ⊔ pure x, kent_converges_ ↑p hg, kent_converges_ ↑q hh, _⟩,
+      rw [sup_left_comm, sup_right_idem, sup_left_comm, ← sup_assoc],
+      exact sup_le_sup_right hle (pure x),
+    end,
+    sup_converges := sorry }}
+/-
 instance : has_Sup (kent_convergence_space α) :=
 { Sup := λ ps, let super : convergence_space α := Sup (coe '' ps) in
   { converges := converges_ super,
