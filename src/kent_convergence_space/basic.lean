@@ -125,13 +125,9 @@ instance : has_Sup (kent_convergence_space α) :=
 instance : semilattice_inf (kent_convergence_space α) :=
 by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_injective _, tauto }
 
-instance : semilattice_sup (kent_convergence_space α) :=
-by { refine function.injective.semilattice_sup coe kent_convergence_space.coe_injective _, tauto }
-
 lemma coe_Inf (ps : set (kent_convergence_space α)) : 
   (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
 by { ext, tauto }
-
 
 instance : complete_semilattice_Inf (kent_convergence_space α) :=
 { Inf_le :=
@@ -152,6 +148,9 @@ instance : complete_semilattice_Inf (kent_convergence_space α) :=
   end,
   ..kent_convergence_space.partial_order,
   ..kent_convergence_space.has_Inf }
+
+instance : complete_lattice (kent_convergence_space α) :=
+complete_lattice_of_complete_semilattice_Inf (kent_convergence_space α)
 
 /-!
 ### Induced Kent convergence space
