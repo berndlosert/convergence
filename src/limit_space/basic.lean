@@ -110,7 +110,15 @@ instance : has_sup (limit_space α) :=
       rw [sup_left_comm, sup_right_idem, sup_left_comm, ← sup_assoc],
       exact sup_le_sup_right hle (pure x),
     end,
-    sup_converges := sorry }}
+    sup_converges :=
+    begin
+      rintros f f' x ⟨g, h, hg, hh, hle⟩ ⟨g', h', hg', hh', hle'⟩,
+      have hgg' := sup_converges_ p hg hg',
+      have hhh' := sup_converges_ q hh hh',
+      refine ⟨g ⊔ g', h ⊔ h', hgg', hhh', _⟩,
+      calc f ⊔ f' ≤ (g ⊔ h) ⊔ (g' ⊔ h') : sup_le_sup hle hle'
+      ... = (g ⊔ g') ⊔ (h ⊔ h') : sup_sup_sup_comm g h g' h'
+    end }}
 /-
 instance : has_Sup (kent_convergence_space α) :=
 { Sup := λ ps, let super : convergence_space α := Sup (coe '' ps) in
