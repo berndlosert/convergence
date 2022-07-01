@@ -146,7 +146,17 @@ instance : has_Sup (limit_space α) :=
     sup_converges :=
     begin
       rintros f f' x ⟨g, hall⟩ ⟨g', hall'⟩,
-
+      let h : limit_space α → filter α := λ p, g p ⊔ g' p,
+      use h, intros p hmem,
+      obtain ⟨hconv, hle⟩ := hall p hmem,
+      obtain ⟨hconv', hle'⟩ := hall' p hmem,
+      refine ⟨sup_converges_ p hconv hconv', _⟩,
+      simp [h], intros q hq, split,
+      { have : f ≤ g q := le_trans hle (Inf_le (mem_image_of_mem g hq)),
+        exact le_sup_of_le_left this },
+      { rw sup_comm,
+        have : f' ≤ g' q := le_trans hle' (Inf_le (mem_image_of_mem g' hq)),
+        exact le_sup_of_le_left this },    
     end }}
 /-
 instance : semilattice_inf (kent_convergence_space α) :=
