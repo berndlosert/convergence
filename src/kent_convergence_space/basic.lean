@@ -51,7 +51,7 @@ instance : partial_order (kent_convergence_space α) :=
 ### Lattice of Kent convergence structures
 -/
 
-/-- Just like convergence spaces, Kent convergence spaces also 
+/-- Just like convergence structures, Kent convergence structures also 
   form a complete lattice. -/
 
 instance : has_top (kent_convergence_space α) :=

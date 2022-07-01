@@ -51,7 +51,10 @@ instance : partial_order (limit_space α) :=
 ### Lattice of limit structures
 -/
 
-/-- Just like convergence spaces, limit spaces also form a complete lattice. -/
+/-- Just like convergence structures, limit structures also form a complete lattice. However,
+  unlike convergence structures, the supremum is defined differently: the `sup p q` of two
+  limit structures `p` and `q` is defined so that `converges_ (sup p q) f x` means that there
+  exists filters `g, h` such that `converges_ p g x`, `converges_ q h x` and `f ≤ g ⊔ h`. -/
 
 instance : has_top (limit_space α) :=
 { top := { sup_converges := by tauto, ..kent_convergence_space.has_top.top }}
