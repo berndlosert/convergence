@@ -119,25 +119,36 @@ instance : has_sup (limit_space α) :=
       calc f ⊔ f' ≤ (g ⊔ h) ⊔ (g' ⊔ h') : sup_le_sup hle hle'
       ... = (g ⊔ g') ⊔ (h ⊔ h') : sup_sup_sup_comm g h g' h'
     end }}
-/-
-instance : has_Sup (kent_convergence_space α) :=
-{ Sup := λ ps, let super : convergence_space α := Sup (coe '' ps) in
-  { converges := converges_ super,
-    pure_converges := pure_converges_ super,
-    le_converges := le_converges_ super,
-    kent_converges := 
-    begin
-      intros f x hconv,
-      cases hconv,
-      { rw sup_of_le_right hconv,
-        exact pure_converges_ super x },
-      { obtain ⟨p, hp, hconv'⟩ := hconv,
-        refine or.inr ⟨p, hp, _⟩,
-        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
-        rw ← heq at *,
-        exact kent_converges_ q hconv' }
-    end }}
 
+instance : has_Sup (limit_space α) :=
+{ Sup := λ ps,
+  { converges := λ f x, ∃ g : limit_space α → filter α, 
+      ∀ (p : limit_space α), p ∈ ps → converges_ ↑p (g p) x ∧ f ≤ Inf (g '' ps),
+    pure_converges := λ x, by { use (λ _, pure x), intros, simp },
+    le_converges :=
+    begin
+      rintros f g hle x ⟨h, hall⟩,
+      use h, intros p hmem,
+      obtain ⟨hconv, hle'⟩ := hall p hmem,
+      exact ⟨hconv, le_trans hle hle'⟩
+    end,
+    kent_converges :=
+    begin
+      rintros f x ⟨g, hall⟩,
+      let h : limit_space α → filter α := λ p, g p ⊔ pure x,
+      use h, intros p hmem,
+      obtain ⟨hconv, hle⟩ := hall p hmem,
+      refine ⟨kent_converges_ p hconv, _⟩,
+      simp [h], intros q hq,
+      have : f ≤ g q := le_trans hle (Inf_le (mem_image_of_mem g hq)),
+      exact le_sup_of_le_left this,
+    end,
+    sup_converges :=
+    begin
+      rintros f f' x ⟨g, hall⟩ ⟨g', hall'⟩,
+
+    end }}
+/-
 instance : semilattice_inf (kent_convergence_space α) :=
 by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_injective _, tauto }
 
