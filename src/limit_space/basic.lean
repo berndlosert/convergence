@@ -161,35 +161,33 @@ instance : has_Sup (limit_space α) :=
         have : f' ≤ g' q := le_trans hle' (Inf_le (mem_image_of_mem g' hq)),
         exact le_sup_of_le_left this },    
     end }}
-/-
-instance : semilattice_inf (kent_convergence_space α) :=
-by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_injective _, tauto }
 
-instance : semilattice_sup (kent_convergence_space α) :=
-by { refine function.injective.semilattice_sup coe kent_convergence_space.coe_injective _, tauto }
+instance : semilattice_inf (limit_space α) :=
+by { refine function.injective.semilattice_inf coe limit_space.coe_injective _, tauto }
 
-lemma coe_Inf (ps : set (kent_convergence_space α)) : 
-  (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
+lemma limit_space.coe_Inf (ps : set (limit_space α)) : 
+  (↑(Inf ps) : kent_convergence_space α) = Inf (coe '' ps) :=
 by { ext, tauto }
 
-
-instance : complete_semilattice_Inf (kent_convergence_space α) :=
+instance : complete_semilattice_Inf (limit_space α) :=
 { Inf_le :=
   begin
     intros ps p hmem f x hconv,
-    rw coe_Inf at hconv,
-    exact hconv (mem_image_of_mem coe hmem),
+    rw limit_space.coe_Inf at hconv,
+    have hmem' := mem_image_of_mem coe hmem,
+    exact hconv (mem_image_of_mem coe hmem'),
   end,
   le_Inf :=
   begin
     intros ps q hle, 
     change ↑q ≤ ↑(Inf ps),
-    rw coe_Inf,
+    rw limit_space.coe_Inf,
     intros f x hconv p hp,
     obtain ⟨r, hr, heq⟩ := mem_image_iff_bex.mp hp,
     rw ← heq,
-    exact hle r hr hconv,
+    obtain ⟨r', hr', heq'⟩ := mem_image_iff_bex.mp hr,
+    rw ← heq',
+    exact hle r' hr' hconv,
   end,
-  ..kent_convergence_space.partial_order,
-  ..kent_convergence_space.has_Inf }
--/
+  ..limit_space.partial_order,
+  ..limit_space.has_Inf }
