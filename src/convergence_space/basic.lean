@@ -64,10 +64,9 @@ instance : partial_order (convergence_space α) :=
 
 /-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence 
   structure (where only pure filters and the bottom filter converge) and `⊤` the indiscrete 
-  convergence structure (where every filter converges). The infimum of a collection `ps` of 
-  convergence structures is the convergence structure where `converges f x` means 
-  `∀ p ∈ ps, converges_ p f x`, while the supremum is the convergence struture where 
-  `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
+  convergence structure (where every filter converges). The infimum of a non-empty collection
+  `ps` is defined so that `converges f x` means `∀ p ∈ ps, converges_ p f x`, while the 
+  supremum is defined so that `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
 
 instance : has_bot (convergence_space α) :=
 { bot := 

@@ -30,7 +30,7 @@ open has_continuous_mul
 /-- Class `has_continuous_smul M α` says that the scalar multiplication
   `(•) : M → α → α` is continuous in both arguments. -/
 class has_continuous_smul (M α : Type*)
-  [has_scalar M α] [convergence_space M] [convergence_space α] : Prop :=
+  [has_smul M α] [convergence_space M] [convergence_space α] : Prop :=
 (continuous_smul : continuous2 ((•) : M → α → α))
 
 open has_continuous_smul
@@ -73,7 +73,7 @@ instance : has_continuous_smul G (G × α) :=
     rintro ⟨a₁, ⟨a₂, x⟩⟩ : G × (G × α),
     rintro k : filter (G × (G × α)),
     rintro hk : converges k (a₁, (a₂, x)),
-    let act : G × (G × α) → G × α := uncurry has_scalar.smul,
+    let act : G × (G × α) → G × α := uncurry has_smul.smul,
     let mul : G × G → G := uncurry has_mul.mul,
     let rlassoc := (equiv.prod_assoc G G α).symm.to_fun,
     have heq : act = prod.map mul id ∘ rlassoc, by { funext; tidy },
@@ -318,7 +318,7 @@ begin
           (set.prod_subset_prod_iff.mpr 
             (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
     have : (b⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
-    have : uncurry has_scalar.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
+    have : uncurry has_smul.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
     change b⁻¹ • y ∈ l at this,
     have : z ∈ l, by { rw heq', assumption },
     have : z ∈ l ∩ s := ⟨this, hz⟩,
@@ -406,7 +406,7 @@ begin
           (set.prod_subset_prod_iff.mpr 
             (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
     have : (b⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
-    have : uncurry has_scalar.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
+    have : uncurry has_smul.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
     change b⁻¹ • y ∈ l at this,
     have : z ∈ l, by { rw heq', assumption },
     have : z ∈ l ∩ s := ⟨this, hz⟩,
