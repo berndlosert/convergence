@@ -7,7 +7,7 @@ variables {α M : Type*}
 -/
 
 /-- Typeclass for partial scalar actions. `smul_defined a x` means that `a • x` is defined. -/
-class has_partial_smul (M α : Type*) extends has_scalar M α :=
+class has_partial_smul (M α : Type*) extends has_smul M α :=
 (smul_defined : M → α → Prop)
 
 export has_partial_smul

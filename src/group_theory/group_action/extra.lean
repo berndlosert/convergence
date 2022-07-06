@@ -76,7 +76,7 @@ instance : setoid (G × α) :=
 { r := envelope G α,
   iseqv := is_equivalence }
 
-instance : has_scalar G (G × α) := ⟨λ a ⟨b, x⟩, (a * b, x)⟩
+instance : has_smul G (G × α) := ⟨λ a ⟨b, x⟩, (a * b, x)⟩
 
 lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a • cy := 
 begin
@@ -93,7 +93,7 @@ quotient.sound (act_congr a bx cy heq)
 
 def act_lifted (a : G) (bx : G × α) : space G α := ⟦a • bx⟧
 
-instance : has_scalar G (space G α) :=
+instance : has_smul G (space G α) :=
 ⟨λ a bx, quotient.lift (act_lifted a) (act_congr_sound a) bx⟩
 
 end envelope
