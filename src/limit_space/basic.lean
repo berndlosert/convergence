@@ -80,22 +80,6 @@ instance : has_inf (limit_space α) :=
     sup_converges := λ f g x hf hg,
      ⟨sup_converges_ p hf.1 hg.1, sup_converges_ q hf.2 hg.2⟩ }}
 
-instance : has_Inf (limit_space α) :=
-  { Inf := λ ps, let super : kent_convergence_space α := Inf (coe '' ps) in
-    { converges := converges_ super,
-      pure_converges := pure_converges_ super,
-      le_converges := le_converges_ super,
-      kent_converges := λ _ _, kent_converges_ super,
-      sup_converges :=
-      begin
-        intros f g x hf hg p hp,
-        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
-        rw ← heq at *,
-        obtain ⟨q', hq', heq'⟩ := mem_image_iff_bex.mp hq,
-        rw ← heq' at *,
-        exact sup_converges_ q' (hf hp) (hg hp)
-      end }}
-
 instance : has_sup (limit_space α) :=
 { sup := λ p q,
   { converges := λ f x, ∃ g h, converges_ ↑p g x ∧ converges_ ↑q h x ∧ f ≤ g ⊔ h,
@@ -122,6 +106,22 @@ instance : has_sup (limit_space α) :=
       calc f ⊔ f' ≤ (g ⊔ h) ⊔ (g' ⊔ h') : sup_le_sup hle hle'
       ... = (g ⊔ g') ⊔ (h ⊔ h') : sup_sup_sup_comm g h g' h'
     end }}
+    
+instance : has_Inf (limit_space α) :=
+  { Inf := λ ps, let super : kent_convergence_space α := Inf (coe '' ps) in
+    { converges := converges_ super,
+      pure_converges := pure_converges_ super,
+      le_converges := le_converges_ super,
+      kent_converges := λ _ _, kent_converges_ super,
+      sup_converges :=
+      begin
+        intros f g x hf hg p hp,
+        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
+        rw ← heq at *,
+        obtain ⟨q', hq', heq'⟩ := mem_image_iff_bex.mp hq,
+        rw ← heq' at *,
+        exact sup_converges_ q' (hf hp) (hg hp)
+      end }}
 
 instance : has_Sup (limit_space α) :=
 { Sup := λ ps,
@@ -191,3 +191,6 @@ instance : complete_semilattice_Inf (limit_space α) :=
   end,
   ..limit_space.partial_order,
   ..limit_space.has_Inf }
+
+instance : complete_lattice (limit_space α) :=
+complete_lattice_of_complete_semilattice_Inf (limit_space α)  

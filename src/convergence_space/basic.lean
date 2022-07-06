@@ -69,15 +69,15 @@ instance : partial_order (convergence_space α) :=
   `∀ p ∈ ps, converges_ p f x`, while the supremum is the convergence struture where 
   `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
 
-instance : has_top (convergence_space α) :=
-{ top := 
-  { converges := λ f x, true,
-    pure_converges := by tauto, 
-    le_converges := by tauto }}
-
 instance : has_bot (convergence_space α) :=
 { bot := 
   { converges := λ f x, f ≤ pure x, 
+    pure_converges := by tauto, 
+    le_converges := by tauto }}
+
+instance : has_top (convergence_space α) :=
+{ top := 
+  { converges := λ f x, true,
     pure_converges := by tauto, 
     le_converges := by tauto }}
 
@@ -89,12 +89,6 @@ instance : has_inf (convergence_space α) :=
       and.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
     }}
 
-instance : has_Inf (convergence_space α) :=
-{ Inf := λ ps,
-  { converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
-    pure_converges := λ x p ps, pure_converges_ p x,
-    le_converges := λ f g hle x hconv p hmem, le_converges_ p hle (hconv hmem) }}
-
 instance : has_sup (convergence_space α) :=
 { sup := λ p q,
   { converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
@@ -102,6 +96,12 @@ instance : has_sup (convergence_space α) :=
     le_converges := λ f g hle x hconv, or.elim hconv
       (assume hl, or.inl (le_converges_ p hle hl))
       (assume hr, or.inr (le_converges_ q hle hr)) }}
+
+instance : has_Inf (convergence_space α) :=
+{ Inf := λ ps,
+  { converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
+    pure_converges := λ x p ps, pure_converges_ p x,
+    le_converges := λ f g hle x hconv p hmem, le_converges_ p hle (hconv hmem) }}
 
 instance : has_Sup (convergence_space α) :=
 { Sup := λ ps,
@@ -116,12 +116,25 @@ instance : has_Sup (convergence_space α) :=
       { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
     end }}
 
+instance : semilattice_inf (convergence_space α) :=
+{ inf_le_left := λ p q f x hconv, hconv.left,
+  inf_le_right := λ p q f x hconv, hconv.right,
+  le_inf := λ p q r hle hle' f x hp, and.intro (hle hp) (hle' hp),
+  ..convergence_space.partial_order,
+  ..convergence_space.has_inf }
+
 instance : semilattice_sup (convergence_space α) :=
 { le_sup_left := λ p q f x hconv, or.inl hconv,
   le_sup_right := λ p q f x hconv, or.inr hconv,
   sup_le := λ p q r hle hle' f x hconv, hconv.elim hle hle',
   ..convergence_space.partial_order,
   ..convergence_space.has_sup }
+
+instance : complete_semilattice_Inf (convergence_space α) :=
+{ Inf_le := λ ps p hmem f x hconv, hconv hmem,
+  le_Inf := λ ps q hle f x hconv p hmem, (hle p hmem) hconv,
+  ..convergence_space.partial_order,
+  ..convergence_space.has_Inf }
 
 instance : complete_semilattice_Sup (convergence_space α) :=
 { le_Sup := λ ps p hmem f x hconv, or.inr (exists.intro p (and.intro hmem hconv)),
@@ -131,19 +144,6 @@ instance : complete_semilattice_Sup (convergence_space α) :=
       (assume hexists, exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right)),
   ..convergence_space.partial_order,
   ..convergence_space.has_Sup }
-
-instance : semilattice_inf (convergence_space α) :=
-{ inf_le_left := λ p q f x hconv, hconv.left,
-  inf_le_right := λ p q f x hconv, hconv.right,
-  le_inf := λ p q r hle hle' f x hp, and.intro (hle hp) (hle' hp),
-  ..convergence_space.partial_order,
-  ..convergence_space.has_inf }
-
-instance : complete_semilattice_Inf (convergence_space α) :=
-{ Inf_le := λ ps p hmem f x hconv, hconv hmem,
-  le_Inf := λ ps q hle f x hconv p hmem, (hle p hmem) hconv,
-  ..convergence_space.partial_order,
-  ..convergence_space.has_Inf }
 
 instance : lattice (convergence_space α) :=
 { ..convergence_space.semilattice_sup,
@@ -402,12 +402,6 @@ and.intro
   (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x) 
   (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
 
-lemma prod.converges' {f : filter (α × β)} {x : α × β}
-  (hfst : converges (map fst f) (fst x))
-  (hsnd : converges (map snd f) (snd x)) :
-  (converges f x) :=
-⟨hfst, hsnd⟩
-
 lemma continuous.prod_mk [convergence_space α] [convergence_space β₁]
   [convergence_space β₂] {m₁ : α → β₁} {m₂ : α → β₂}
   (hcont₁ : continuous m₁) (hcont₂ : continuous m₂) : continuous (λx, (m₁ x, m₂ x)) :=
@@ -573,8 +567,6 @@ def is_locally_compact [convergence_space α] (s : set α) :=
 
 class locally_compact_space (α : Type*) [convergence_space α] : Prop :=
 (locally_compact_prop : is_locally_compact (univ : set α))
-
-
 
 /-!
 ### Quotient maps

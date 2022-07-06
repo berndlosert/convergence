@@ -52,10 +52,8 @@ instance : partial_order (kent_convergence_space α) :=
 -/
 
 /-- Just like convergence structures, Kent convergence structures also 
-  form a complete lattice. -/
-
-instance : has_top (kent_convergence_space α) :=
-{ top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
+  form a complete lattice. The infimum/supremum are formed in the same
+  manner as convergence spaces. -/
 
 instance : has_bot (kent_convergence_space α) :=
 { bot := 
@@ -70,6 +68,9 @@ instance : has_bot (kent_convergence_space α) :=
     end,
     ..convergence_space.has_bot.bot }}
 
+instance : has_top (kent_convergence_space α) :=
+{ top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
+
 instance : has_inf (kent_convergence_space α) := 
 { inf := λ p q, let super : convergence_space α := ↑p ⊓ ↑q in 
   { converges := converges_ super,
@@ -77,19 +78,6 @@ instance : has_inf (kent_convergence_space α) :=
     le_converges := le_converges_ super,
     kent_converges := λ f x hconv, 
     ⟨kent_converges_ p hconv.1, kent_converges_ q hconv.2⟩ }}
-
-  instance : has_Inf (kent_convergence_space α) :=
-  { Inf := λ ps, let super : convergence_space α := Inf (coe '' ps) in
-    { converges := converges_ super,
-      pure_converges := pure_converges_ super,
-      le_converges := le_converges_ super,
-      kent_converges :=
-      begin
-        intros f x hconv p hp,
-        obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
-        rw ← heq at *,
-        exact kent_converges_ q (hconv hp)
-      end }}
 
 instance : has_sup (kent_convergence_space α) :=
 { sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in 
@@ -102,6 +90,19 @@ instance : has_sup (kent_convergence_space α) :=
       cases hconv,
       { exact or.inl (kent_converges_ p hconv) },
       { exact or.inr (kent_converges_ q hconv) }
+    end }}
+
+instance : has_Inf (kent_convergence_space α) :=
+{ Inf := λ ps, let super : convergence_space α := Inf (coe '' ps) in
+  { converges := converges_ super,
+    pure_converges := pure_converges_ super,
+    le_converges := le_converges_ super,
+    kent_converges :=
+    begin
+      intros f x hconv p hp,
+      obtain ⟨q, hq, heq⟩ := mem_image_iff_bex.mp hp,
+      rw ← heq at *,
+      exact kent_converges_ q (hconv hp)
     end }}
 
 instance : has_Sup (kent_convergence_space α) :=
@@ -127,6 +128,10 @@ by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_in
 
 lemma kent_convergence_space.coe_Inf (ps : set (kent_convergence_space α)) : 
   (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
+by { ext, tauto }
+
+lemma kent_convergence_space.coe_Sup (ps : set (kent_convergence_space α)) : 
+  (↑(Sup ps) : convergence_space α) = Sup (coe '' ps) :=
 by { ext, tauto }
 
 instance : complete_semilattice_Inf (kent_convergence_space α) :=
