@@ -126,6 +126,9 @@ instance : has_Sup (kent_convergence_space α) :=
 instance : semilattice_inf (kent_convergence_space α) :=
 by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_injective _, tauto }
 
+instance : semilattice_sup (kent_convergence_space α) :=
+by { refine function.injective.semilattice_sup coe kent_convergence_space.coe_injective _, tauto }
+
 lemma kent_convergence_space.coe_Inf (ps : set (kent_convergence_space α)) : 
   (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
 by { ext, tauto }
@@ -153,6 +156,28 @@ instance : complete_semilattice_Inf (kent_convergence_space α) :=
   end,
   ..kent_convergence_space.partial_order,
   ..kent_convergence_space.has_Inf }
+
+instance : complete_semilattice_Sup (kent_convergence_space α) :=
+{ le_Sup :=
+  begin
+    intros ps p hmem f x hconv,
+    rw kent_convergence_space.coe_Sup,
+    unfold Sup, simp,
+    exact or.inr ⟨p, hmem, hconv⟩,
+  end,
+  Sup_le := 
+  begin
+    intros qs p hle f x hconv,
+    cases hconv,
+    { exact le_converges_ ↑p hconv (pure_converges_ ↑p x) },
+    { obtain ⟨q, hq, hconv'⟩ := hconv,
+      obtain ⟨r, hr, heq⟩ := mem_image_iff_bex.mp hq,
+      rw ← heq at hconv',
+      exact (hle r hr) hconv',
+      }
+  end,
+  ..kent_convergence_space.partial_order,
+  ..kent_convergence_space.has_Sup }
 
 instance : complete_lattice (kent_convergence_space α) :=
 complete_lattice_of_complete_semilattice_Inf (kent_convergence_space α)
