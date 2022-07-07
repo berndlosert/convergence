@@ -124,8 +124,14 @@ instance : has_Inf (limit_space α) :=
 instance : has_Sup (limit_space α) :=
 { Sup := λ ps,
   { converges := λ f x, ∃ g : limit_space α → filter α, 
-      ∀ (p : limit_space α), p ∈ ps → converges_ ↑p (g p) x ∧ f ≤ Inf (g '' ps),
-    pure_converges := λ x, by { use (λ _, pure x), intros, simp },
+      ∀ (p : limit_space α), p ∈ ps → converges_ ↑p (g p) x ∧ f ≤ Sup (g '' ps),
+    pure_converges := 
+    begin
+      intros x, use (λ _, pure x), 
+      intros p hmem, refine ⟨pure_converges_ p x, _⟩,
+      rw [nonempty.image_const ⟨p, hmem⟩ (pure x), Sup_singleton],
+      tauto,
+    end,
     le_converges :=
     begin
       rintros f g hle x ⟨h, hall⟩,
@@ -197,6 +203,12 @@ instance : complete_semilattice_Inf (limit_space α) :=
   end,
   ..limit_space.partial_order,
   ..limit_space.has_Inf }
+
+instance : complete_semilattice_Sup (limit_space α) :=
+{ le_Sup := λ ps p hmem f x hconv, sorry,
+  Sup_le := λ qs p hle f x hconv, sorry,
+  ..limit_space.partial_order,
+  ..limit_space.has_Sup }  
 
 instance : complete_lattice (limit_space α) :=
 complete_lattice_of_complete_semilattice_Inf (limit_space α)  
