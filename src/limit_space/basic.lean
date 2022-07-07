@@ -51,10 +51,10 @@ instance : partial_order (limit_space α) :=
 ### Lattice of limit structures
 -/
 
-/-- Just like convergence structures, limit structures also form a complete lattice. However,
-  unlike convergence structures, the supremum is defined differently: the `sup p q` of two
-  limit structures `p` and `q` is defined so that `converges_ (sup p q) f x` means that there
-  exists filters `g, h` such that `converges_ p g x`, `converges_ q h x` and `f ≤ g ⊔ h`. -/
+/-- Limit structures form a complete lattice. Infimums are formed like in Kent convergence 
+  spaces. Supremums are different: `h` converges to `x` with respect to `p ⊔ q` when there
+  exists filters `g, h` such that `g` converges to `x` with respect to `p`, `h` converges
+  to `x` with respect to `q` and `f ≤ g ⊔ h`. -/
 
 instance : has_top (limit_space α) :=
 { top := { sup_converges := by tauto, ..kent_convergence_space.has_top.top }}
@@ -100,9 +100,7 @@ instance : has_sup (limit_space α) :=
     sup_converges :=
     begin
       rintros f f' x ⟨g, h, hg, hh, hle⟩ ⟨g', h', hg', hh', hle'⟩,
-      have hgg' := sup_converges_ p hg hg',
-      have hhh' := sup_converges_ q hh hh',
-      refine ⟨g ⊔ g', h ⊔ h', hgg', hhh', _⟩,
+      refine ⟨g ⊔ g', h ⊔ h', sup_converges_ p hg hg', sup_converges_ q hh hh', _⟩,
       calc f ⊔ f' ≤ (g ⊔ h) ⊔ (g' ⊔ h') : sup_le_sup hle hle'
       ... = (g ⊔ g') ⊔ (h ⊔ h') : sup_sup_sup_comm g h g' h'
     end }}
@@ -164,6 +162,14 @@ instance : has_Sup (limit_space α) :=
 
 instance : semilattice_inf (limit_space α) :=
 by { refine function.injective.semilattice_inf coe limit_space.coe_injective _, tauto }
+
+instance : semilattice_sup (limit_space α) :=
+{ le_sup_left := λ p q f x hconv, ⟨f, pure x, hconv, pure_converges_ ↑q x, le_sup_left⟩,
+  le_sup_right := λ p q f x hconv, ⟨pure x, f, pure_converges_ ↑p x, hconv, le_sup_right⟩,
+  sup_le := λ p q r hp hq f x ⟨g, h, hg, hh, hle⟩, 
+    le_converges_ r hle (sup_converges_ r (hp hg) (hq hh)),
+  ..limit_space.partial_order,
+  ..limit_space.has_sup }
 
 lemma limit_space.coe_Inf (ps : set (limit_space α)) : 
   (↑(Inf ps) : kent_convergence_space α) = Inf (coe '' ps) :=
