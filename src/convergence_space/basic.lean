@@ -151,11 +151,11 @@ instance : lattice (convergence_space α) :=
 instance : complete_lattice (convergence_space α) :=
 { bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
   le_top := by intros; tauto,
-  ..convergence_space.lattice,
-  ..convergence_space.complete_semilattice_Sup,
-  ..convergence_space.complete_semilattice_Inf,
+  ..convergence_space.has_bot,
   ..convergence_space.has_top,
-  ..convergence_space.has_bot }
+  ..convergence_space.lattice,
+  ..convergence_space.complete_semilattice_Inf,
+  ..convergence_space.complete_semilattice_Sup }
 
 /-!
 ### Continuity

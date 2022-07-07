@@ -179,8 +179,18 @@ instance : complete_semilattice_Sup (kent_convergence_space α) :=
   ..kent_convergence_space.partial_order,
   ..kent_convergence_space.has_Sup }
 
+instance : lattice (kent_convergence_space α) :=
+{ ..kent_convergence_space.semilattice_sup,
+  ..kent_convergence_space.semilattice_inf }  
+
 instance : complete_lattice (kent_convergence_space α) :=
-complete_lattice_of_complete_semilattice_Inf (kent_convergence_space α)
+{ bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
+  le_top := by intros; tauto,
+  ..kent_convergence_space.has_bot,
+  ..kent_convergence_space.has_top,
+  ..kent_convergence_space.lattice,
+  ..kent_convergence_space.complete_semilattice_Inf,
+  ..kent_convergence_space.complete_semilattice_Sup }
 
 /-!
 ### Induced Kent convergence space
