@@ -86,8 +86,8 @@ instance : has_inf (limit_space α) :=
      ⟨sup_converges_ p hf.1 hg.1, sup_converges_ q hf.2 hg.2⟩ }}
 
 instance : has_sup (limit_space α) :=
-{ sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in
-  { converges := λ f x, ∃ g₁ g₂, f ≤ g₁ ⊔ g₂ ∧ converges_ super g₁ x ∧ converges_ super g₂ x,
+{ sup := λ p q,
+  { converges := λ f x, ∃ g₁ g₂, f ≤ g₁ ⊔ g₂ ∧ converges_ ↑p g₁ x ∧ converges_ ↑q g₂ x,
     pure_converges := λ x, by refine ⟨pure x, pure x, _, _, _⟩; simp,
     le_converges :=
     begin
@@ -97,13 +97,9 @@ instance : has_sup (limit_space α) :=
     sup_converges :=
     begin
       rintros f f' x ⟨g₁, g₂, hle, hg₁, hg₂⟩ ⟨g₁', g₂', hle', hg₁', hg₂'⟩,
-      refine ⟨g₁ ⊔ g₁', g₂ ⊔ g₂', _, _, _⟩,
-      { calc f ⊔ f' ≤ (g₁ ⊔ g₂) ⊔ (g₁' ⊔ g₂') : sup_le_sup hle hle'
-        ... = (g₁ ⊔ g₁') ⊔ (g₂ ⊔ g₂') : sup_sup_sup_comm g₁ g₂ g₁' g₂' },
-      { cases hg₁, cases hg₁', 
-        exact or.inl (sup_converges_ p hg₁ hg₁'), 
-        sorry,},
-      
+      refine ⟨g₁ ⊔ g₁', g₂ ⊔ g₂', _, sup_converges_ p hg₁ hg₁', sup_converges_ q hg₂ hg₂'⟩,
+      calc f ⊔ f' ≤ (g₁ ⊔ g₂) ⊔ (g₁' ⊔ g₂') : sup_le_sup hle hle'
+      ... = (g₁ ⊔ g₁') ⊔ (g₂ ⊔ g₂') : sup_sup_sup_comm g₁ g₂ g₁' g₂'
     end }}
     
 instance : has_Inf (limit_space α) :=
@@ -123,36 +119,35 @@ instance : has_Sup (limit_space α) :=
 { Sup := λ ps,
   { converges := λ f x, f ≤ pure x ∨ ∃ g : limit_space α → filter α, 
       f ≤ Sup (g '' ps) ∧ ∀ p : limit_space α, p ∈ ps → converges_ ↑p (g p) x,
-    pure_converges := 
-    begin
-      intros x, use (λ _, pure x), split,
-      -- intros p hmem, refine ⟨pure_converges_ p x, _⟩,
-      rw [nonempty.image_const ⟨p, hmem⟩ (pure x), Sup_singleton],
-      tauto,
-    end,
+    pure_converges := λ x, or.inl (le_refl (pure x)),
     le_converges :=
     begin
-      rintros f g hle x ⟨h, hall⟩,
-      use h, intros p hmem,
-      obtain ⟨hconv, hle'⟩ := hall p hmem,
-      exact ⟨hconv, le_trans hle hle'⟩
+      intros f f' hle x hconv,
+      cases hconv,
+      { exact or.inl (le_trans hle hconv) },
+      { obtain ⟨g, hle', hconv'⟩ := hconv,
+        exact or.inr ⟨g, le_trans hle hle', hconv'⟩ }
     end,
     sup_converges :=
     begin
-      rintros f f' x ⟨g, hall⟩ ⟨g', hall'⟩,
-      let h : limit_space α → filter α := λ p, g p ⊔ g' p,
-      use h, intros p hmem,
-      obtain ⟨hconv, hle⟩ := hall p hmem,
-      obtain ⟨hconv', hle'⟩ := hall' p hmem,
-      refine ⟨sup_converges_ p hconv hconv', _⟩,
-      have : g ≤ h, by intros p; simp [h],
-      have hSup : Sup (g '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
-      have : g' ≤ h, by intros p; simp [h],
-      have hSup' : Sup (g' '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
-      calc f ⊔ f' ≤ Sup (g '' ps) ⊔ Sup (g' '' ps) : sup_le_sup hle hle'
-      ... ≤ Sup (h '' ps) : sup_le hSup hSup' 
+      rintros f f' x hconv hconv',
+      cases hconv, cases hconv',
+      { exact or.inl (sup_le hconv hconv') },
+      { sorry, },
+      { sorry, }
+      -- intros ⟨g, hall⟩ ⟨g', hall'⟩,
+      -- let h : limit_space α → filter α := λ p, g p ⊔ g' p,
+      -- use h, intros p hmem,
+      -- obtain ⟨hconv, hle⟩ := hall p hmem,
+      -- obtain ⟨hconv', hle'⟩ := hall' p hmem,
+      -- refine ⟨sup_converges_ p hconv hconv', _⟩,
+      -- have : g ≤ h, by intros p; simp [h],
+      -- have hSup : Sup (g '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
+      -- have : g' ≤ h, by intros p; simp [h],
+      -- have hSup' : Sup (g' '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
+      -- calc f ⊔ f' ≤ Sup (g '' ps) ⊔ Sup (g' '' ps) : sup_le_sup hle hle'
+      -- ... ≤ Sup (h '' ps) : sup_le hSup hSup' 
     end }}
-}
 
 instance : semilattice_inf (limit_space α) :=
 by { refine function.injective.semilattice_inf coe limit_space.coe_injective _, tauto }
@@ -199,7 +194,11 @@ instance : complete_semilattice_Sup (limit_space α) :=
     refine ⟨_, le_refl (pure x)⟩,
     change converges_ ↑q f x,
   end,
-  Sup_le := λ qs p hle f x hconv, sorry,
+  Sup_le :=
+  begin
+    intros qs p hle f x hconv, 
+    sorry,
+  end,
   ..limit_space.partial_order,
   ..limit_space.has_Sup }  
 

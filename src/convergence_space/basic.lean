@@ -10,6 +10,8 @@ noncomputable theory
 open set function filter classical option category_theory prod
 open_locale classical filter
 
+universe w
+
 variables {α α₁ α₂ β β₁ β₂ γ : Type*}
 
 /-!
@@ -33,10 +35,6 @@ variables (p : convergence_space α)
 @le_converges _ p _ _ hle _ hconv
 end
 
-theorem convergence_space_eq_iff {p q : convergence_space α} :
-  p = q ↔ ∀ f x, converges_ p f x ↔ converges_ q f x :=
-by simp [funext_iff, convergence_space.ext_iff p q]
-
 /- N.B. In any convergence space, the bottom filter converges to every point. -/
 lemma bot_converges [convergence_space α] (x : α) : converges ⊥ x := 
 le_converges bot_le (pure_converges x)
@@ -57,6 +55,16 @@ instance : partial_order (convergence_space α) :=
   le_trans := by { assume p q r hpq hqr f x hconv, exact (hqr (hpq hconv)) },
   le_antisymm := by { assume p q hpq hqp, ext f x, exact iff.intro hpq hqp },
   ..convergence_space.has_le }
+
+/-!
+### Initial convergence
+-/
+
+def convergence_space.initial {ι : Type*} {β : ι → Type*} 
+  (p : ∀ i : ι, convergence_space (β i)) (m : ∀ i : ι, α → β i) : convergence_space α :=
+{ converges := λ f x, ∀ i : ι, converges_ (p i) (map (m i) f) ((m i) x),
+  pure_converges := λ x i, by rw filter.map_pure; exact pure_converges_ (p i) ((m i) x),
+  le_converges := λ f g hle x hconv i, le_converges_ (p i) (filter.map_mono hle) (hconv i) }
 
 /-!
 ### Lattice of convergence structures
