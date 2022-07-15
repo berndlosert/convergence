@@ -17,7 +17,7 @@ variables {α β : Type*}
 -/
 
 @[ext] class limit_space (α : Type*) extends convergence_space α :=
-(sup_converges : ∀ {f g x}, converges f x -> converges g x -> converges (f ⊔ g) x) -- f ⊔ g means f ∩ g
+(sup_converges : ∀ {f g x}, converges f x → converges g x → converges (f ⊔ g) x) -- f ⊔ g means f ∩ g
 
 open limit_space
 
@@ -45,6 +45,16 @@ instance limit_space.to_kent_convergence_space
   pure_converges := pure_converges,
   le_converges := λ f g hle hconv, le_converges hle,
   kent_converges := λ f x hconv, sup_converges hconv (pure_converges x) }
+
+lemma Sup_converges [limit_space α] {fs : set (filter α)} (hfin : fs.finite)
+  {x : α} (hconv : ∀ f ∈ fs, converges f x) : converges (Sup fs) x :=
+begin
+  refine set.finite.induction_on hfin _ _,
+  { simp, exact bot_converges x },
+  { intros g gs hg hfin' hconv,
+    rw [set.insert_eq, Sup_union],
+    simp,  }
+end
 
 /-!
 ### Ordering
@@ -181,15 +191,20 @@ instance : complete_semilattice_Sup (limit_space α) :=
 { le_Sup :=
   begin
     intros ps p hp f x hconv,
-    let g : limit_space α → filter α := λ _, f ⊔ pure x,
-    use g, intros q hq, simp [g],
-    rw [nonempty.image_const ⟨p, hp⟩ (pure x), Sup_singleton],
-    refine ⟨_, le_refl (pure x)⟩,
-    change converges_ ↑q f x,
+    refine ⟨{ f }, set.singleton_nonempty f, set.finite_singleton f, by simp, _⟩,
+    intros g hmem,
+    rw set.mem_singleton_iff.mp hmem,
+    exact or.inr ⟨p, mem_image_of_mem coe hp, hconv⟩,
   end,
   Sup_le :=
   begin
-    intros qs p hle f x hconv, 
+    rintros qs p hle f x ⟨gs, hne, hfin, hle, hconv⟩,
+    let g : filter α := hne.some,
+    have hconv' := hconv g (nonempty.some_mem hne),
+    cases hconv',
+    { sorry },
+    { obtain ⟨q, hmem, hq⟩ := hconv',
+      }
     sorry,
   end,
   ..limit_space.partial_order,
