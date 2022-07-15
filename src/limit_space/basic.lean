@@ -3,6 +3,8 @@ import order.filter.partial
 import algebra.support
 import kent_convergence_space.basic
 import order.complete_lattice.extra
+import data.fin.tuple
+import data.set.finite
 
 noncomputable theory
 open set filter classical kent_convergence_space convergence_space
@@ -116,37 +118,28 @@ instance : has_Inf (limit_space α) :=
       end }}
 
 instance : has_Sup (limit_space α) :=
-{ Sup := λ ps,
-  { converges := λ f x, f ≤ pure x ∨ ∃ g : limit_space α → filter α, 
-      f ≤ Sup (g '' ps) ∧ ∀ p : limit_space α, p ∈ ps → converges_ ↑p (g p) x,
-    pure_converges := λ x, or.inl (le_refl (pure x)),
+{ Sup := λ ps, let super : convergence_space α := Sup (coe '' ps) in
+  { converges := λ f x, ∃ gs : set (filter α), gs.nonempty ∧ gs.finite ∧
+      f ≤ Sup gs ∧ ∀ g, g ∈ gs → converges_ super g x,
+    pure_converges := λ x, 
+      ⟨{ pure x }, set.singleton_nonempty (pure x), set.finite_singleton (pure x), by simp, by simp⟩,
     le_converges :=
     begin
       intros f f' hle x hconv,
-      cases hconv,
-      { exact or.inl (le_trans hle hconv) },
-      { obtain ⟨g, hle', hconv'⟩ := hconv,
-        exact or.inr ⟨g, le_trans hle hle', hconv'⟩ }
+      obtain ⟨gs, hne, hfin, hle', hconv'⟩ := hconv,
+      exact ⟨gs, hne, hfin, le_trans hle hle', hconv'⟩
     end,
     sup_converges :=
     begin
-      rintros f f' x hconv hconv',
-      cases hconv, cases hconv',
-      { exact or.inl (sup_le hconv hconv') },
-      { sorry, },
-      { sorry, }
-      -- intros ⟨g, hall⟩ ⟨g', hall'⟩,
-      -- let h : limit_space α → filter α := λ p, g p ⊔ g' p,
-      -- use h, intros p hmem,
-      -- obtain ⟨hconv, hle⟩ := hall p hmem,
-      -- obtain ⟨hconv', hle'⟩ := hall' p hmem,
-      -- refine ⟨sup_converges_ p hconv hconv', _⟩,
-      -- have : g ≤ h, by intros p; simp [h],
-      -- have hSup : Sup (g '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
-      -- have : g' ≤ h, by intros p; simp [h],
-      -- have hSup' : Sup (g' '' ps) ≤ Sup (h '' ps) := Sup_image_le this ps,
-      -- calc f ⊔ f' ≤ Sup (g '' ps) ⊔ Sup (g' '' ps) : sup_le_sup hle hle'
-      -- ... ≤ Sup (h '' ps) : sup_le hSup hSup' 
+      rintros f₁ f₂ x hf₁ hf₂,
+      obtain ⟨gs₁, hne₁, hfin₁, hle₁, hconv₁⟩ := hf₁,
+      obtain ⟨gs₂, hne₂, hfin₂, hle₂, hconv₂⟩ := hf₂,
+      refine ⟨gs₁ ∪ gs₂, set.nonempty.inl hne₁, set.finite_union.mpr ⟨hfin₁, hfin₂⟩, _, _⟩,
+      rw Sup_union,
+      exact sup_le_sup hle₁ hle₂,
+      intros g hmem, cases hmem,
+      { exact hconv₁ g hmem },
+      { exact hconv₂ g hmem }
     end }}
 
 instance : semilattice_inf (limit_space α) :=
