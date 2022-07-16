@@ -4,7 +4,7 @@ import algebra.support
 import kent_convergence_space.basic
 import order.complete_lattice.extra
 import data.fin.tuple
-import data.set.finite
+import data.set.finite.extra
 
 noncomputable theory
 open set filter classical kent_convergence_space convergence_space
@@ -35,7 +35,7 @@ lemma coe_injective : function.injective (coe : limit_space α → convergence_s
 
 end limit_space
 
-@[simp] def sup_converges_ {α : Type*} (p : limit_space α) {f g : filter α} {x : α} 
+@[simp] def sup_converges_ (p : limit_space α) {f g : filter α} {x : α} 
   (hf : converges_ ↑p f x) (hg : converges_ ↑p g x) : converges_ ↑p (f ⊔ g) x
 := @sup_converges _ p _ _ _ hf hg
 
@@ -49,12 +49,17 @@ instance limit_space.to_kent_convergence_space
 lemma Sup_converges [limit_space α] {fs : set (filter α)} (hfin : fs.finite)
   {x : α} (hconv : ∀ f ∈ fs, converges f x) : converges (Sup fs) x :=
 begin
-  refine set.finite.induction_on hfin _ _,
+  refine set.finite.induction_on' hfin _ _,
   { simp, exact bot_converges x },
-  { intros g gs hg hfin' hconv,
-    rw [set.insert_eq, Sup_union],
-    simp,  }
+  { intros g gs hfin' hfin'' hmem hsub hnmem hSup,
+    rw [set.insert_eq, Sup_union], simp, 
+    have hg : converges g x := hconv g hmem,
+    exact sup_converges hg hSup}
 end
+
+lemma Sup_converges_ (p : limit_space α) {fs : set (filter α)} (hfin : fs.finite)
+  {x : α} (hconv : ∀ f ∈ fs, converges_ ↑p f x) : converges_ ↑p (Sup fs) x :=
+@Sup_converges _ p fs hfin x hconv
 
 /-!
 ### Ordering
@@ -198,14 +203,25 @@ instance : complete_semilattice_Sup (limit_space α) :=
   end,
   Sup_le :=
   begin
-    rintros qs p hle f x ⟨gs, hne, hfin, hle, hconv⟩,
-    let g : filter α := hne.some,
-    have hconv' := hconv g (nonempty.some_mem hne),
-    cases hconv',
-    { sorry },
-    { obtain ⟨q, hmem, hq⟩ := hconv',
-      }
-    sorry,
+    rintros qs p hle f x ⟨gs, hne, hfin, hle', hconv⟩,
+    have hg : ∀ g ∈ gs, converges_ ↑p g x,
+    begin
+      intros g hmem,
+      let hconv' : g ≤ pure x ∨
+        ∃ q : convergence_space α, q ∈ coe '' qs ∧ converges_ q g x := hconv g hmem,
+      exact hconv'.elim 
+        (λ hg : g ≤ pure x, le_converges_ ↑p hg (pure_converges_ ↑p x))
+        (λ hexists : (∃ q : convergence_space α, q ∈ coe '' qs ∧ converges_ q g x),
+        begin
+          obtain ⟨q, hq, hg⟩ := hexists,
+          rw set.mem_image_iff_bex at hq,
+          obtain ⟨q', hq', heq⟩ := hq,
+          rw ← heq at hg,
+          exact (hle q' hq') hg,
+        end),
+    end,
+    have hSup : converges_ ↑p (Sup gs) x, from Sup_converges_ p hfin hg,
+    exact le_converges_ p hle' hSup,
   end,
   ..limit_space.partial_order,
   ..limit_space.has_Sup }  

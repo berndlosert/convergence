@@ -112,8 +112,8 @@ instance : has_Inf (convergence_space α) :=
 
 instance : has_Sup (convergence_space α) :=
 { Sup := λ ps,
-  { converges := λ f x, (f ≤ pure x) ∨
-      (∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x),
+  { converges := λ f x, f ≤ pure x ∨
+      ∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x,
     pure_converges := by tauto,
     le_converges :=
     begin
