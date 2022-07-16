@@ -224,7 +224,17 @@ instance : complete_semilattice_Sup (limit_space α) :=
     exact le_converges_ p hle' hSup,
   end,
   ..limit_space.partial_order,
-  ..limit_space.has_Sup }  
+  ..limit_space.has_Sup }
+
+instance : lattice (limit_space α) :=
+{ ..limit_space.semilattice_sup,
+  ..limit_space.semilattice_inf }
 
 instance : complete_lattice (limit_space α) :=
-complete_lattice_of_complete_semilattice_Inf (limit_space α)  
+{ bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
+  le_top := by intros; tauto,
+  ..limit_space.has_bot,
+  ..limit_space.has_top,
+  ..limit_space.lattice,
+  ..limit_space.complete_semilattice_Inf,
+  ..limit_space.complete_semilattice_Sup }
