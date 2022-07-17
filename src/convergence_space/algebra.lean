@@ -232,10 +232,11 @@ begin
   -- Since x ∈ adh (partial_smul g f), there exists an ultrafilter h that converges to x 
   -- such that h ≤ partial_smul g f.
   obtain ⟨h, hle, hconv⟩ := hx,
-  have hconv : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x), sorry,
+  have hconv : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x) :=
+    continuous_smul (continuous_inv hgconv) (envelope.embed.continuous hconv),
   have : a⁻¹ • envelope.embed G x ∈ adh (map (envelope.embed G) f), sorry,
   rw ne_empty_iff_exists_elem,
-  exact ⟨a⁻¹ • envelope.embed G x, this⟩
+  exact ⟨a⁻¹ • envelope.embed G x, this⟩,
 /-
   haveI hnb'' : ((partial_smul g⁻¹ ↑h) ⊓ f).ne_bot, from
   begin
