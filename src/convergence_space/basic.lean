@@ -351,6 +351,18 @@ def convergent (f : filter α) : Prop := ∃ x, converges f x
 def adheres (f : filter α) (x : α) : Prop :=
 ∃ (g : filter α) [ne_bot g], g ≤ f ∧ converges g x
 
+lemma adheres.exists_ultrafilter (f : filter α) (x : α) : 
+  adheres f x ↔ ∃ (g : ultrafilter α), ↑g ≤ f ∧ converges ↑g x :=
+begin
+  split,
+  { rintros ⟨g, hnb, hle, hconv⟩,
+    haveI : g.ne_bot := hnb,
+    obtain ⟨g', hle'⟩ := filter.exists_ultrafilter_le g,
+    exact ⟨g', le_trans hle' hle, le_converges hle' hconv⟩ },
+  { rintros ⟨g, hle, hconv⟩,
+    exact ⟨↑g, g.ne_bot, hle, hconv⟩ }
+end
+
 /-- The set of all points that adhere to a filter. -/
 def adh (f : filter α) : set α := { x | adheres f x }
 

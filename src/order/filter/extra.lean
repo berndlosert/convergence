@@ -102,11 +102,9 @@ begin
   exact ⟨x, hmem', hx⟩,
 end
 
-/-- `partial_smul` lifted to filters. -/
+/-- The partial scalar multiplication of two filters. -/
 def partial_smul [has_partial_smul M α] 
   (g : filter M) (f : filter α) : filter α := 
 map (uncurry (•) : M × α → α) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))
-
-infix ` •ᶠ `:73 := filter.partial_smul
 
 end filter

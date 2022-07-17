@@ -48,7 +48,7 @@ open convergence_group
 class has_continuous_partial_smul (M α : Type*) [has_partial_smul M α]
   [convergence_space M] [convergence_space α] : Prop :=
 (continuous_partial_smul : ∀ {a : M} {x : α} {g : filter M} {f : filter α},
-  converges g a → converges f x → smul_defined a x → converges (g •ᶠ f) (a • x))
+  converges g a → converges f x → smul_defined a x → converges (partial_smul g f) (a • x))
 
 export has_continuous_partial_smul
 
@@ -146,18 +146,12 @@ def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G]
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g • f) = ∅
 
-/-- This is the "partial" version of `adh_restrictive`. -/
-def partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ (g •ᶠ f).ne_bot
-  → adh (g •ᶠ f) = ∅
-
-/-- This is a weaker version of `partial_adh_restrictive` where instead of considering the adherence in `α`,
+/-- This is a weaker version of `adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
 def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ 
-  adh (map (envelope.embed G) f) = ∅ ∧ (g •ᶠ f).ne_bot → adh (g •ᶠ f) = ∅
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a → ((g ×ᶠ f) ⊓ 𝓟 (smul_dom G α)).ne_bot
+  → adh (map (envelope.embed G) f) = ∅ → adh (partial_smul g f) = ∅
 
 lemma not_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
@@ -179,50 +173,6 @@ begin
   obtain ⟨x, hmem⟩ := rest₄,
   rw set.not_not_mem at hmem,
   exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
-end
-
-lemma not_partial_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
-  [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
-  ¬ (partial_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
-begin
-  intro hcontra,
-  unfold partial_adh_restrictive at hcontra,
-  rw not_forall at hcontra,
-  obtain ⟨g, rest₁⟩ := hcontra,
-  rw not_forall at rest₁,
-  obtain ⟨f, rest₂⟩ := rest₁,
-  rw not_forall at rest₂,
-  obtain ⟨a, rest₃⟩ := rest₂,
-  rw not_imp at rest₃,
-  obtain ⟨⟨hnb, hconv, hadh, hnb'⟩, rest₄⟩ := rest₃,
-  rw set.eq_empty_iff_forall_not_mem at rest₄,
-  rw not_forall at rest₄,
-  obtain ⟨x, hmem⟩ := rest₄,
-  rw set.not_not_mem at hmem,
-  exact ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩,
-end
-
-lemma not_weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
-  [convergence_group G] [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] :
-  ¬ (weakly_adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh (map (envelope.embed G) f) = ∅ ∧ (g •ᶠ f).ne_bot ∧ x ∈ adh (g •ᶠ f) :=
-begin
-  intro hcontra,
-  unfold weakly_adh_restrictive at hcontra,
-  rw not_forall at hcontra,
-  obtain ⟨g, rest₁⟩ := hcontra,
-  rw not_forall at rest₁,
-  obtain ⟨f, rest₂⟩ := rest₁,
-  rw not_forall at rest₂,
-  obtain ⟨a, rest₃⟩ := rest₂,
-  rw not_imp at rest₃,
-  obtain ⟨⟨hnb, hconv, hadh, hnb'⟩, rest₄⟩ := rest₃,
-  rw set.eq_empty_iff_forall_not_mem at rest₄,
-  rw not_forall at rest₄,
-  obtain ⟨x, hmem⟩ := rest₄,
-  rw set.not_not_mem at hmem,
-  exact ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩,
 end
 
 lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
@@ -262,110 +212,32 @@ begin
   exact absurd hmem (hadh (a⁻¹ • x)),
 end
 
-lemma partial_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] 
-  (hcl : is_closed (smul_dom G α)) : partial_adh_restrictive G α :=
-classical.by_contradiction 
-begin
-  assume hcontra : ¬ partial_adh_restrictive G α,
-  obtain ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩ := not_partial_adh_restrictive G α hcontra,
-  haveI : g.ne_bot := hnb,
-  change x ∈ adh (g •ᶠ f) at hmem,
-  change adheres (g •ᶠ f) x at hmem,
-  unfold adheres at hmem,
-  obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
-  haveI : h'.ne_bot := hnb',
-  let h := ultrafilter.of h',
-  have hle'' : ↑h ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
-  haveI hnb'' : ((g⁻¹ •ᶠ ↑h) ⊓ f).ne_bot, from
-  begin
-    rw [ne_bot_iff, inf_neq_bot_iff],
-    unfold filter.partial_smul,
-    intros l hl s hs,
-    rw mem_map_iff_exists_image at hl,
-    let d := smul_dom G α,
-    obtain ⟨w, hw, hsubw⟩ := hl,
-    change w ∈ (g⁻¹ ×ᶠ ↑h) ⊓ 𝓟 d at hw,
-    obtain ⟨u, hu, v, hv, hsub⟩ := (filter.prod_inf_principal_mem_iff w).mp hw,
-    obtain ⟨t, ht, hsub'⟩ := (filter.mem_inv_iff u).mp hu,
-    have ht' : t⁻¹ ∈ g⁻¹ := filter.inv_mem_inv ht,
-    let w' := (t ×ˢ s) ∩ d,
-    have hw' : w' ∈ (g ×ᶠ f) ⊓ 𝓟 d := 
-      (filter.prod_inf_principal_mem_iff w').mpr ⟨t, ht, s, hs, subset_refl w'⟩,
-    let smul := uncurry (•),
-    let v' := smul '' w',
-    have : v' ∈ g •ᶠ f := filter.image_mem_map hw',
-    have hv' : v' ∈ ↑h := filter.le_def.mp hle'' v' this,
-    let v₀ := v ∩ v',
-    have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (h.inter_sets hv hv'),
-    let y : α := hne.some,
-    let hy : y ∈ v₀ := hne.some_mem,
-    have hex : ∃ (b ∈ t) (z ∈ s), smul_defined b z ∧ b • z = y, from
-    begin
-      have : y ∈ v' :=  set.mem_of_mem_inter_right hy,
-      obtain ⟨⟨b, z⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
-      obtain ⟨hmem', hd⟩ := (set.mem_inter_iff (b, z) (t ×ˢ s) d).mp hmem,
-      obtain ⟨hb, hz⟩ := hmem', 
-      exact ⟨b, hb, z, hz, hd, heq⟩,
-    end,
-    obtain ⟨b, hb, z, hz, hdef, heq⟩ := hex,
-    obtain ⟨hdef', heq'⟩ := inv_smul_cancel_left hdef heq,
-    have : (b⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
-      set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr hb) hy) hdef',
-    have : (b⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
-      set.mem_of_mem_of_subset this 
-        (set.inter_subset_inter_left d 
-          (set.prod_subset_prod_iff.mpr 
-            (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
-    have : (b⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
-    have : uncurry has_smul.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
-    change b⁻¹ • y ∈ l at this,
-    have : z ∈ l, by { rw heq', assumption },
-    have : z ∈ l ∩ s := ⟨this, hz⟩,
-    exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨z, this⟩),
-  end,
-  have hdef : smul_defined a⁻¹ x, from
-  begin
-    change (a⁻¹, x) ∈ smul_dom G α,
-    change smul_dom G α = closure (smul_dom G α) at hcl,
-    rw set.ext_iff.mp hcl,
-    unfold closure,
-    let k : filter (G × α) := (g⁻¹ ×ᶠ ↑h) ⊓ 𝓟 (smul_dom G α),
-    have : (g⁻¹ •ᶠ ↑h) ⊓ f ≤ g⁻¹ •ᶠ ↑h := inf_le_left,
-    have : (g⁻¹ •ᶠ ↑h).ne_bot := filter.ne_bot.mono hnb'' this,
-    have hk₀ : k.ne_bot := (filter.map_ne_bot_iff (uncurry (•) : G × α → α)).mp this,
-    have : converges ↑h x := le_converges (ultrafilter.of_le h') hconv',
-    have : converges (g⁻¹ ×ᶠ ↑h) (a⁻¹, x) := prod.converges (continuous_inv hconv) this,
-    have hk₁ : converges k (a⁻¹, x) := le_converges inf_le_left this,
-    have hk₂ : smul_dom G α ∈ k := filter.le_principal_iff.mp inf_le_right,
-    refine ⟨k, hk₀, hk₁, hk₂⟩,
-  end,
-  have : converges g⁻¹ a⁻¹, from continuous_inv hconv, 
-  have : converges (g⁻¹ •ᶠ ↑h) (a⁻¹ • x), 
-    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') hdef,
-  have : converges ((g⁻¹ •ᶠ ↑h) ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
-  have : (a⁻¹ • x) ∈ adh f := ⟨(g⁻¹ •ᶠ ↑h) ⊓ f, hnb'', inf_le_right, this⟩,
-  rw set.eq_empty_iff_forall_not_mem at hadh,
-  unfold adh at hadh,
-  exact absurd this (hadh (a⁻¹ • x)),
-end
-
 lemma weakly_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [partial_mul_action G α] 
   [has_continuous_partial_smul G α] : weakly_adh_restrictive G α :=
-classical.by_contradiction
 begin
-  assume hcontra : ¬ weakly_adh_restrictive G α,
-  obtain ⟨g, f, a, x, hnb, hconv, hadh, hnb', hmem⟩ := not_weakly_adh_restrictive G α hcontra,
-    haveI : g.ne_bot := hnb,
-  change x ∈ adh (g •ᶠ f) at hmem,
-  change adheres (g •ᶠ f) x at hmem,
-  unfold adheres at hmem,
-  obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
-  haveI : h'.ne_bot := hnb',
-  let h := ultrafilter.of h',
-  have hle'' : ↑h ≤ g •ᶠ f, from (le_trans (ultrafilter.of_le h') hle'),
-  haveI hnb'' : ((g⁻¹ •ᶠ ↑h) ⊓ f).ne_bot, from
+  -- Assume:
+  --  * g is a ne_bot filter that converges to a,
+  --  * f is a filter on α, 
+  --  * ((g ×ᶠ f) ⊓ 𝓟 (smul_dom G α)) is ne_bot.
+  intros g f a hgnb hgconv hnb,
+  haveI : g.ne_bot := hgnb,
+  -- We'll prove adh (map (envelope.embed G) f) = ∅ → adh (partial_smul g f) = ∅ by proving the contrapositive.
+  rw ← not_imp_not,
+  -- Assume there exists x ∈ adh (partial_smul g f).
+  intro hadh,
+  obtain ⟨x, hx⟩ := ne_empty_iff_exists_elem.mp hadh,
+  change adheres (partial_smul g f) x at hx,
+  rw adheres.exists_ultrafilter (partial_smul g f) x at hx,
+  -- Since x ∈ adh (partial_smul g f), there exists an ultrafilter h that converges to x 
+  -- such that h ≤ partial_smul g f.
+  obtain ⟨h, hle, hconv⟩ := hx,
+  have hconv : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x), sorry,
+  have : a⁻¹ • envelope.embed G x ∈ adh (map (envelope.embed G) f), sorry,
+  rw ne_empty_iff_exists_elem,
+  exact ⟨a⁻¹ • envelope.embed G x, this⟩
+/-
+  haveI hnb'' : ((partial_smul g⁻¹ ↑h) ⊓ f).ne_bot, from
   begin
     rw [ne_bot_iff, inf_neq_bot_iff],
     unfold filter.partial_smul,
@@ -382,7 +254,7 @@ begin
       (filter.prod_inf_principal_mem_iff w').mpr ⟨t, ht, s, hs, subset_refl w'⟩,
     let smul := uncurry (•),
     let v' := smul '' w',
-    have : v' ∈ g •ᶠ f := filter.image_mem_map hw',
+    have : v' ∈ partial_smul g f := filter.image_mem_map hw',
     have hv' : v' ∈ ↑h := filter.le_def.mp hle'' v' this,
     let v₀ := v ∩ v',
     have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (h.inter_sets hv hv'),
@@ -415,12 +287,9 @@ begin
   have hdef : smul_defined a⁻¹ x, from
   begin
     change (a⁻¹, x) ∈ smul_dom G α,
-    change smul_dom G α = closure (smul_dom G α) at hcl,
-    rw set.ext_iff.mp hcl,
-    unfold closure,
     let k : filter (G × α) := (g⁻¹ ×ᶠ ↑h) ⊓ 𝓟 (smul_dom G α),
-    have : (g⁻¹ •ᶠ ↑h) ⊓ f ≤ g⁻¹ •ᶠ ↑h := inf_le_left,
-    have : (g⁻¹ •ᶠ ↑h).ne_bot := filter.ne_bot.mono hnb'' this,
+    have : (partial_smul g⁻¹ ↑h) ⊓ f ≤ partial_smul g⁻¹ ↑h := inf_le_left,
+    have : (partial_smul g⁻¹ ↑h).ne_bot := filter.ne_bot.mono hnb'' this,
     have hk₀ : k.ne_bot := (filter.map_ne_bot_iff (uncurry (•) : G × α → α)).mp this,
     have : converges ↑h x := le_converges (ultrafilter.of_le h') hconv',
     have : converges (g⁻¹ ×ᶠ ↑h) (a⁻¹, x) := prod.converges (continuous_inv hconv) this,
@@ -429,12 +298,13 @@ begin
     refine ⟨k, hk₀, hk₁, hk₂⟩,
   end,
   have : converges g⁻¹ a⁻¹, from continuous_inv hconv, 
-  have : converges (g⁻¹ •ᶠ ↑h) (a⁻¹ • x), 
+  have : converges (partial_smul g⁻¹ ↑h) (a⁻¹ • x), 
     from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') hdef,
-  have : converges ((g⁻¹ •ᶠ ↑h) ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
-  have : (a⁻¹ • x) ∈ adh f := ⟨(g⁻¹ •ᶠ ↑h) ⊓ f, hnb'', inf_le_right, this⟩,
+  have : converges ((partial_smul g⁻¹ ↑h) ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
+  have : (a⁻¹ • x) ∈ adh f := ⟨(partial_smul g⁻¹ ↑h) ⊓ f, hnb'', inf_le_right, this⟩,
   rw set.eq_empty_iff_forall_not_mem at hadh,
   unfold adh at hadh,
   exact absurd this (hadh (a⁻¹ • x)),
   sorry,
+  -/
 end
