@@ -234,78 +234,17 @@ begin
   obtain ⟨h, hle, hconv⟩ := hx,
   have hconv : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x) :=
     continuous_smul (continuous_inv hgconv) (envelope.embed.continuous hconv),
-  have : a⁻¹ • envelope.embed G x ∈ adh (map (envelope.embed G) f), sorry,
-  rw ne_empty_iff_exists_elem,
-  exact ⟨a⁻¹ • envelope.embed G x, this⟩,
-/-
-  haveI hnb'' : ((partial_smul g⁻¹ ↑h) ⊓ f).ne_bot, from
+  have hmem : a⁻¹ • envelope.embed G x ∈ adh (map (envelope.embed G) f) :=
   begin
-    rw [ne_bot_iff, inf_neq_bot_iff],
-    unfold filter.partial_smul,
-    intros l hl s hs,
-    rw mem_map_iff_exists_image at hl,
-    let d := smul_dom G α,
-    obtain ⟨w, hw, hsubw⟩ := hl,
-    change w ∈ (g⁻¹ ×ᶠ ↑h) ⊓ 𝓟 d at hw,
-    obtain ⟨u, hu, v, hv, hsub⟩ := (filter.prod_inf_principal_mem_iff w).mp hw,
-    obtain ⟨t, ht, hsub'⟩ := (filter.mem_inv_iff u).mp hu,
-    have ht' : t⁻¹ ∈ g⁻¹ := filter.inv_mem_inv ht,
-    let w' := (t ×ˢ s) ∩ d,
-    have hw' : w' ∈ (g ×ᶠ f) ⊓ 𝓟 d := 
-      (filter.prod_inf_principal_mem_iff w').mpr ⟨t, ht, s, hs, subset_refl w'⟩,
-    let smul := uncurry (•),
-    let v' := smul '' w',
-    have : v' ∈ partial_smul g f := filter.image_mem_map hw',
-    have hv' : v' ∈ ↑h := filter.le_def.mp hle'' v' this,
-    let v₀ := v ∩ v',
-    have hne : v₀.nonempty := ultrafilter.nonempty_of_mem (h.inter_sets hv hv'),
-    let y : α := hne.some,
-    let hy : y ∈ v₀ := hne.some_mem,
-    have hex : ∃ (b ∈ t) (z ∈ s), smul_defined b z ∧ b • z = y, from
+    change adheres (map (envelope.embed G) f) (a⁻¹ • envelope.embed G x),
+    change ∃ (f' : filter (envelope.space G α)) [f'.ne_bot], f' ≤ map (envelope.embed G) f ∧ converges f' (a⁻¹ • envelope.embed G x),
+    have : (g⁻¹ • filter.map (envelope.embed G) ↑h ⊓ map (envelope.embed G) f).ne_bot :=
     begin
-      have : y ∈ v' :=  set.mem_of_mem_inter_right hy,
-      obtain ⟨⟨b, z⟩, hmem, heq⟩ := (set.mem_image smul w' y).mp this,
-      obtain ⟨hmem', hd⟩ := (set.mem_inter_iff (b, z) (t ×ˢ s) d).mp hmem,
-      obtain ⟨hb, hz⟩ := hmem', 
-      exact ⟨b, hb, z, hz, hd, heq⟩,
-    end,
-    obtain ⟨b, hb, z, hz, hdef, heq⟩ := hex,
-    obtain ⟨hdef', heq'⟩ := inv_smul_cancel_left hdef heq,
-    have : (b⁻¹, y) ∈ (t⁻¹ ×ˢ v₀) ∩ d := 
-      set.mem_inter (set.mk_mem_prod (set.inv_mem_inv.mpr hb) hy) hdef',
-    have : (b⁻¹, y) ∈ (u ×ˢ v) ∩ d :=
-      set.mem_of_mem_of_subset this 
-        (set.inter_subset_inter_left d 
-          (set.prod_subset_prod_iff.mpr 
-            (or.inl ⟨hsub', set.inter_subset_left v v'⟩))),
-    have : (b⁻¹, y) ∈ w := set.mem_of_mem_of_subset this hsub,
-    have : uncurry has_smul.smul (b⁻¹, y) ∈ l := (set.maps_to'.mpr hsubw) this,
-    change b⁻¹ • y ∈ l at this,
-    have : z ∈ l, by { rw heq', assumption },
-    have : z ∈ l ∩ s := ⟨this, hz⟩,
-    exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨z, this⟩),
+      haveI : (filter.map (envelope.embed G) ↑h).ne_bot := filter.map_ne_bot,
+      have : filter.map (envelope.embed G) ↑h ≤ g • map (envelope.embed G) f := sorry,
+      exact filter.inv_smul_of_smul this,
+    end
   end,
-  have hdef : smul_defined a⁻¹ x, from
-  begin
-    change (a⁻¹, x) ∈ smul_dom G α,
-    let k : filter (G × α) := (g⁻¹ ×ᶠ ↑h) ⊓ 𝓟 (smul_dom G α),
-    have : (partial_smul g⁻¹ ↑h) ⊓ f ≤ partial_smul g⁻¹ ↑h := inf_le_left,
-    have : (partial_smul g⁻¹ ↑h).ne_bot := filter.ne_bot.mono hnb'' this,
-    have hk₀ : k.ne_bot := (filter.map_ne_bot_iff (uncurry (•) : G × α → α)).mp this,
-    have : converges ↑h x := le_converges (ultrafilter.of_le h') hconv',
-    have : converges (g⁻¹ ×ᶠ ↑h) (a⁻¹, x) := prod.converges (continuous_inv hconv) this,
-    have hk₁ : converges k (a⁻¹, x) := le_converges inf_le_left this,
-    have hk₂ : smul_dom G α ∈ k := filter.le_principal_iff.mp inf_le_right,
-    refine ⟨k, hk₀, hk₁, hk₂⟩,
-  end,
-  have : converges g⁻¹ a⁻¹, from continuous_inv hconv, 
-  have : converges (partial_smul g⁻¹ ↑h) (a⁻¹ • x), 
-    from continuous_partial_smul this (le_converges (ultrafilter.of_le h') hconv') hdef,
-  have : converges ((partial_smul g⁻¹ ↑h) ⊓ f) (a⁻¹ • x), from le_converges inf_le_left this,
-  have : (a⁻¹ • x) ∈ adh f := ⟨(partial_smul g⁻¹ ↑h) ⊓ f, hnb'', inf_le_right, this⟩,
-  rw set.eq_empty_iff_forall_not_mem at hadh,
-  unfold adh at hadh,
-  exact absurd this (hadh (a⁻¹ • x)),
-  sorry,
-  -/
+  rw ne_empty_iff_exists_elem,
+  exact ⟨a⁻¹ • envelope.embed G x, hmem⟩
 end
