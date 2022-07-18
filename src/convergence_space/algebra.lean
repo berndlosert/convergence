@@ -216,34 +216,29 @@ lemma weakly_adh_restrictive_result {G α : Type*} [group G] [convergence_space 
   [convergence_space α] [partial_mul_action G α] 
   [has_continuous_partial_smul G α] : weakly_adh_restrictive G α :=
 begin
-  -- Assume:
-  --  * g is a ne_bot filter that converges to a,
-  --  * f is a filter on α, 
-  --  * ((g ×ᶠ f) ⊓ 𝓟 (smul_dom G α)) is ne_bot.
   intros g f a hgnb hgconv hnb,
   haveI : g.ne_bot := hgnb,
-  -- We'll prove adh (map (envelope.embed G) f) = ∅ → adh (partial_smul g f) = ∅ by proving the contrapositive.
   rw ← not_imp_not,
-  -- Assume there exists x ∈ adh (partial_smul g f).
   intro hadh,
   obtain ⟨x, hx⟩ := ne_empty_iff_exists_elem.mp hadh,
   change adheres (partial_smul g f) x at hx,
   rw adheres.exists_ultrafilter (partial_smul g f) x at hx,
-  -- Since x ∈ adh (partial_smul g f), there exists an ultrafilter h that converges to x 
-  -- such that h ≤ partial_smul g f.
   obtain ⟨h, hle, hconv⟩ := hx,
-  have hconv : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x) :=
+  have hconv' : converges (g⁻¹ • map (envelope.embed G) ↑h) (a⁻¹ • envelope.embed G x) :=
     continuous_smul (continuous_inv hgconv) (envelope.embed.continuous hconv),
   have hmem : a⁻¹ • envelope.embed G x ∈ adh (map (envelope.embed G) f) :=
   begin
     change adheres (map (envelope.embed G) f) (a⁻¹ • envelope.embed G x),
     change ∃ (f' : filter (envelope.space G α)) [f'.ne_bot], f' ≤ map (envelope.embed G) f ∧ converges f' (a⁻¹ • envelope.embed G x),
-    have : (g⁻¹ • filter.map (envelope.embed G) ↑h ⊓ map (envelope.embed G) f).ne_bot :=
-    begin
-      haveI : (filter.map (envelope.embed G) ↑h).ne_bot := filter.map_ne_bot,
-      have : filter.map (envelope.embed G) ↑h ≤ g • map (envelope.embed G) f := sorry,
-      exact filter.inv_smul_of_smul this,
-    end
+    let f' := g⁻¹ • filter.map (envelope.embed G) ↑h ⊓ map (envelope.embed G) f, use f', split,
+    { rw ← filter.forall_mem_nonempty_iff_ne_bot,
+      intros s hmem,
+      rw filter.mem_inf_iff at hmem,
+      obtain ⟨t₁, hmem₁, t₂, hmem₂, heq⟩ := hmem,
+      sorry },
+    split,
+    { exact inf_le_right },
+    { exact le_converges inf_le_left hconv' },
   end,
   rw ne_empty_iff_exists_elem,
   exact ⟨a⁻¹ • envelope.embed G x, hmem⟩
