@@ -45,10 +45,19 @@ begin
   },
 end
 
-lemma mem_inv_iff [_root_.has_involutive_inv α] {f : filter α} : 
-  ∀ s, s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
+lemma inf_ne_bot {f g : filter α} [f.ne_bot] (hle : f ≤ g) : (f ⊓ g).ne_bot :=
 begin
-  intro s,
+  rw inf_of_le_left hle,
+  assumption
+end
+
+/-!
+### Pointwise stuff
+-/
+
+lemma mem_inv_iff [_root_.has_involutive_inv α] {f : filter α} {s : set α} :
+  s ∈ f⁻¹ ↔ ∃ t ∈ f, t⁻¹ ⊆ s :=
+begin
   split,
   { assume hmem,
     change s ∈ map has_inv.inv f at hmem,
@@ -60,17 +69,23 @@ begin
     exact mem_of_superset (filter.inv_mem_inv ht) hsub }
 end
 
-lemma inf_ne_bot {f g : filter α} [f.ne_bot] (hle : f ≤ g) : (f ⊓ g).ne_bot :=
+lemma mem_inv_smul_iff [has_smul G α] [_root_.has_involutive_inv G] {g : filter G} {f : filter α} {u : set α} :
+  u ∈ g⁻¹ • f ↔ ∃ t s, t ∈ g ∧ s ∈ f ∧ t⁻¹ • s ⊆ u :=
 begin
-  rw inf_of_le_left hle,
-  assumption
+  split,
+  { intros hmem,
+    obtain ⟨t', s, ht', hs, hsub⟩ := mem_smul.mp hmem,
+    rw mem_inv_iff at ht',
+    obtain ⟨t, ht, hsub'⟩ := ht',
+    refine ⟨t, s, ht, hs, _⟩,
+    exact subset_trans (set.smul_subset_smul_right hsub') hsub },
+  { rintros ⟨t, s, ht, hs, hsub⟩,
+    have ht' : t⁻¹ ∈ g⁻¹ := inv_mem_inv ht,
+    rw filter.mem_smul,
+    refine ⟨t⁻¹, s, ht', hs, hsub⟩ }
 end
 
-/-!
-### Pointwise stuff
--/
-
-lemma inv_smul_of_smul [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
+lemma inv_smul_inf_ne_bot [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
   (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
 begin
   rw ← forall_mem_nonempty_iff_ne_bot,
@@ -78,7 +93,7 @@ begin
   obtain ⟨s₁, hs₁, s₂, hs₂, hsub₁⟩ := mem_inf_iff_superset.mp hmem,
   obtain ⟨t₁, s₃, ht₁, hs₃, hsub₂⟩ := filter.mem_smul.mp hs₁,
   refine set.subset_eq_nonempty hsub₁ _,
-  obtain ⟨t₂, ht₂, hsub₃⟩ := (filter.mem_inv_iff t₁).mp ht₁,
+  obtain ⟨t₂, ht₂, hsub₃⟩ := filter.mem_inv_iff.mp ht₁,
   have hsub₄ : t₂⁻¹ • s₃ ⊆ s₁, 
     from subset_trans (set.smul_subset_smul_right hsub₃) hsub₂,
   refine set.subset_eq_nonempty (set.inter_subset_inter_left s₂ hsub₄) _,
