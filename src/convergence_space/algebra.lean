@@ -142,7 +142,8 @@ end envelope
   filters `g` on `G` and all filters `f` on `α` with `adh f = ∅`, `adh (g • f) = ∅`. -/
 def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot ∧ converges g a ∧ adh f = ∅ → adh (g • f) = ∅
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a 
+  → adh f = ∅ → adh (g • f) = ∅
 
 /-- This is a weaker version of `adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
@@ -151,48 +152,25 @@ def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a → ((g ×ᶠ f) ⊓ 𝓟 (smul_dom G α)).ne_bot
   → adh (map (envelope.embed G) f) = ∅ → adh (partial_smul g f) = ∅
 
-lemma not_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
-  [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
-  ¬ (adh_restrictive G α) → ∃ (g : filter G) (f : filter α) (a : G) (x : α), 
-    g.ne_bot ∧ converges g a ∧ adh f = ∅ ∧ x ∈ adh (g • f) :=
-begin
-  intro hcontra,
-  unfold adh_restrictive at hcontra,
-  rw not_forall at hcontra,
-  obtain ⟨g, rest₁⟩ := hcontra,
-  rw not_forall at rest₁,
-  obtain ⟨f, rest₂⟩ := rest₁,
-  rw not_forall at rest₂,
-  obtain ⟨a, rest₃⟩ := rest₂,
-  rw not_imp at rest₃,
-  obtain ⟨⟨hnb, hconv, hadh⟩, rest₄⟩ := rest₃,
-  rw set.eq_empty_iff_forall_not_mem at rest₄,
-  rw not_forall at rest₄,
-  obtain ⟨x, hmem⟩ := rest₄,
-  rw set.not_not_mem at hmem,
-  exact ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩,
-end
-
 lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
   [convergence_space α] [mul_action G α] [has_continuous_smul G α] : 
   adh_restrictive G α :=
-classical.by_contradiction 
 begin
-  assume hcontra : ¬ adh_restrictive G α,
-  obtain ⟨g, f, a, x, hnb, hconv, hadh, hmem⟩ := not_adh_restrictive G α hcontra,
-  haveI : g.ne_bot := hnb,
-  change x ∈ adh (g • f) at hmem,
-  change adheres (g • f) x at hmem,
-  unfold adheres at hmem,
-  obtain ⟨h', hnb', hle', hconv'⟩ := hmem,
+  intros g f a hgnb hgconv,
+  haveI : g.ne_bot := hgnb,
+  rw ← not_imp_not,
+  intro hadh,
+  obtain ⟨x, hx⟩ := ne_empty_iff_exists_elem.mp hadh,
+  change adheres (g • f) x at hx,
+  obtain ⟨h', hnb', hle', hconv'⟩ := hx,
   haveI : h'.ne_bot := hnb',
   let k' := ultrafilter.of h',
   have hle'' : ↑k' ≤ g • f, from (le_trans (ultrafilter.of_le h') hle'),
   set k : filter α := g⁻¹ • ↑k' with hdef,
-  haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hnb) k'.ne_bot,
+  haveI : k.ne_bot := filter.ne_bot.smul (filter.ne_bot_inv_iff.mpr hgnb) k'.ne_bot,
   have hconv : converges k (a⁻¹ • x),
   begin
-    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hconv,
+    have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hgconv,
     have hconv_k' : converges ↑k' x, 
       from le_converges (ultrafilter.of_le h') hconv',
     exact continuous_smul hconv_inv_g hconv_k',
@@ -205,9 +183,7 @@ begin
     have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
     assumption,
   end,
-  rw set.eq_empty_iff_forall_not_mem at hadh,
-  unfold adh at hadh,
-  exact absurd hmem (hadh (a⁻¹ • x)),
+  exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨a⁻¹ • x, hmem⟩)
 end
 
 lemma weakly_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
