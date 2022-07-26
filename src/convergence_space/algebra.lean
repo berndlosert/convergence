@@ -205,7 +205,7 @@ begin
     change adheres (map (envelope.embed G) f) (a⁻¹ • envelope.embed G x),
     change ∃ (f' : filter (envelope.space G α)) [f'.ne_bot], f' ≤ map (envelope.embed G) f ∧ converges f' (a⁻¹ • envelope.embed G x),
     let f' := g⁻¹ • filter.map (envelope.embed G) ↑h ⊓ map (envelope.embed G) f, use f', split,
-    { haveI : (filter.map (envelope.embed G) ↑h).ne_bot := sorry,
+    { haveI : (filter.map (envelope.embed G) (h : filter α)).ne_bot := infer_instance,
       have : filter.map (envelope.embed G) ↑h ≤ g • map (envelope.embed G) f := sorry,
       exact inv_smul_inf_ne_bot this },
     split,
