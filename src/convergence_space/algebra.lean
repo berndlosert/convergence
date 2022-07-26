@@ -3,9 +3,7 @@ import order.filter.partial
 import convergence_space.basic
 import data.set.pointwise
 import order.filter.pointwise
-import algebra.group.extra
-import group_theory.group_action.extra
-import order.filter.extra
+import extra
 
 noncomputable theory
 open set filter classical option function prod
@@ -233,7 +231,9 @@ begin
     let f' := g⁻¹ • filter.map (envelope.embed G) ↑h ⊓ map (envelope.embed G) f, use f', split,
     { rw inf_ne_bot_iff,
       intros s hs s' hs',
-
+      rw filter.mem_inv_smul_iff at hs,
+      obtain ⟨t, s₁, ht, hs₁, hsub⟩ := hs,
+      rw filter.mem_map_iff_exists_image at *,
     }
     -- { rw ← filter.forall_mem_nonempty_iff_ne_bot,
     --   intros s hs,

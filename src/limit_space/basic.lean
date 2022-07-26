@@ -4,7 +4,6 @@ import algebra.support
 import kent_convergence_space.basic
 import order.complete_lattice.extra
 import data.fin.tuple
-import data.set.finite.extra
 
 noncomputable theory
 open set filter classical kent_convergence_space convergence_space
@@ -51,7 +50,7 @@ lemma Sup_converges [limit_space α] {fs : set (filter α)} (hfin : fs.finite)
 begin
   refine set.finite.induction_on' hfin _ _,
   { simp, exact bot_converges x },
-  { intros g gs hfin' hfin'' hmem hsub hnmem hSup,
+  { intros g gs hmem hsub hnmem hSup,
     rw [set.insert_eq, Sup_union], simp, 
     have hg : converges g x := hconv g hmem,
     exact sup_converges hg hSup}
