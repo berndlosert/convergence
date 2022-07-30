@@ -16,7 +16,7 @@ variables {α β : Type*}
 -/
 
 @[ext] class limit_space (α : Type*) extends convergence_space α :=
-(sup_converges : ∀ {f g x}, converges f x → converges g x → converges (f ⊔ g) x) -- f ⊔ g means f ∩ g
+(sup_converges : ∀ {f g x}, converges f x → converges g x → converges (f ⊔ g) x)
 
 open limit_space
 
