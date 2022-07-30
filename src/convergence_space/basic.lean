@@ -57,113 +57,55 @@ instance : partial_order (convergence_space α) :=
   ..convergence_space.has_le }
 
 /-!
-### Initial convergence
+### Initial and final convergence
 -/
 
-def convergence_space.initial {ι : Type*} {β : ι → Type*} 
+def convergence_space.initial (ι : Type*) (α : Type*) (β : ι → Type*)
   (p : ∀ i : ι, convergence_space (β i)) (m : ∀ i : ι, α → β i) : convergence_space α :=
-{ converges := λ f x, ∀ i : ι, converges_ (p i) (map (m i) f) ((m i) x),
+{ converges := λ f x, ∀ i : ι, converges_ (p i) (map (m i) f) (m i x),
   pure_converges := λ x i, by rw filter.map_pure; exact pure_converges_ (p i) ((m i) x),
   le_converges := λ f g hle x hconv i, le_converges_ (p i) (filter.map_mono hle) (hconv i) }
+
+def convergence_space.final (ι : Type*) (α : ι → Type*) (β : Type*)
+  (p : ∀ i : ι, convergence_space (α i)) (m : ∀ i : ι, α i → β) : convergence_space β :=
+{ converges := λ g y, g ≤ pure y ∨ ∃ i f x, converges_ (p i) f x ∧ g ≤ filter.map (m i) f ∧ m i x = y,
+  pure_converges := λ x, by tauto,
+  le_converges := 
+  begin
+    intros g g' hle y hconv, cases hconv,
+    { exact or.inl (le_trans hle hconv) },
+    { obtain ⟨i, f, x, hconv', hle', heq⟩ := hconv,
+      refine or.inr ⟨i, f, x, hconv', le_trans hle hle', heq⟩ }
+  end }
 
 /-!
 ### Lattice of convergence structures
 -/
 
-/-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence 
-  structure (where only pure filters and the bottom filter converge) and `⊤` the indiscrete 
-  convergence structure (where every filter converges). The infimum of a non-empty collection
-  `ps` is defined so that `converges f x` means `∀ p ∈ ps, converges_ p f x`, while the 
-  supremum is defined so that `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
-
-instance : has_bot (convergence_space α) :=
-{ bot := 
-  { converges := λ f x, f ≤ pure x, 
-    pure_converges := by tauto, 
-    le_converges := by tauto }}
-
-instance : has_top (convergence_space α) :=
-{ top := 
-  { converges := λ f x, true,
-    pure_converges := by tauto, 
-    le_converges := by tauto }}
-
-instance : has_inf (convergence_space α) :=
-{ inf := λ p q,
-  { converges := λ f x, (converges_ p f x) ∧ (converges_ q f x),
-    pure_converges := λ x, and.intro (pure_converges_ p x) (pure_converges_ q x),
-    le_converges := λ f g hle x hconv, 
-      and.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
-    }}
-
-instance : has_sup (convergence_space α) :=
-{ sup := λ p q,
-  { converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
-    pure_converges := λ x, or.inl (pure_converges_ p x),
-    le_converges := λ f g hle x hconv, or.elim hconv
-      (assume hl, or.inl (le_converges_ p hle hl))
-      (assume hr, or.inr (le_converges_ q hle hr)) }}
-
 instance : has_Inf (convergence_space α) :=
-{ Inf := λ ps,
-  { converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
-    pure_converges := λ x p ps, pure_converges_ p x,
-    le_converges := λ f g hle x hconv p hmem, le_converges_ p hle (hconv hmem) }}
+{ Inf := λ ps, convergence_space.initial ps α (λ _, α) (λ ⟨p, _⟩, p) (λ _, id) }
 
-instance : has_Sup (convergence_space α) :=
-{ Sup := λ ps,
-  { converges := λ f x, f ≤ pure x ∨
-      ∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x,
-    pure_converges := by tauto,
-    le_converges :=
-    begin
-      assume f g hle x hor,
-      rcases hor with hle'|⟨p, hmem, hconv⟩,
-      { exact or.inl (le_trans hle hle') },
-      { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
-    end }}
-
-instance : semilattice_inf (convergence_space α) :=
-{ inf_le_left := λ p q f x hconv, hconv.left,
-  inf_le_right := λ p q f x hconv, hconv.right,
-  le_inf := λ p q r hle hle' f x hp, and.intro (hle hp) (hle' hp),
-  ..convergence_space.partial_order,
-  ..convergence_space.has_inf }
-
-instance : semilattice_sup (convergence_space α) :=
-{ le_sup_left := λ p q f x hconv, or.inl hconv,
-  le_sup_right := λ p q f x hconv, or.inr hconv,
-  sup_le := λ p q r hle hle' f x hconv, hconv.elim hle hle',
-  ..convergence_space.partial_order,
-  ..convergence_space.has_sup }
-
-instance : complete_semilattice_Inf (convergence_space α) :=
-{ Inf_le := λ ps p hmem f x hconv, hconv hmem,
-  le_Inf := λ ps q hle f x hconv p hmem, (hle p hmem) hconv,
-  ..convergence_space.partial_order,
-  ..convergence_space.has_Inf }
-
-instance : complete_semilattice_Sup (convergence_space α) :=
-{ le_Sup := λ ps p hmem f x hconv, or.inr (exists.intro p (and.intro hmem hconv)),
-  Sup_le := λ qs p hle f x hconv,
-    hconv.elim 
-      (assume hle', le_converges_ p hle' (pure_converges_ p x))
-      (assume hexists, exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right)),
-  ..convergence_space.partial_order,
-  ..convergence_space.has_Sup }
-
-instance : lattice (convergence_space α) :=
-{ ..convergence_space.semilattice_sup,
-  ..convergence_space.semilattice_inf }
+lemma convergence_space.Inf_iff (ps : set (convergence_space α)) (f : filter α) (x : α) : 
+  converges_ (Inf ps) f x ↔ ∀ p ∈ ps, converges_ p f x :=
+begin
+  split,
+  { intros hconv p hp, have := hconv ⟨p, hp⟩,
+    simp [filter.map_id] at this, assumption },
+  { rintros hconv ⟨p, hp⟩, simp [filter.map_id],
+    exact hconv p hp }
+end
 
 instance : complete_lattice (convergence_space α) :=
-{ bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
-  le_top := by intros; tauto,
-  ..convergence_space.has_bot,
-  ..convergence_space.has_top,
-  ..convergence_space.lattice,
-  ..convergence_space.complete_semilattice_Inf,
-  ..convergence_space.complete_semilattice_Sup }
+begin
+  refine complete_lattice_of_Inf (convergence_space α) _,
+  intros ps, unfold is_glb, unfold is_greatest, split,
+  { unfold lower_bounds, intros p hp f x hconv, 
+    rw convergence_space.Inf_iff at hconv, exact hconv p hp },
+  { unfold upper_bounds, intros p hp f x hconv, 
+    unfold lower_bounds at hp, rw convergence_space.Inf_iff,
+    intros q hq, exact hp hq hconv }
+end
+
 
 /-!
 ### Continuity
