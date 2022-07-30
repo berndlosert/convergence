@@ -19,5 +19,9 @@ variables {α β : Type*}
 
 open pseudotopological_space
 
+namespace pseudotopological_space
+
 instance : has_coe (pseudotopological_space α) (limit_space α) := 
 { coe := λ p, p.to_limit_space }
+
+end pseudotopological_space
