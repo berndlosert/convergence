@@ -2,7 +2,6 @@ import tactic
 import order.filter.partial
 import algebra.support
 import kent_convergence_space.basic
-import order.complete_lattice.extra
 import data.fin.tuple
 
 noncomputable theory
