@@ -137,6 +137,8 @@ end envelope
 
 namespace set
 
+lemma mem_pair_iff {x y z : α} : x ∈ ({y, z} : set α) ↔ x = y ∨ x = z := by simp
+
 lemma subset_eq_nonempty {s t : set α} (hsub : t ⊆ s) (hne : t.nonempty) : s.nonempty :=
 begin
   rw ← empty_ssubset at *,

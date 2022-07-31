@@ -5,6 +5,7 @@ import order.filter.ultrafilter
 import order.filter.bases
 import algebra.support
 import category_theory.concrete_category.bundled
+import extra
 
 noncomputable theory
 open set function filter classical option category_theory prod
@@ -106,6 +107,22 @@ begin
     intros q hq, exact hp hq hconv }
 end
 
+lemma convergence_space.inf_iff (p q : convergence_space α) (f : filter α) (x : α) :
+  converges_ (p ⊓ q) f x ↔ converges_ p f x ∧ converges_ q f x :=
+begin
+  split, 
+  { intros hconv,
+    change converges_ (Inf {p, q}) f x at hconv,
+    rw convergence_space.Inf_iff at hconv,
+    have hp := hconv p (by simp),
+    have hq := hconv q (by simp),
+    exact ⟨hp, hq⟩ },
+  { rintros ⟨hp, hq⟩,
+    change converges_ (Inf {p, q}) f x,
+    rw convergence_space.Inf_iff,
+    intros p' hp', rw set.mem_pair_iff at hp',
+    cases hp', { rw hp', exact hp }, { rw hp', exact hq }}
+end
 
 /-!
 ### Continuity
