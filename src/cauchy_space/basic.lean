@@ -23,11 +23,10 @@ variables {α β : Type*}
 
 open cauchy_space
 
-instance cauchy_space.induced_limit_space [cauchy_space α] : limit_space α := 
+instance cauchy_space.induced_limit_space [cauchy_space α] : limit_space α :=
 { converges := λ f x, cauchy (f ⊔ pure x),
   pure_converges := λ x, by { rw sup_idem, exact pure_cauchy x},
   le_converges := λ f g hle x hchy, le_cauchy (sup_le_sup_right hle (pure x)) hchy,
-  kent_converges := by { intros, simp [sup_idem], assumption },
   sup_converges :=
   begin
     unfold converges,
@@ -39,5 +38,5 @@ instance cauchy_space.induced_limit_space [cauchy_space α] : limit_space α :=
 
 /-- A set `s` is called *complete*, if any Cauchy filter `f` such that `s ∈ f`
 has a limit in `s`. -/
-def is_complete [cauchy_space α] (s : set α) := 
+def is_complete [cauchy_space α] (s : set α) :=
 ∀ f, cauchy f → f ≤ 𝓟 s → ∃ x ∈ s, converges f x

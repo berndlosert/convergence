@@ -60,7 +60,7 @@ variables [group G] [partial_mul_action G α]
 variables [convergence_space G] [convergence_group G]
 variables [convergence_space α]
 
-lemma embed.continuous : continuous (embed G : α → space G α) := 
+lemma embed.continuous : continuous (embed G : α → space G α) :=
 continuous.comp continuous_quot_mk (continuous.prod.mk 1)
 
 instance : has_continuous_smul G (G × α) :=
@@ -117,13 +117,13 @@ has_continuous_smul G (space G α) :=
   begin
     let act : G × (G × α) → (G × α) := uncurry (•),
     let qact : G × space G α → space G α := uncurry (•),
-    let idquot : G × (G × α) → G × space G α := 
+    let idquot : G × (G × α) → G × space G α :=
       prod.map id (quot.mk (envelope G α)),
     let quot_mk : G × α → space G α := quot.mk (envelope G α),
     have heq : qact ∘ idquot = quot_mk ∘ act, by { funext, tidy },
-    have hqmap : quotient_map idquot, 
+    have hqmap : quotient_map idquot,
       from quotient_map.prod_map quotient_map.id quotient_map_quot_mk,
-    have hcontr : continuous (quot_mk ∘ act), 
+    have hcontr : continuous (quot_mk ∘ act),
       from continuous.comp continuous_quot_mk (continuous2_continuous_iff.mp has_continuous_smul.continuous_smul),
     have hcont : continuous qact, begin
       rw [quotient_map.continuous_iff hqmap, heq],
@@ -140,20 +140,20 @@ end envelope
 
 /-- A continuous action of a monoid `G` on `α` is adherence restrictive if for all convergent
   filters `g` on `G` and all filters `f` on `α` with `adh f = ∅`, `adh (g • f) = ∅`. -/
-def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] 
+def adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G]
   [convergence_group G] [convergence_space α] [mul_action G α] [has_continuous_smul G α] : Prop :=
-∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a 
+∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a
   → adh f = ∅ → adh (g • f) = ∅
 
 /-- This is a weaker version of `adh_restrictive` where instead of considering the adherence in `α`,
   it considers the adherence in the enveloping space. -/
-def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G] 
+def weakly_adh_restrictive (G : Type*) (α : Type*) [group G] [convergence_space G] [convergence_group G]
   [convergence_space α] [partial_mul_action G α] [has_continuous_partial_smul G α] : Prop :=
 ∀ {g : filter G} {f : filter α} {a : G}, g.ne_bot → converges g a → ((g ×ᶠ f) ⊓ 𝓟 (smul_dom G α)).ne_bot
   → adh (map (envelope.embed G) f) = ∅ → adh (partial_smul g f) = ∅
 
-lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [mul_action G α] [has_continuous_smul G α] : 
+lemma adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G]
+  [convergence_space α] [mul_action G α] [has_continuous_smul G α] :
   adh_restrictive G α :=
 begin
   intros g f a hgnb hgconv,
@@ -171,13 +171,13 @@ begin
   have hconv : converges k (a⁻¹ • x),
   begin
     have hconv_inv_g : converges g⁻¹ a⁻¹, from continuous_inv hgconv,
-    have hconv_k' : converges ↑k' x, 
+    have hconv_k' : converges ↑k' x,
       from le_converges (ultrafilter.of_le h') hconv',
     exact continuous_smul hconv_inv_g hconv_k',
   end,
-  have hmem : a⁻¹ • x ∈ adh f, 
+  have hmem : a⁻¹ • x ∈ adh f,
   begin
-    have hconv' : converges (k ⊓ f) (a⁻¹ • x), 
+    have hconv' : converges (k ⊓ f) (a⁻¹ • x),
       from le_converges inf_le_left hconv,
     haveI hnbI : (k ⊓ f).ne_bot := filter.inv_smul_inf_ne_bot hle'',
     have hadh'' : adheres f (a⁻¹ • x) := ⟨k ⊓ f, hnbI, inf_le_right, hconv'⟩,
@@ -186,8 +186,9 @@ begin
   exact set.nonempty.ne_empty (set.nonempty_def.mpr ⟨a⁻¹ • x, hmem⟩)
 end
 
-lemma weakly_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G] 
-  [convergence_space α] [partial_mul_action G α] 
+/- This does not work. It results in a deterministic timeout.
+lemma weakly_adh_restrictive_result {G α : Type*} [group G] [convergence_space G] [convergence_group G]
+  [convergence_space α] [partial_mul_action G α]
   [has_continuous_partial_smul G α] : weakly_adh_restrictive G α :=
 begin
   intros g f a hgnb hgconv hnb,
@@ -215,3 +216,4 @@ begin
   rw ne_empty_iff_exists_elem,
   exact ⟨a⁻¹ • envelope.embed G x, hmem⟩
 end
+-/
