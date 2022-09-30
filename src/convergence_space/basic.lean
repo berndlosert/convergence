@@ -18,6 +18,8 @@ The following presents the basic theory of convergence spaces.
 * We use the greek letters `α`, `β`, etc. for spaces.
 * We use the letters `x`, `y`, etc. for points in spaces.
 * Hypotheses will always start with an "h", e.g. `hconv`, `hle`, etc.
+* Variables denoting collections will end in "s". For example `ps` will stand for a
+  set of convergence structures.
 
 ## References
 
@@ -160,6 +162,14 @@ def convergence_space.discrete (α : Type*) : convergence_space α :=
 
 /-!
 ### Lattice of convergence structures
+
+We define the lattice of convergence structures on `α` by defining what `Inf ps` means
+for any set of convergence structures `ps` on `α`. Basically, `Inf ps` is the initial
+convergence structure of the `id` functions with respect to the family obtained from
+`ps`.
+
+The resulting lattice will have the discrete convergence structure as the bottom element
+and the indiscrete convergence structure as the top element.
 -/
 
 instance : has_Inf (convergence_space α) :=
@@ -212,8 +222,7 @@ begin
     rw convergence_space.Inf_iff at hconv,
     refine hconv (convergence_space.discrete α) _,
     tauto },
-  { intros hle,
-    exact le_converges_ ⊥ hle (pure_converges_ ⊥ x) }
+  { intros hle, exact le_converges_ ⊥ hle (pure_converges_ ⊥ x) }
 end
 
 /-!
