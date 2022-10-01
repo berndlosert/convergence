@@ -13,6 +13,7 @@ import extra
 The following presents the basic theory of convergence spaces.
 
 ## Notation
+
 * We use the letters `p`, `q`, etc. for convergence structures.
 * We use the letters `f`, `g`, etc. for filters.
 * We use the greek letters `α`, `β`, etc. for spaces.
@@ -151,7 +152,8 @@ Thus, in the discrete convergence structure, these must be the only filters that
 * The discrete convergence structure can be obtained in two ways: as the final convergence
   structure with respect to the empty family (this is easy to see) or as the initial convergence structure with respect to the family of all convergence structures (using id as the map).
 * The discrete convergence structure on `α` is the free convergence structure on `α`.
-* Everything mentioned here applies dually for the indiscrete convergence structure.
+* Everything mentioned here applies dually for the indiscrete convergence structure. By
+  definition, everything converges in the indiscrete convergence structure.
 -/
 
 def convergence_space.discrete (α : Type*) : convergence_space α :=
@@ -159,6 +161,10 @@ def convergence_space.discrete (α : Type*) : convergence_space α :=
   pure_converges := λ x, le_refl (pure x),
   le_converges := λ f g hle x hg, le_trans hle hg }
 
+def convergence_space.indiscrete (α : Type*) : convergence_space α :=
+{ converges := λ _ _, true,
+  pure_converges := by intros; tauto,
+  le_converges := by intros; tauto }
 
 /-!
 ### Lattice of convergence structures
@@ -213,6 +219,8 @@ begin
     cases hp', { rw hp', exact hp }, { rw hp', exact hq }}
 end
 
+/- This proves that convergence in the ⊥ convergence structure is equivalent to
+convergence in the discrete convergence structure. -/
 lemma convergence_space.bot_iff (f : filter α) (x : α) :
   converges_ ⊥ f x ↔ f ≤ pure x :=
 begin
@@ -223,6 +231,30 @@ begin
     refine hconv (convergence_space.discrete α) _,
     tauto },
   { intros hle, exact le_converges_ ⊥ hle (pure_converges_ ⊥ x) }
+end
+
+/- Since the Inf is obtained from the initial convergence structure, then the Sup must be
+obtained from the final convergence structure. -/
+lemma convergence_space.Sup_iff  (ps : set (convergence_space α)) (f : filter α) (x : α) :
+  converges_ (Sup ps) f x ↔ f ≤ pure x ∨ ∃ p, p ∈ ps ∧ converges_ p f x :=
+begin
+  split,
+  { intro hconv,
+    change converges_ (Inf (upper_bounds ps)) f x at hconv,
+    rw convergence_space.Inf_iff at hconv,
+    --unfold upper_bounds at hconv,
+    rcases eq_empty_or_nonempty ps with he | hne,
+    { simp [he] at hconv,
+      exact or.inl ((convergence_space.bot_iff f x).mp (hconv ⊥)) },
+    { obtain ⟨p, hmem⟩ := hne,
+      sorry, -- I can't figure this out
+      }},
+  { intros hor, cases hor,
+    { exact le_converges_ (Sup ps) hor (pure_converges_ (Sup ps) x) },
+    { obtain ⟨p, g, hmem, hg, hle⟩ := hor,
+      have hf : converges_ p f x := le_converges_ p hle hg,
+      have hle' : p ≤ Sup ps := le_Sup hmem,
+      exact hle' hf }}
 end
 
 /-!
