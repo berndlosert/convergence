@@ -246,8 +246,11 @@ begin
     rcases eq_empty_or_nonempty ps with he | hne,
     { simp [he] at hconv,
       exact or.inl ((convergence_space.bot_iff f x).mp (hconv ⊥)) },
-    { obtain ⟨p, hmem⟩ := hne,
-      sorry, -- I can't figure this out
+    { let q := convergence_space.final ps (λ _, α) α (λ ⟨p, _⟩, p) (λ _, id),
+      have hub : ∀ p ∈ ps, p ≤ q := sorry,
+      --obtain ⟨p, hmem⟩ := hne,
+      have hq := hconv q hub,
+      cases hq,
       }},
   { intros hor, cases hor,
     { exact le_converges_ (Sup ps) hor (pure_converges_ (Sup ps) x) },
