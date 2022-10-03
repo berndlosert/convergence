@@ -308,7 +308,12 @@ continuous_le_dom inf_le_right
 
 lemma continuous_inf_rng [p : convergence_space α] {q q' : convergence_space β} {m : α → β}
   (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
-λ x f hp, and.intro (hcont hp) (hcont' hp)
+begin
+  intros x f hp,
+  change converges_ (q ⊓ q') (map m f) (m x),
+  rw convergence_space.inf_iff,
+  exact and.intro (hcont hp) (hcont' hp)
+end
 
 structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
   extends α ≃ β :=
