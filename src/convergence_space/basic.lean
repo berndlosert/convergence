@@ -517,9 +517,13 @@ continuous_inf_dom_right continuous_induced_dom
 
 lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
-and.intro
-  (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x)
-  (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
+begin
+  change converges_ (convergence_space.induced fst ⊓ convergence_space.induced snd) (f ×ᶠ g) (x, y),
+  rw convergence_space.inf_iff,
+  exact and.intro
+    (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x)
+    (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
+end
 
 lemma continuous.prod_mk [convergence_space α] [convergence_space β₁]
   [convergence_space β₂] {m₁ : α → β₁} {m₂ : α → β₂}
