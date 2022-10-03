@@ -655,7 +655,7 @@ class t3_space (α : Type*) [convergence_space α] extends
 -/
 
 def is_compact [convergence_space α] (s : set α) :=
-∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x, converges f.to_filter x
+∀ ⦃f : ultrafilter α⦄, s ∈ f → ∃ x ∈ s, converges f.to_filter x
 
 class compact_space (α : Type*) [convergence_space α] : Prop :=
 (compact_prop : is_compact (univ : set α))
@@ -666,18 +666,18 @@ theorem is_compact.image {m : α → β} {s : set α}
 begin
   assume g hmem,
   rw ← ultrafilter.of_comap_inf_principal_eq_of_map hmem,
-  obtain ⟨x, hconv⟩ := hcom (ultrafilter.of_comap_inf_principal_mem hmem),
-  exact ⟨m x, hcont hconv⟩,
+  obtain ⟨x, hx, hconv⟩ := hcom (ultrafilter.of_comap_inf_principal_mem hmem),
+  exact ⟨m x, mem_image_of_mem m hx, hcont hconv⟩,
 end
 
 /-!
 ### Locally compact sets/spaces
 -/
 
-/-- A set `s` is locally compact if every convergent ultrafilter containing `s` contains
+/-- A set `s` is locally compact if every convergent filter containing `s` contains
   a compact set. -/
 def is_locally_compact [convergence_space α] (s : set α) :=
-∀ ⦃f : ultrafilter α⦄, s ∈ f → (∃ x : α, converges ↑f x) → ∃ t ∈ f, is_compact t
+∀ ⦃f : filter α⦄, s ∈ f → (∃ x : α, converges f x) → ∃ t ∈ f, is_compact t
 
 class locally_compact_space (α : Type*) [convergence_space α] : Prop :=
 (locally_compact_prop : is_locally_compact (univ : set α))
