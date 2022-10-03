@@ -506,7 +506,7 @@ section
 
 variables [convergence_space α] [convergence_space β]
 
-instance : convergence_space (α × β) :=
+instance convergence_space.prod : convergence_space (α × β) :=
 convergence_space.induced fst ⊓ convergence_space.induced snd
 
 lemma continuous_fst : continuous (@fst α β) :=
@@ -518,7 +518,8 @@ continuous_inf_dom_right continuous_induced_dom
 lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
 begin
-  change converges_ (convergence_space.induced fst ⊓ convergence_space.induced snd) (f ×ᶠ g) (x, y),
+  change converges_ convergence_space.prod (f ×ᶠ g) (x, y),
+  unfold convergence_space.prod,
   rw convergence_space.inf_iff,
   exact and.intro
     (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x)
