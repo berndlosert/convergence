@@ -150,7 +150,9 @@ Thus, in the discrete convergence structure, these must be the only filters that
   topology in which every subset of `α` is open, i.e. the discrete topology is the powerset
   of `α`. Our usage of "discrete" is consistent with this.
 * The discrete convergence structure can be obtained in two ways: as the final convergence
-  structure with respect to the empty family (this is easy to see) or as the initial convergence structure with respect to the family of all convergence structures (using id as the map).
+  structure with respect to the empty family (this is easy to see) or as the initial
+  convergence structure with respect to the family of all convergence structures
+  (using id as the map).
 * The discrete convergence structure on `α` is the free convergence structure on `α`.
 * Everything mentioned here applies dually for the indiscrete convergence structure. By
   definition, everything converges in the indiscrete convergence structure.
