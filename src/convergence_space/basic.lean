@@ -543,7 +543,11 @@ lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [
   {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) :=
 begin
   split,
-  { rintros hcont2 ⟨x, y⟩ h ⟨hconv₁, hconv₂⟩,
+  { rintros hcont2 ⟨x, y⟩ h hconv,
+   change converges_ convergence_space.prod h (x, y) at hconv,
+   unfold convergence_space.prod at hconv,
+   rw convergence_space.inf_iff at hconv,
+   obtain ⟨hconv₁, hconv₂⟩ := hconv,
     have : converges (map₂ m (map fst h) (map snd h)) (m x y),
       from hcont2 hconv₁ hconv₂,
     rw ← map_prod_eq_map₂ at this,
