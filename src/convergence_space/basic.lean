@@ -509,6 +509,16 @@ variables [convergence_space α] [convergence_space β]
 instance convergence_space.prod : convergence_space (α × β) :=
 convergence_space.induced fst ⊓ convergence_space.induced snd
 
+lemma convergence_space.prod_iff (h : filter (α × β)) (x : α × β) :
+  converges h x ↔ converges (map fst h) (fst x) ∧ converges (map snd h) (snd x) :=
+begin
+  change converges_ (convergence_space.prod) h x ↔
+    converges (map fst h) (fst x) ∧ converges (map snd h) (snd x),
+  unfold convergence_space.prod,
+  rw convergence_space.inf_iff,
+  tauto
+end
+
 lemma continuous_fst : continuous (@fst α β) :=
 continuous_inf_dom_left continuous_induced_dom
 
@@ -518,9 +528,7 @@ continuous_inf_dom_right continuous_induced_dom
 lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
 begin
-  change converges_ convergence_space.prod (f ×ᶠ g) (x, y),
-  unfold convergence_space.prod,
-  rw convergence_space.inf_iff,
+  rw convergence_space.prod_iff,
   exact and.intro
     (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x)
     (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
@@ -544,9 +552,7 @@ lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [
 begin
   split,
   { rintros hcont2 ⟨x, y⟩ h hconv,
-   change converges_ convergence_space.prod h (x, y) at hconv,
-   unfold convergence_space.prod at hconv,
-   rw convergence_space.inf_iff at hconv,
+   rw convergence_space.prod_iff at hconv,
    obtain ⟨hconv₁, hconv₂⟩ := hconv,
     have : converges (map₂ m (map fst h) (map snd h)) (m x y),
       from hcont2 hconv₁ hconv₂,
@@ -772,6 +778,7 @@ begin
     have hconv' : converges f x, from prod.converges hf₁ hf₂,
     exact ⟨f, x, hle, heq, hconv'⟩ },
   { rintro ⟨f, x, hle, heq, hf⟩,
+    rw convergence_space.prod_iff at hf,
     let f₁ := map fst f,
     let f₂ := map snd f,
     simp [prod.map_mk m₁ m₂ x.1 x.2] at heq,
@@ -791,6 +798,7 @@ begin
       from (hquot₁.2 g₁ y₁).mpr ⟨f₁, x.1, hle₁, heq.1, hf.1⟩,
     have hg₂ : converges g₂ y₂,
       from (hquot₂.2 g₂ y₂).mpr ⟨f₂, x.2, hle₂, heq.2, hf.2⟩,
+    rw convergence_space.prod_iff,
     exact ⟨hg₁, hg₂⟩ }
 end
 
