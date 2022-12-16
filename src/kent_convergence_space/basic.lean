@@ -13,6 +13,13 @@ variables {α β : Type*}
 ### Definition
 -/
 
+/--
+An instance of value of type `kent_convergence_space` is called a kent
+convergence structure.
+
+**Remarks**
+* In mathlib, `f ⊔ g` is the filter `f ∩ g`.
+-/
 @[ext] class kent_convergence_space (α : Type*) extends convergence_space α :=
 (kent_converges : ∀ {f x}, converges f x → converges (f ⊔ pure x) x)
 
@@ -20,7 +27,7 @@ open kent_convergence_space
 
 namespace kent_convergence_space
 
-instance : has_coe (kent_convergence_space α) (convergence_space α) := 
+instance : has_coe (kent_convergence_space α) (convergence_space α) :=
 { coe := λ p, p.to_convergence_space }
 
 @[simp, norm_cast] theorem coe_inj {p q : kent_convergence_space α} :
@@ -44,19 +51,19 @@ end kent_convergence_space
 
 instance : has_le (kent_convergence_space α) := ⟨λ p q, ↑p ≤ (↑q : convergence_space α)⟩
 
-instance : partial_order (kent_convergence_space α) := 
+instance : partial_order (kent_convergence_space α) :=
   partial_order.lift coe kent_convergence_space.coe_injective
 
 /-!
 ### Lattice of Kent convergence structures
 -/
 
-/-- Just like convergence structures, Kent convergence structures also 
+/-- Just like convergence structures, Kent convergence structures also
   form a complete lattice. The infimum/supremum are formed in the same
   manner as convergence spaces. -/
 
 instance : has_bot (kent_convergence_space α) :=
-{ bot := 
+{ bot :=
   { kent_converges :=
     begin
       intros f x hconv,
@@ -71,16 +78,16 @@ instance : has_bot (kent_convergence_space α) :=
 instance : has_top (kent_convergence_space α) :=
 { top := { kent_converges := by tauto, ..convergence_space.has_top.top }}
 
-instance : has_inf (kent_convergence_space α) := 
-{ inf := λ p q, let super : convergence_space α := ↑p ⊓ ↑q in 
+instance : has_inf (kent_convergence_space α) :=
+{ inf := λ p q, let super : convergence_space α := ↑p ⊓ ↑q in
   { converges := converges_ super,
     pure_converges := pure_converges_ super,
     le_converges := le_converges_ super,
-    kent_converges := λ f x hconv, 
+    kent_converges := λ f x hconv,
     ⟨kent_converges_ p hconv.1, kent_converges_ q hconv.2⟩ }}
 
 instance : has_sup (kent_convergence_space α) :=
-{ sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in 
+{ sup := λ p q, let super : convergence_space α := ↑p ⊔ ↑q in
   { converges := converges_ super,
     pure_converges := pure_converges_ super,
     le_converges := le_converges_ super,
@@ -110,7 +117,7 @@ instance : has_Sup (kent_convergence_space α) :=
   { converges := converges_ super,
     pure_converges := pure_converges_ super,
     le_converges := le_converges_ super,
-    kent_converges := 
+    kent_converges :=
     begin
       intros f x hconv,
       cases hconv,
@@ -129,11 +136,11 @@ by { refine function.injective.semilattice_inf coe kent_convergence_space.coe_in
 instance : semilattice_sup (kent_convergence_space α) :=
 by { refine function.injective.semilattice_sup coe kent_convergence_space.coe_injective _, tauto }
 
-lemma kent_convergence_space.coe_Inf (ps : set (kent_convergence_space α)) : 
+lemma kent_convergence_space.coe_Inf (ps : set (kent_convergence_space α)) :
   (↑(Inf ps) : convergence_space α) = Inf (coe '' ps) :=
 by { ext, tauto }
 
-lemma kent_convergence_space.coe_Sup (ps : set (kent_convergence_space α)) : 
+lemma kent_convergence_space.coe_Sup (ps : set (kent_convergence_space α)) :
   (↑(Sup ps) : convergence_space α) = Sup (coe '' ps) :=
 by { ext, tauto }
 
@@ -146,7 +153,7 @@ instance : complete_semilattice_Inf (kent_convergence_space α) :=
   end,
   le_Inf :=
   begin
-    intros ps q hle, 
+    intros ps q hle,
     change ↑q ≤ ↑(Inf ps),
     rw kent_convergence_space.coe_Inf,
     intros f x hconv p hp,
@@ -165,7 +172,7 @@ instance : complete_semilattice_Sup (kent_convergence_space α) :=
     unfold Sup, simp,
     exact or.inr ⟨p, hmem, hconv⟩,
   end,
-  Sup_le := 
+  Sup_le :=
   begin
     intros qs p hle f x hconv,
     cases hconv,
@@ -181,7 +188,7 @@ instance : complete_semilattice_Sup (kent_convergence_space α) :=
 
 instance : lattice (kent_convergence_space α) :=
 { ..kent_convergence_space.semilattice_sup,
-  ..kent_convergence_space.semilattice_inf }  
+  ..kent_convergence_space.semilattice_inf }
 
 instance : complete_lattice (kent_convergence_space α) :=
 { bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
@@ -197,7 +204,7 @@ instance : complete_lattice (kent_convergence_space α) :=
 -/
 
 def kent_convergence_space.induced (m : α → β) [kent_convergence_space β] : kent_convergence_space α :=
-let ind := convergence_space.induced m in 
+let ind := convergence_space.induced m in
 { kent_converges :=
   begin
     assume f : filter α,
@@ -206,7 +213,7 @@ let ind := convergence_space.induced m in
     let f₁ := map m f,
     let f₂ := f ⊔ pure x,
     let y := m x,
-    show converges (map m f₂) y, 
+    show converges (map m f₂) y,
     begin
       rw [filter.map_sup, filter.map_pure],
       simp [kent_converges h],
@@ -219,8 +226,8 @@ let ind := convergence_space.induced m in
 -/
 
 def kent_convergence_space.coinduced (m : α → β) [kent_convergence_space α] : kent_convergence_space β :=
-let coind := convergence_space.coinduced m in 
-{ kent_converges := 
+let coind := convergence_space.coinduced m in
+{ kent_converges :=
   begin
     assume g : filter β,
     assume y  : β,
@@ -232,7 +239,7 @@ let coind := convergence_space.coinduced m in
           g ⊔ pure y  = pure y ⊔ g : sup_comm
           ... = pure y : by rw sup_of_le_left hconv,
         have : converges_ coind (pure y) y, from pure_converges_ coind y,
-        show converges_ coind (g ⊔ pure y) y, 
+        show converges_ coind (g ⊔ pure y) y,
         begin
           rw (by assumption : g ⊔ pure y = pure y),
           assumption,
@@ -247,7 +254,7 @@ let coind := convergence_space.coinduced m in
           ... = map m f ⊔ pure (m x) : by rw heq
           ... = map m f ⊔ map m (pure x) : by rw filter.map_pure
           ... = map m (f ⊔ pure x) : map_sup,
-        have hconv' : converges f' x, 
+        have hconv' : converges f' x,
         begin
           apply kent_converges,
           assumption

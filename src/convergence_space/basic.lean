@@ -17,6 +17,7 @@ The following presents the basic theory of convergence spaces.
 * We use the letters `p`, `q`, etc. for convergence structures.
 * We use the letters `f`, `g`, etc. for filters.
 * We use the greek letters `α`, `β`, etc. for spaces.
+* We use the letters `s`, `t`, etc. for sets.
 * We use the letters `x`, `y`, etc. for points in spaces.
 * Hypotheses will always start with an "h", e.g. `hconv`, `hle`, etc.
 * Variables denoting collections will end in "s". For example `ps` will stand for a
