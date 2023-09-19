@@ -5,11 +5,10 @@ import data.set.prod
 import data.set.pointwise
 import algebra.support
 import order.complete_lattice
-import order.filter.basic
 import order.filter.pointwise
 
 open filter function
-open_locale filter pointwise
+open_locale filter
 
 variables {α β G M : Type*}
 
@@ -34,9 +33,9 @@ def set.partial_smul [has_partial_smul M α] (t : set M) (s : set α) : set α :
   (λ p : M × α, p.1 • p.2) '' ((t ×ˢ s) ∩ smul_dom M α)
 
 /-- The partial scalar multiplication of two filters. -/
-def filter.partial_smul [has_partial_smul M α] 
-  (g : filter M) (f : filter α) : filter α := 
-map (λ p : M × α, p.1 • p.2) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))  
+def filter.partial_smul [has_partial_smul M α]
+  (g : filter M) (f : filter α) : filter α :=
+map (λ p : M × α, p.1 • p.2) ((g ×ᶠ f) ⊓ 𝓟 (smul_dom M α))
 
 /-- Typeclass for partial actions of groups. -/
 class partial_mul_action (G α : Type*) [group G]
@@ -44,7 +43,7 @@ class partial_mul_action (G α : Type*) [group G]
 (one_smul : ∀ (x : α), smul_defined 1 x ∧ (1 : G) • x = x)
 (mul_smul : ∀ {a b : G} {x : α}, smul_defined b x → smul_defined a (b • x) →
   smul_defined (a * b) x ∧ (a * b) • x = a • (b • x))
-(inv_smul_cancel_left : ∀ {a : G} {x y : α}, 
+(inv_smul_cancel_left : ∀ {a : G} {x y : α},
   smul_defined a x → a • x = y → smul_defined a⁻¹ y ∧ x = a⁻¹ • y)
 
 export partial_mul_action
@@ -75,7 +74,7 @@ def embed (G : Type*) {α : Type*} [group G] [partial_mul_action G α]
 
 variables [group G] [partial_mul_action G α]
 
-lemma is_reflexive : reflexive (envelope G α) := 
+lemma is_reflexive : reflexive (envelope G α) :=
 begin
   rintro (⟨a, x⟩ : G × α),
   unfold envelope, simp,
@@ -90,7 +89,7 @@ begin
   simp at *, exact ⟨hdef', eq.symm heq'⟩,
 end
 
-lemma is_transitive : transitive (envelope G α) := 
+lemma is_transitive : transitive (envelope G α) :=
 begin
   rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩ : G × α,
   unfold envelope,
@@ -105,13 +104,13 @@ end
 
 lemma is_equivalence : equivalence (envelope G α) := ⟨is_reflexive, is_symmetric, is_transitive⟩
 
-instance : setoid (G × α) := 
+instance : setoid (G × α) :=
 { r := envelope G α,
   iseqv := is_equivalence }
 
 instance : has_smul G (G × α) := ⟨λ a ⟨b, x⟩, (a * b, x)⟩
 
-lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a • cy := 
+lemma act_congr (a : G) (bx cy : G × α) (heq : bx ≈ cy) : a • bx ≈ a • cy :=
 begin
   obtain ⟨b, x⟩ := bx,
   obtain ⟨c, y⟩ := cy,
@@ -120,7 +119,7 @@ begin
   assumption,
 end
 
-lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) : 
+lemma act_congr_sound (a : G) (bx cy : G × α) (heq : bx ≈ cy) :
   ⟦a • bx⟧ = ⟦a • cy⟧ :=
 quotient.sound (act_congr a bx cy heq)
 
@@ -129,7 +128,7 @@ def act_lifted (a : G) (bx : G × α) : space G α := ⟦a • bx⟧
 instance : has_smul G (space G α) :=
 ⟨λ a bx, quotient.lift (act_lifted a) (act_congr_sound a) bx⟩
 
-end envelope  
+end envelope
 
 /-!
 ### Extra set stuff
@@ -146,12 +145,12 @@ end
 lemma ne_empty_iff_exists_elem {s : set α} : ¬ (s = ∅) ↔ ∃ x, x ∈ s :=
 begin
   split,
-  { intros hne, 
-    change s ≠ ∅ at hne, 
-    rw [ne_empty_iff_nonempty, nonempty_def] at hne, 
+  { intros hne,
+    change s ≠ ∅ at hne,
+    rw [ne_empty_iff_nonempty, nonempty_def] at hne,
     assumption },
-  { intros hexists, 
-    change s ≠ ∅, 
+  { intros hexists,
+    change s ≠ ∅,
     rw ne_empty_iff_nonempty,
     exact nonempty_def.mpr hexists }
 end
@@ -163,7 +162,7 @@ end set
 ### Extra lattice stuff
 -/
 
-lemma Sup_image_le [complete_semilattice_Sup β] 
+lemma Sup_image_le [complete_semilattice_Sup β]
   {f g : α → β} (hle : f ≤ g) (s : set α) : Sup (f '' s) ≤ Sup (g '' s) :=
 begin
   refine Sup_le_Sup_of_forall_exists_le _,
@@ -179,7 +178,7 @@ end
 
 namespace filter
 
-lemma inf_neq_bot_iff {f g : filter α} : 
+lemma inf_neq_bot_iff {f g : filter α} :
   (f ⊓ g) ≠ ⊥ ↔ ∀ (s ∈ f) (t ∈ g), s ∩ t ≠ ∅ :=
 begin
   let hiff := iff.not inf_eq_bot_iff,
@@ -202,7 +201,7 @@ begin
   },
   { rintro ⟨u, hu, v, hv, hsub⟩,
     rw mem_inf_iff_superset,
-    have hsub' : u ×ˢ v ∈ f ×ᶠ g := 
+    have hsub' : u ×ˢ v ∈ f ×ᶠ g :=
       mem_prod_iff.mpr ⟨u, hu, v, hv, subset_refl (u ×ˢ v) ⟩,
     exact ⟨u ×ˢ v, hsub', s, mem_principal_self s, hsub⟩,
   },
@@ -248,7 +247,7 @@ begin
     refine ⟨t⁻¹, s, ht', hs, hsub⟩ }
 end
 
-lemma inv_smul_inf_ne_bot [group G] [mul_action G α] {g : filter G} {f f' : filter α} 
+lemma inv_smul_inf_ne_bot [group G] [mul_action G α] {g : filter G} {f f' : filter α}
   (hle : f' ≤ g • f) [hf' : f'.ne_bot] : ((g⁻¹ • f') ⊓ f).ne_bot :=
 begin
   rw ← forall_mem_nonempty_iff_ne_bot,
@@ -258,7 +257,7 @@ begin
   refine set.subset_eq_nonempty hsub₁ _,
   refine set.subset_eq_nonempty (set.inter_subset_inter_left s₂ hsub₂) _,
   let s₄ : set α := s₃ ∩ (t₁ • s₂),
-  have hne : s₄.nonempty, 
+  have hne : s₄.nonempty,
     from forall_mem_nonempty_iff_ne_bot.mpr hf' s₄
       (f'.inter_sets hs₃ (filter.le_def.mp hle (t₁ • s₂) (filter.smul_mem_smul ht₁ hs₂))),
   obtain ⟨y, hy⟩ := set.nonempty_def.mp hne,
@@ -271,7 +270,7 @@ begin
   begin
     simp [← heq'],
     have : a⁻¹ ∈ has_inv.inv '' t₁, from set.mem_image_of_mem (has_inv.inv) ha,
-    have : a⁻¹ ∈ t₁⁻¹, by rwa set.image_inv at this, 
+    have : a⁻¹ ∈ t₁⁻¹, by rwa set.image_inv at this,
     exact set.mem_image2_of_mem this hy₁,
   end,
   exact ⟨x, hmem', hx⟩,
@@ -279,5 +278,5 @@ end
 
 -- lemma mem_partial_smul_of_le_iff [has_partial_smul M α] {g : filter M} {f : filter α} {h : ultrafilter α}
 --   (hle : ↑h ≤ partial_smul g f) {s : set α} :
---   s ∈ h ↔ ∃ t s, t ∈ g ∧ s ∈ f ∧ 
+--   s ∈ h ↔ ∃ t s, t ∈ g ∧ s ∈ f ∧
 end filter

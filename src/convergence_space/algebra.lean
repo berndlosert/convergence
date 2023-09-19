@@ -1,7 +1,6 @@
 import tactic
 import order.filter.partial
 import convergence_space.basic
-import data.set.pointwise
 import order.filter.pointwise
 import extra
 
