@@ -9,21 +9,54 @@ noncomputable section
 
 open Set Filter
 
-universe u v w
+/-!
+# Basic theory of convergence spaces
+
+The following presents the basic theory of convergence spaces.
+
+## Notation
+
+* We use the letters `p`, `q`, etc. for convergence structures.
+* We use the letters `F`, `G`, etc. for filters.
+* We use the greek letters `α`, `β`, etc. for spaces.
+* We use the letters `s`, `t`, etc. for sets.
+* We use the letters `x`, `y`, etc. for points in spaces.
+* Hypotheses will always start with an "h", e.g. `hconv`, `hle`, etc.
+* Variables denoting collections will end in "s". For example `ps` will stand for a
+  set of convergence structures.
+
+## References
+
+* Preuss, Foundations of Topology
+* Gary Richardson, personal correspondence
+-/
 
 /-!
 ### Definition
 -/
 
-/-- A convergence structure on `α`. -/
+/--
+An instance or value of type `ConvergenceSpace α` is called a "convergence structure".
+
+**Remarks**:
+* Preuss calls convergence spaces "generalized convergence spaces".
+* For `x : α`, the principal filter on `x` is denoted `pure x`. These are the dot filters
+  from Preuss and Richardson. We will call them pure filters.
+* In mathlib, `F ≤ G` means `G ⊆ F`, but we still read it as "`F` is finer than `G`" or
+  "`G` is coarser than `F`".
+* Filters in mathlib can contain the empty set. These filters are the bottom filters,
+  denoted ⊥. Some definitions from the literature are slightly modified to account for
+  bottom filters, but for the most part, we won't need to worry about them.
+-/
 @[ext]
-class ConvergenceSpace (α : Type u) where
+class ConvergenceSpace (α : Type*) where
   converges : Filter α → α → Prop
   pure_converges : ∀ x, converges (pure x) x
-  le_converges : ∀ {f g}, f ≤ g → ∀ {x}, converges g x → converges f x
+  le_converges : ∀ {F G}, F ≤ G → ∀ {x}, converges G x → converges F x
 
 open ConvergenceSpace
 
+/- These will come in handy when we are not using instance arguments. -/
 section
 variable (p : ConvergenceSpace α)
 
@@ -39,7 +72,8 @@ def le_converges_ ⦃f g : Filter α⦄ (hle : f ≤ g) {x : α}
 @le_converges _ p _ _ hle _ hconv
 end
 
-/- N.B. In any convergence space, the bottom filter converges to every point. -/
+/- In any convergence space, the bottom filter converges to every point. This
+is OK though, since we never care what the bottom filter does. -/
 theorem bot_converges [ConvergenceSpace α] (x : α) : converges ⊥ x :=
 le_converges bot_le (pure_converges x)
 
@@ -47,9 +81,20 @@ le_converges bot_le (pure_converges x)
 ### Ordering
 -/
 
-/-- The ordering on convergence structures on the type `α`.
-  `p ≤ q` if p-convergence implies q-convergence (`p` is finer than `q`
-  or `q` is coarser than `p`). -/
+/--
+The ordering on convergence structures on the type `α` is defined so that `p ≤ q`
+means `p`-convergence implies `q`-convergence. We read `p ≤ q` as "`p` is finer
+than `q`" or "`q` is coarser than `p`".
+
+**Remarks**
+* Preus defines `p ≤ q` to mean that id : (α, p) → (α, q) is continuous
+  (see p. 30, Def. 1.1.4). This is the same as our definition.
+* Dr. Richardson defines it backwards, i.e. he writes `p ≥ q` for our `p ≤ q`.
+* The reading "`p` is finer than `q`" that we adopted is the same one used by Preuss
+  and Dr. Richardson.
+* In the context of topologies, "`t1` is finer than `t2`" means `t2 ⊆ t1`. This meaning
+  is consistent with our meaning.
+-/
 
 instance : LE (ConvergenceSpace α) where
   le p q := ∀ {f x}, converges_ p f x → converges_ q f x
@@ -66,15 +111,30 @@ instance : PartialOrder (ConvergenceSpace α) where
     ext f x
     exact Iff.intro hpq hqp
 
--- /-!
--- ### Initial convergence
--- -/
+/-!
+### Initial and final convergence structures
 
--- def convergence_space.initial {ι : Type*} {β : ι → Type*}
---   (p : ∀ i : ι, convergence_space (β i)) (m : ∀ i : ι, α → β i) : convergence_space α :=
--- { converges := λ f x, ∀ i : ι, converges_ (p i) (map (m i) f) ((m i) x),
---   pure_converges := λ x i, by rw filter.map_pure; exact pure_converges_ (p i) ((m i) x),
---   le_converges := λ f g hle x hconv i, le_converges_ (p i) (filter.map_mono hle) (hconv i) }
+Here, we follow the definitions from Preuss. The initial convergence structure is defined
+on p. 32 at the top of the page; the final convergence structre is defined on p. 68 in
+Remark 2.3.1.4.
+
+**Remark**
+The terminolgoy "initial" and "final" is backwards from their categorical meaning. For
+example, if you think of the family f : ∀ i : ι, α → β i as projections, then the initial
+convergence convergence structure will yield be the product convergence structure (and
+products are terminal objects, as is well known). See Preuss, p. 18 for the topological
+version of this example.
+-/
+
+def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
+  (p : ∀ i : ι, ConvergenceSpace (β i)) (f : ∀ i : ι, α → β i) : ConvergenceSpace α where
+  converges F x := ∀ i : ι, converges_ (p i) (map (f i) F) ((f i) x)
+  pure_converges x i := by
+    rw [Filter.map_pure]
+    exact pure_converges_ (p i) ((f i) x)
+  le_converges := by
+    intros F G hle x hconv i
+    exact le_converges_ (p i) (Filter.map_mono hle) (hconv i)
 
 -- /-!
 -- ### Lattice of convergence structures
