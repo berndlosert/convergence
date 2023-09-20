@@ -16,6 +16,7 @@ universe u v w
 -/
 
 /-- A convergence structure on `α`. -/
+@[ext]
 class ConvergenceSpace (α : Type u) where
   converges : Filter α → α → Prop
   pure_converges : ∀ x, converges (pure x) x
@@ -23,35 +24,47 @@ class ConvergenceSpace (α : Type u) where
 
 open ConvergenceSpace
 
--- section
--- variables (p : convergence_space α)
--- @[simp] def converges_ (f : filter α) (x : α) : Prop := @converges _ p f x
--- @[simp] def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
--- @[simp] def le_converges_ ⦃f g : filter α⦄ (hle : f ≤ g) {x : α}
---   (hconv : converges g x) : converges f x :=
--- @le_converges _ p _ _ hle _ hconv
--- end
+section
+variable (p : ConvergenceSpace α)
+
+@[simp]
+def converges_ (f : Filter α) (x : α) : Prop := @converges _ p f x
+
+@[simp]
+def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
+
+@[simp]
+def le_converges_ ⦃f g : Filter α⦄ (hle : f ≤ g) {x : α}
+  (hconv : converges g x) : converges f x :=
+@le_converges _ p _ _ hle _ hconv
+end
 
 /- N.B. In any convergence space, the bottom filter converges to every point. -/
 theorem bot_converges [ConvergenceSpace α] (x : α) : converges ⊥ x :=
 le_converges bot_le (pure_converges x)
 
--- /-!
--- ### Ordering
--- -/
+/-!
+### Ordering
+-/
 
--- /-- The ordering on convergence structures on the type `α`.
---   `p ≤ q` if p-convergence implies q-convergence (`p` is finer than `q`
---   or `q` is coarser than `p`). -/
+/-- The ordering on convergence structures on the type `α`.
+  `p ≤ q` if p-convergence implies q-convergence (`p` is finer than `q`
+  or `q` is coarser than `p`). -/
 
--- instance : has_le (convergence_space α) :=
--- ⟨λ p q, ∀ {f x}, converges_ p f x → converges_ q f x⟩
+instance : LE (ConvergenceSpace α) where
+  le p q := ∀ {f x}, converges_ p f x → converges_ q f x
 
--- instance : partial_order (convergence_space α) :=
--- { le_refl := by { unfold has_le.le, intros, assumption },
---   le_trans := by { assume p q r hpq hqr f x hconv, exact (hqr (hpq hconv)) },
---   le_antisymm := by { assume p q hpq hqp, ext f x, exact iff.intro hpq hqp },
---   ..convergence_space.has_le }
+instance : PartialOrder (ConvergenceSpace α) where
+  le_refl := by
+    repeat intro
+    assumption
+  le_trans := by
+    intros p q r hpq hqr f x hconv
+    exact (hqr (hpq hconv))
+  le_antisymm := by
+    intros p q hpq hqp
+    ext f x
+    exact Iff.intro hpq hqp
 
 -- /-!
 -- ### Initial convergence
