@@ -129,12 +129,8 @@ version of this example.
 def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
   (p : ∀ i : ι, ConvergenceSpace (β i)) (f : ∀ i : ι, α → β i) : ConvergenceSpace α where
   converges F x := ∀ i : ι, converges_ (p i) (map (f i) F) ((f i) x)
-  pure_converges x i := by
-    rw [Filter.map_pure]
-    exact pure_converges_ (p i) ((f i) x)
-  le_converges := by
-    intros F G hle x hconv i
-    exact le_converges_ (p i) (Filter.map_mono hle) (hconv i)
+  pure_converges x i := by rw [Filter.map_pure]; exact pure_converges_ (p i) ((f i) x)
+  le_converges hle x hconv i := le_converges_ (p i) (Filter.map_mono hle) (hconv i)
 
 -- /-!
 -- ### Lattice of convergence structures
