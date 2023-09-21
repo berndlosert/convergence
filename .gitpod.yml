@@ -1,4 +1,4 @@
 image: leanprovercommunity/mathlib:gitpod
 
 tasks:
-  - init: lake exe cache getq
+  - init: lake exe cache get
