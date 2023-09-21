@@ -164,13 +164,14 @@ instance : Inf (ConvergenceSpace α) where
       And.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
   }
 
--- instance : has_sup (convergence_space α) :=
--- { sup := λ p q,
---   { converges := λ f x, (converges_ p f x) ∨ (converges_ q f x),
---     pure_converges := λ x, or.inl (pure_converges_ p x),
---     le_converges := λ f g hle x hconv, or.elim hconv
---       (assume hl, or.inl (le_converges_ p hle hl))
---       (assume hr, or.inr (le_converges_ q hle hr)) }}
+instance : Sup (ConvergenceSpace α) where
+  sup p q := {
+    converges := λ F x ↦ (converges_ p F x) ∨ (converges_ q F x),
+    pure_converges := λ x ↦ Or.inl (pure_converges_ p x),
+    le_converges := λ {F} {G} hle x hconv ↦ Or.elim hconv
+      (λ hl ↦ Or.inl (le_converges_ p hle hl))
+      (λ hr ↦ Or.inr (le_converges_ q hle hr))
+  }
 
 -- instance : has_Inf (convergence_space α) :=
 -- { Inf := λ ps,
