@@ -173,11 +173,12 @@ instance : Sup (ConvergenceSpace α) where
       (λ hr ↦ Or.inr (le_converges_ q hle hr))
   }
 
--- instance : has_Inf (convergence_space α) :=
--- { Inf := λ ps,
---   { converges := λ f x, ∀ {p : convergence_space α}, p ∈ ps → converges_ p f x,
---     pure_converges := λ x p ps, pure_converges_ p x,
---     le_converges := λ f g hle x hconv p hmem, le_converges_ p hle (hconv hmem) }}
+instance : InfSet (ConvergenceSpace α) where
+  sInf ps := {
+    converges := λ f x ↦ ∀ {p}, p ∈ ps → converges_ p f x,
+    pure_converges := λ x p ps ↦ pure_converges_ p x,
+    le_converges := λ {F} {G} hle x hconv p hmem ↦ le_converges_ p hle (hconv hmem)
+  }
 
 -- instance : has_Sup (convergence_space α) :=
 -- { Sup := λ ps,
