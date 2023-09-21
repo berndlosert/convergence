@@ -1,8 +1,1 @@
 image: leanprovercommunity/mathlib:gitpod
-
-vscode:
-  extensions:
-    - jroesch.lean
-
-tasks:
-  - command: . /home/gitpod/.profile
