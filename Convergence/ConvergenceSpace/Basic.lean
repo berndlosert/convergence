@@ -61,14 +61,14 @@ section
 variable (p : ConvergenceSpace α)
 
 @[simp]
-def converges_ (f : Filter α) (x : α) : Prop := @converges _ p f x
+def converges_ (F : Filter α) (x : α) : Prop := @converges _ p F x
 
 @[simp]
 def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
 
 @[simp]
-def le_converges_ ⦃f g : Filter α⦄ (hle : f ≤ g) {x : α}
-  (hconv : converges g x) : converges f x :=
+def le_converges_ ⦃F G : Filter α⦄ (hle : F ≤ G) {x : α}
+  (hconv : converges G x) : converges F x :=
 @le_converges _ p _ _ hle _ hconv
 end
 
@@ -97,18 +97,18 @@ than `q`" or "`q` is coarser than `p`".
 -/
 
 instance : LE (ConvergenceSpace α) where
-  le p q := ∀ {f x}, converges_ p f x → converges_ q f x
+  le p q := ∀ {F x}, converges_ p F x → converges_ q F x
 
 instance : PartialOrder (ConvergenceSpace α) where
   le_refl := by
     repeat intro
     assumption
   le_trans := by
-    intros p q r hpq hqr f x hconv
+    intros p q r hpq hqr F x hconv
     exact (hqr (hpq hconv))
   le_antisymm := by
     intros p q hpq hqp
-    ext f x
+    ext F x
     exact Iff.intro hpq hqp
 
 /-!
@@ -132,35 +132,37 @@ def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
   pure_converges x i := by rw [Filter.map_pure]; exact pure_converges_ (p i) ((f i) x)
   le_converges hle x hconv i := le_converges_ (p i) (Filter.map_mono hle) (hconv i)
 
--- /-!
--- ### Lattice of convergence structures
--- -/
+/-!
+### Lattice of convergence structures
+-/
 
--- /-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence
---   structure (where only pure filters and the bottom filter converge) and `⊤` the indiscrete
---   convergence structure (where every filter converges). The infimum of a non-empty collection
---   `ps` is defined so that `converges f x` means `∀ p ∈ ps, converges_ p f x`, while the
---   supremum is defined so that `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
+/-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence
+  structure (where only pure filters and the bottom filter converge) and `⊤` the indiscrete
+  convergence structure (where every filter converges). The infimum of a non-empty collection
+  `ps` is defined so that `converges f x` means `∀ p ∈ ps, converges_ p f x`, while the
+  supremum is defined so that `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
 
--- instance : has_bot (convergence_space α) :=
--- { bot :=
---   { converges := λ f x, f ≤ pure x,
---     pure_converges := by tauto,
---     le_converges := by tauto }}
+instance : Bot (ConvergenceSpace α) where
+  bot := {
+    converges := λ F x ↦ F ≤ pure x,
+    pure_converges := by tauto,
+    le_converges := by tauto
+  }
 
--- instance : has_top (convergence_space α) :=
--- { top :=
---   { converges := λ f x, true,
---     pure_converges := by tauto,
---     le_converges := by tauto }}
+instance : Top (ConvergenceSpace α) where
+  top := {
+    converges := λ F x ↦ true,
+    pure_converges := by tauto,
+    le_converges := by tauto
+  }
 
--- instance : has_inf (convergence_space α) :=
--- { inf := λ p q,
---   { converges := λ f x, (converges_ p f x) ∧ (converges_ q f x),
---     pure_converges := λ x, and.intro (pure_converges_ p x) (pure_converges_ q x),
---     le_converges := λ f g hle x hconv,
---       and.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
---     }}
+instance : Inf (ConvergenceSpace α) where
+  inf p q := {
+    converges := λ F x ↦ (converges_ p F x) ∧ (converges_ q F x),
+    pure_converges := λ x ↦ And.intro (pure_converges_ p x) (pure_converges_ q x),
+    le_converges := λ {F} {G} hle x hconv ↦
+      And.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
+  }
 
 -- instance : has_sup (convergence_space α) :=
 -- { sup := λ p q,
