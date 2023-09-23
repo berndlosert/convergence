@@ -180,18 +180,19 @@ instance : InfSet (ConvergenceSpace α) where
     le_converges := λ {F} {G} hle x hconv p hmem ↦ le_converges_ p hle (hconv hmem)
   }
 
--- instance : has_Sup (convergence_space α) :=
--- { Sup := λ ps,
---   { converges := λ f x, f ≤ pure x ∨
---       ∃ p : convergence_space α, p ∈ ps ∧ converges_ p f x,
---     pure_converges := by tauto,
---     le_converges :=
---     begin
---       assume f g hle x hor,
---       rcases hor with hle'|⟨p, hmem, hconv⟩,
---       { exact or.inl (le_trans hle hle') },
---       { refine or.inr ⟨p, hmem, le_converges_ p hle hconv⟩, },
---     end }}
+instance : SupSet (ConvergenceSpace α) where
+  sSup ps := {
+    converges := λ f x ↦ f ≤ pure x ∨
+      ∃ p, p ∈ ps ∧ converges_ p f x,
+    pure_converges := by
+      intros x
+      exact Or.inl (le_refl (pure x)),
+    le_converges := by
+      intros F G hle x hor
+      rcases hor with hle'|⟨p, hmem, hconv⟩
+      · exact Or.inl (le_trans hle hle')
+      · refine Or.inr ⟨p, hmem, le_converges_ p hle hconv⟩
+  }
 
 -- instance : semilattice_inf (convergence_space α) :=
 -- { inf_le_left := λ p q f x hconv, hconv.left,
