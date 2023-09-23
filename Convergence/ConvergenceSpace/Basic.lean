@@ -194,12 +194,11 @@ instance : SupSet (ConvergenceSpace α) where
       · refine Or.inr ⟨p, hmem, le_converges_ p hle hconv⟩
   }
 
--- instance : semilattice_inf (convergence_space α) :=
--- { inf_le_left := λ p q f x hconv, hconv.left,
---   inf_le_right := λ p q f x hconv, hconv.right,
---   le_inf := λ p q r hle hle' f x hp, and.intro (hle hp) (hle' hp),
---   ..convergence_space.partial_order,
---   ..convergence_space.has_inf }
+instance : SemilatticeInf (ConvergenceSpace α) where
+  inf_le_left := λ p q F x hconv ↦ hconv.left
+  inf_le_right := λ p q F x hconv ↦ hconv.right
+  le_inf := λ p q r hle hle' F x hp ↦ And.intro (hle hp) (hle' hp)
+
 
 -- instance : semilattice_sup (convergence_space α) :=
 -- { le_sup_left := λ p q f x hconv, or.inl hconv,
