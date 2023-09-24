@@ -132,15 +132,29 @@ def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
   pure_converges x i := by rw [Filter.map_pure]; exact pure_converges_ (p i) ((f i) x)
   le_converges hle x hconv i := le_converges_ (p i) (Filter.map_mono hle) (hconv i)
 
+def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
+  (p : ∀ i : ι, ConvergenceSpace (α i)) (f : ∀ i : ι, α i → β) : ConvergenceSpace β where
+  converges G y := G ≤ pure y ∨ ∃ i F x,
+    converges_ (p i) F x ∧ G ≤ Filter.map (f i) F ∧ f i x = y
+  pure_converges x := by simp
+  le_converges := by
+    intros G G' hle y hconv
+    cases' hconv with hle' hex
+    · exact Or.inl (le_trans hle hle')
+    · obtain ⟨i, F, x, hconv', hle', heq⟩ := hex
+      refine Or.inr ⟨i, F, x, hconv', le_trans hle hle', heq⟩
+      
 /-!
 ### Lattice of convergence structures
--/
 
-/-- Convergence structures on `α` form a complete lattice, with `⊥` the discrete convergence
-  structure (where only pure filters and the bottom filter converge) and `⊤` the indiscrete
-  convergence structure (where every filter converges). The infimum of a non-empty collection
-  `ps` is defined so that `converges f x` means `∀ p ∈ ps, converges_ p f x`, while the
-  supremum is defined so that `converges f x` means `∃ p ∈ ps, converges_ p f x`. -/
+We define the lattice of convergence structures on `α` by defining what `sInf ps` means
+for any set of convergence structures `ps` on `α`. Basically, `sInf ps` is the initial
+convergence structure of the `id` functions with respect to the family obtained from
+`ps`.
+
+The resulting lattice will have the discrete convergence structure as the bottom element
+and the indiscrete convergence structure as the top element.
+-/
 
 instance : Bot (ConvergenceSpace α) where
   bot := {
@@ -200,27 +214,21 @@ instance : SemilatticeInf (ConvergenceSpace α) where
   le_inf := λ p q r hle hle' F x hp ↦ And.intro (hle hp) (hle' hp)
 
 
--- instance : semilattice_sup (convergence_space α) :=
--- { le_sup_left := λ p q f x hconv, or.inl hconv,
---   le_sup_right := λ p q f x hconv, or.inr hconv,
---   sup_le := λ p q r hle hle' f x hconv, hconv.elim hle hle',
---   ..convergence_space.partial_order,
---   ..convergence_space.has_sup }
+instance : SemilatticeSup (ConvergenceSpace α) where
+  le_sup_left := λ p q F x hconv ↦ Or.inl hconv
+  le_sup_right := λ p q F x hconv ↦ Or.inr hconv
+  sup_le := λ p q r hle hle' F x hconv ↦ hconv.elim hle hle'
 
--- instance : complete_semilattice_Inf (convergence_space α) :=
--- { Inf_le := λ ps p hmem f x hconv, hconv hmem,
---   le_Inf := λ ps q hle f x hconv p hmem, (hle p hmem) hconv,
---   ..convergence_space.partial_order,
---   ..convergence_space.has_Inf }
+instance : CompleteSemilatticeInf (ConvergenceSpace α) where
+  sInf_le := λ ps p hmem F x hconv ↦ hconv hmem
+  le_sInf := λ ps q hle F x hconv p hmem ↦ (hle p hmem) hconv
 
--- instance : complete_semilattice_Sup (convergence_space α) :=
--- { le_Sup := λ ps p hmem f x hconv, or.inr (exists.intro p (and.intro hmem hconv)),
---   Sup_le := λ qs p hle f x hconv,
---     hconv.elim
---       (assume hle', le_converges_ p hle' (pure_converges_ p x))
---       (assume hexists, exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right)),
---   ..convergence_space.partial_order,
---   ..convergence_space.has_Sup }
+instance : CompleteSemilatticeSup (ConvergenceSpace α) where
+  le_sSup := λ ps p hmem f x hconv ↦ Or.inr (Exists.intro p (And.intro hmem hconv))
+  sSup_le := λ qs p hle f x hconv ↦
+    hconv.elim
+      (intros hle', le_converges_ p hle' (pure_converges_ p x))
+      (intros hexists, Exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right))
 
 -- instance : lattice (convergence_space α) :=
 -- { ..convergence_space.semilattice_sup,
