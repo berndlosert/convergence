@@ -143,7 +143,7 @@ def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
     · exact Or.inl (le_trans hle hle')
     · obtain ⟨i, F, x, hconv', hle', heq⟩ := hex
       refine Or.inr ⟨i, F, x, hconv', le_trans hle hle', heq⟩
-      
+
 /-!
 ### Lattice of convergence structures
 
@@ -209,26 +209,25 @@ instance : SupSet (ConvergenceSpace α) where
   }
 
 instance : SemilatticeInf (ConvergenceSpace α) where
-  inf_le_left := λ p q F x hconv ↦ hconv.left
-  inf_le_right := λ p q F x hconv ↦ hconv.right
-  le_inf := λ p q r hle hle' F x hp ↦ And.intro (hle hp) (hle' hp)
-
+  inf_le_left p q F x hconv := hconv.left
+  inf_le_right p q F x hconv := hconv.right
+  le_inf p q r hle hle' F x hp := And.intro (hle hp) (hle' hp)
 
 instance : SemilatticeSup (ConvergenceSpace α) where
-  le_sup_left := λ p q F x hconv ↦ Or.inl hconv
-  le_sup_right := λ p q F x hconv ↦ Or.inr hconv
-  sup_le := λ p q r hle hle' F x hconv ↦ hconv.elim hle hle'
+  le_sup_left p q F x hconv := Or.inl hconv
+  le_sup_right p q F x hconv := Or.inr hconv
+  sup_le p q r hle hle' F x hconv := hconv.elim hle hle'
 
 instance : CompleteSemilatticeInf (ConvergenceSpace α) where
-  sInf_le := λ ps p hmem F x hconv ↦ hconv hmem
-  le_sInf := λ ps q hle F x hconv p hmem ↦ (hle p hmem) hconv
+  sInf_le ps p hmem F x hconv := hconv hmem
+  le_sInf ps q hle F x hconv p hmem := (hle p hmem) hconv
 
 instance : CompleteSemilatticeSup (ConvergenceSpace α) where
-  le_sSup := λ ps p hmem f x hconv ↦ Or.inr (Exists.intro p (And.intro hmem hconv))
-  sSup_le := λ qs p hle f x hconv ↦
+  le_sSup ps p hmem f x hconv := Or.inr (Exists.intro p (And.intro hmem hconv))
+  sSup_le qs p hle f x hconv :=
     hconv.elim
-      (intros hle', le_converges_ p hle' (pure_converges_ p x))
-      (intros hexists, Exists.elim hexists (assume q hconv', (hle q hconv'.left) hconv'.right))
+      (λ hle' ↦ le_converges_ p hle' (pure_converges_ p x))
+      (λ hexists ↦ Exists.elim hexists (λ q hconv' ↦ (hle q hconv'.left) hconv'.right))
 
 -- instance : lattice (convergence_space α) :=
 -- { ..convergence_space.semilattice_sup,
