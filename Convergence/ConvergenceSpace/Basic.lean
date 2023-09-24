@@ -223,24 +223,27 @@ instance : CompleteSemilatticeInf (ConvergenceSpace α) where
   le_sInf ps q hle F x hconv p hmem := (hle p hmem) hconv
 
 instance : CompleteSemilatticeSup (ConvergenceSpace α) where
-  le_sSup ps p hmem f x hconv := Or.inr (Exists.intro p (And.intro hmem hconv))
-  sSup_le qs p hle f x hconv :=
+  le_sSup ps p hmem F x hconv := Or.inr (Exists.intro p (And.intro hmem hconv))
+  sSup_le qs p hle F x hconv :=
     hconv.elim
       (λ hle' ↦ le_converges_ p hle' (pure_converges_ p x))
       (λ hexists ↦ Exists.elim hexists (λ q hconv' ↦ (hle q hconv'.left) hconv'.right))
 
--- instance : lattice (convergence_space α) :=
--- { ..convergence_space.semilattice_sup,
---   ..convergence_space.semilattice_inf }
+instance : CompleteLattice (ConvergenceSpace α) where
+  inf_le_left := SemilatticeInf.inf_le_left
+  inf_le_right := SemilatticeInf.inf_le_right
+  le_inf := SemilatticeInf.le_inf
+  le_sSup := CompleteSemilatticeSup.le_sSup
+  sSup_le := CompleteSemilatticeSup.sSup_le
+  sInf_le := CompleteSemilatticeInf.sInf_le
+  le_sInf := CompleteSemilatticeInf.le_sInf
+  le_top p := by
+    repeat intro
+    -- unfold Top.top
+    -- unfold instTopConvergenceSpace
+    -- unfold LE.le
+  -- bot_le p F x hconv := le_converges_ p hconv (pure_converges_ p x)
 
--- instance : complete_lattice (convergence_space α) :=
--- { bot_le := λ p f x hconv, le_converges_ p hconv (pure_converges_ p x),
---   le_top := by intros; tauto,
---   ..convergence_space.has_bot,
---   ..convergence_space.has_top,
---   ..convergence_space.lattice,
---   ..convergence_space.complete_semilattice_Inf,
---   ..convergence_space.complete_semilattice_Sup }
 
 -- /-!
 -- ### Continuity
