@@ -96,6 +96,7 @@ than `q`" or "`q` is coarser than `p`".
   is consistent with our meaning.
 -/
 
+@[simp]
 instance : LE (ConvergenceSpace α) where
   le p q := ∀ {F x}, converges_ p F x → converges_ q F x
 
@@ -237,12 +238,8 @@ instance : CompleteLattice (ConvergenceSpace α) where
   sSup_le := CompleteSemilatticeSup.sSup_le
   sInf_le := CompleteSemilatticeInf.sInf_le
   le_sInf := CompleteSemilatticeInf.le_sInf
-  le_top p := by
-    repeat intro
-    -- unfold Top.top
-    -- unfold instTopConvergenceSpace
-    -- unfold LE.le
-  -- bot_le p F x hconv := le_converges_ p hconv (pure_converges_ p x)
+  le_top p := by intros; tauto
+  bot_le p F x hconv := le_converges_ p hconv (pure_converges_ p x)
 
 
 -- /-!
