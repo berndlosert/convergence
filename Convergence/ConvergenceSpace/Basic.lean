@@ -146,6 +146,38 @@ def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
       refine Or.inr ⟨i, F, x, hconv', le_trans hle hle', heq⟩
 
 /-!
+### Discrete and indiscrete convergence structures
+
+The discrete convergence structure on `α` is the finest convergence on `α`.
+Being the finest means that if something converges in the discrete convergence
+structure, then it converges in any other convergence structure. We know by definition
+that the only filters that always converge are the bottom filter and the pure filters.
+Thus, in the discrete convergence structure, these must be the only filters that converge.
+
+**Remarks**
+* In mathlib, the discrete topology on `α` is the finest topology on `α`, i.e. it is the
+  topology in which every subset of `α` is open, i.e. the discrete topology is the powerset
+  of `α`. Our usage of "discrete" is consistent with this.
+* The discrete convergence structure can be obtained in two ways: as the final convergence
+  structure with respect to the empty family (this is easy to see) or as the initial
+  convergence structure with respect to the family of all convergence structures
+  (using id as the map).
+* The discrete convergence structure on `α` is the free convergence structure on `α`.
+* Everything mentioned here applies dually for the indiscrete convergence structure. By
+  definition, everything converges in the indiscrete convergence structure.
+-/
+
+def ConvergenceSpace.discrete (α : Type*) : ConvergenceSpace α where
+  converges F x := F ≤ pure x
+  pure_converges := by tauto
+  le_converges := by tauto
+
+def ConvergenceSpace.indiscrete (α : Type*) : ConvergenceSpace α where
+  converges _ _ := true
+  pure_converges := by tauto
+  le_converges := by tauto
+
+/-!
 ### Lattice of convergence structures
 
 We define the lattice of convergence structures on `α` by defining what `sInf ps` means
@@ -158,18 +190,10 @@ and the indiscrete convergence structure as the top element.
 -/
 
 instance : Bot (ConvergenceSpace α) where
-  bot := {
-    converges := λ F x ↦ F ≤ pure x,
-    pure_converges := by tauto,
-    le_converges := by tauto
-  }
+  bot := ConvergenceSpace.discrete α
 
 instance : Top (ConvergenceSpace α) where
-  top := {
-    converges := λ F x ↦ true,
-    pure_converges := by tauto,
-    le_converges := by tauto
-  }
+  top := ConvergenceSpace.indiscrete α
 
 instance : Inf (ConvergenceSpace α) where
   inf p q := {
