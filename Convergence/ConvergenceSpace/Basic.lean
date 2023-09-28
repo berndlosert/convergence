@@ -266,41 +266,41 @@ instance : CompleteLattice (ConvergenceSpace α) where
   bot_le p F x hconv := le_converges_ p hconv (pure_converges_ p x)
 
 
--- /-!
--- ### Continuity
--- -/
+/-!
+### Continuity
+-/
 
--- /-- A function `m` between converges spaces is continuous at a point `x`
---   if whenever a filter converges to `x`, it's image under `m` converges to `m x`. --/
--- def continuous_at [convergence_space α] [convergence_space β] (m : α → β) (x : α) :=
--- ∀ ⦃f⦄, converges f x → converges (map m f) (m x)
+/-- A function `f` between converges spaces is continuous at a point `x`
+  if whenever a filter converges to `x`, it's image under `f` converges to `f x`. --/
+def continuousAt [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) (x : α) :=
+∀ ⦃F⦄, converges F x → converges (map f F) (f x)
 
--- def continuous [convergence_space α] [convergence_space β] (m : α → β) : Prop :=
--- ∀ ⦃x⦄, continuous_at m x
+def continuous [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) : Prop :=
+∀ ⦃x⦄, continuousAt f x
 
--- def continuous_ (p : convergence_space α) (q : convergence_space β)
---   (m : α → β) : Prop :=
--- @continuous α β p q m
+def continuous_ (p : ConvergenceSpace α) (q : ConvergenceSpace β)
+  (f : α → β) : Prop :=
+@continuous α β p q f
 
--- lemma continuous.comp [convergence_space α] [convergence_space β]
---   [convergence_space γ] {m' : β → γ} {m : α → β} (hcont' : continuous m')
---   (hcont : continuous m) : continuous (m' ∘ m) :=
--- λ x f hconv, by convert (hcont' (hcont hconv))
+lemma continuous.comp [ConvergenceSpace α] [ConvergenceSpace β]
+  [ConvergenceSpace γ] {g : β → γ} {f : α → β} (hg : continuous g)
+  (hf : continuous f) : continuous (g ∘ f) :=
+λ x F hconv ↦ by convert (hg (hf hconv))
 
--- lemma continuous_id [convergence_space α] : continuous (id : α → α) :=
--- λ x f hconv, by simpa [filter.map_id]
+lemma continuous_id [ConvergenceSpace α] : continuous (id : α → α) :=
+λ x F hconv ↦ by simpa [Filter.map_id]
 
--- lemma continuous_id' {α : Type*} [convergence_space α] : continuous (λ x : α, x) :=
--- continuous_id
+lemma continuous_id' {α : Type*} [ConvergenceSpace α] : continuous (λ x : α ↦ x) :=
+continuous_id
 
--- lemma continuous_const [convergence_space α] [convergence_space β] {y : β} :
---   continuous (λ (x : α), y) :=
--- λ x f hconv, le_converges (tendsto_const_pure) (pure_converges y)
+lemma continuous_const [ConvergenceSpace α] [ConvergenceSpace β] {y : β} :
+  continuous (λ (x : α) ↦ y) :=
+λ x F hconv ↦ le_converges (tendsto_const_pure) (pure_converges y)
 
--- lemma continuous_le_dom {p p' : convergence_space α} {q : convergence_space β}
---   {m : α → β} (hle : p' ≤ p) (hcont : continuous_ p q m) :
---   continuous_ p' q m :=
--- λ x f hconv, hcont (hle hconv)
+lemma continuous_le_dom {p p' : ConvergenceSpace α} {q : ConvergenceSpace β}
+  {f : α → β} (hle : p' ≤ p) (hcont : continuous_ p q f) :
+  continuous_ p' q f :=
+λ x F hconv ↦ hcont (hle hconv)
 
 -- lemma continuous_inf_dom_left {p p' : convergence_space α}
 --   {q : convergence_space β} {m : α → β} :
