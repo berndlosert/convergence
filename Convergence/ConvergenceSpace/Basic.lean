@@ -98,7 +98,7 @@ than `q`" or "`q` is coarser than `p`".
 
 @[simp]
 instance : LE (ConvergenceSpace α) where
-  le p q := ∀ {F x}, converges_ p F x → converges_ q F x
+  le p q := ∀ ⦃F x⦄, converges_ p F x → converges_ q F x
 
 instance : PartialOrder (ConvergenceSpace α) where
   le_refl := by
@@ -110,7 +110,7 @@ instance : PartialOrder (ConvergenceSpace α) where
   le_antisymm := by
     intros p q hpq hqp
     ext F x
-    exact Iff.intro hpq hqp
+    tauto
 
 /-!
 ### Initial and final convergence structures
@@ -241,7 +241,7 @@ instance : SemilatticeInf (ConvergenceSpace α) where
 instance : SemilatticeSup (ConvergenceSpace α) where
   le_sup_left p q F x hconv := Or.inl hconv
   le_sup_right p q F x hconv := Or.inr hconv
-  sup_le p q r hle hle' F x hconv := hconv.elim hle hle'
+  sup_le p q r hle hle' F x hconv := hconv.elim (@hle F x) (@hle' F x)
 
 instance : CompleteSemilatticeInf (ConvergenceSpace α) where
   sInf_le ps p hmem F x hconv := hconv hmem
@@ -302,10 +302,12 @@ lemma continuous_le_dom {p p' : ConvergenceSpace α} {q : ConvergenceSpace β}
   continuous_ p' q f :=
 λ x F hconv ↦ hcont (hle hconv)
 
--- lemma continuous_inf_dom_left {p p' : convergence_space α}
---   {q : convergence_space β} {m : α → β} :
---   continuous_ p q m → continuous_ (p ⊓ p') q m :=
--- continuous_le_dom inf_le_left
+lemma continuous_inf_dom_left {p p' : ConvergenceSpace α}
+  {q : ConvergenceSpace β} {f : α → β} :
+  continuous_ p q f → continuous_ (p ⊓ p') q f := by
+intros hcont
+-- exact continuous_le_dom (@inf_le_left (ConvergenceSpace α)  _ p p') hcont
+exact continuous_le_dom inf_le_left hcont
 
 -- lemma continuous_inf_dom_right {p p' : convergence_space α}
 --   {q : convergence_space β} {m : α → β} :
