@@ -302,7 +302,8 @@ lemma continuous_inf_rng [p : ConvergenceSpace α] {q q' : ConvergenceSpace β} 
   (hcont : continuous_ p q f) (hcont' : continuous_ p q' f) : continuous_ p (q ⊓ q') f :=
 λ x F hp ↦ And.intro (hcont hp) (hcont' hp)
 
-structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceSpace β] extends α ≃ β where
+structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceSpace β]
+  extends α ≃ β where
   continuous_to_fun : continuous_ p q to_fun
   continuous_inv_fun : continuous_ p q inv_fun
 
