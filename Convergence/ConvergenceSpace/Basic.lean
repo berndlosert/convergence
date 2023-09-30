@@ -56,22 +56,6 @@ class ConvergenceSpace (α : Type*) where
 
 open ConvergenceSpace
 
-/- These will come in handy when we are not using instance arguments. -/
-section
-variable (p : ConvergenceSpace α)
-
-@[simp]
-def converges_ (F : Filter α) (x : α) : Prop := @converges _ p F x
-
-@[simp]
-def pure_converges_ (x : α) : converges (pure x) x := @pure_converges _ p x
-
-@[simp]
-def le_converges_ ⦃F G : Filter α⦄ (hle : F ≤ G) {x : α}
-  (hconv : converges G x) : converges F x :=
-@le_converges _ p _ _ hle _ hconv
-end
-
 /- In any convergence space, the bottom filter converges to every point. This
 is OK though, since we never care what the bottom filter does. -/
 theorem bot_converges [ConvergenceSpace α] (x : α) : converges ⊥ x :=
@@ -98,7 +82,7 @@ than `q`" or "`q` is coarser than `p`".
 
 @[simp]
 instance : LE (ConvergenceSpace α) where
-  le p q := ∀ ⦃F x⦄, converges_ p F x → converges_ q F x
+  le p q := ∀ {{F x}}, p.converges F x → q.converges F x
 
 instance : PartialOrder (ConvergenceSpace α) where
   le_refl := by
@@ -129,14 +113,14 @@ version of this example.
 
 def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
   (p : ∀ i : ι, ConvergenceSpace (β i)) (f : ∀ i : ι, α → β i) : ConvergenceSpace α where
-  converges F x := ∀ i : ι, converges_ (p i) (map (f i) F) ((f i) x)
-  pure_converges x i := by rw [Filter.map_pure]; exact pure_converges_ (p i) ((f i) x)
-  le_converges hle x hconv i := le_converges_ (p i) (Filter.map_mono hle) (hconv i)
+  converges F x := ∀ i : ι, (p i).converges (map (f i) F) (f i x)
+  pure_converges x i := by rw [Filter.map_pure]; exact (p i).pure_converges (f i x)
+  le_converges hle x hconv i := (p i).le_converges (Filter.map_mono hle) (hconv i)
 
 def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
   (p : ∀ i : ι, ConvergenceSpace (α i)) (f : ∀ i : ι, α i → β) : ConvergenceSpace β where
   converges G y := G ≤ pure y ∨ ∃ i F x,
-    converges_ (p i) F x ∧ G ≤ Filter.map (f i) F ∧ f i x = y
+    (p i).converges F x ∧ G ≤ Filter.map (f i) F ∧ f i x = y
   pure_converges x := by simp
   le_converges := by
     intros G G' hle y hconv
@@ -197,32 +181,32 @@ instance : Top (ConvergenceSpace α) where
 
 instance : Inf (ConvergenceSpace α) where
   inf p q := {
-    converges := λ F x ↦ (converges_ p F x) ∧ (converges_ q F x),
-    pure_converges := λ x ↦ And.intro (pure_converges_ p x) (pure_converges_ q x),
+    converges := λ F x ↦ (p.converges F x) ∧ (q.converges F x),
+    pure_converges := λ x ↦ And.intro (p.pure_converges x) (q.pure_converges x),
     le_converges := λ {F} {G} hle x hconv ↦
-      And.intro (le_converges_ p hle hconv.left) (le_converges_ q hle hconv.right)
+      And.intro (p.le_converges hle hconv.left) (q.le_converges hle hconv.right)
   }
 
 instance : Sup (ConvergenceSpace α) where
   sup p q := {
-    converges := λ F x ↦ (converges_ p F x) ∨ (converges_ q F x),
-    pure_converges := λ x ↦ Or.inl (pure_converges_ p x),
+    converges := λ F x ↦ (p.converges F x) ∨ (q.converges F x),
+    pure_converges := λ x ↦ Or.inl (p.pure_converges x),
     le_converges := λ {F} {G} hle x hconv ↦ Or.elim hconv
-      (λ hl ↦ Or.inl (le_converges_ p hle hl))
-      (λ hr ↦ Or.inr (le_converges_ q hle hr))
+      (λ hl ↦ Or.inl (p.le_converges hle hl))
+      (λ hr ↦ Or.inr (q.le_converges hle hr))
   }
 
 instance : InfSet (ConvergenceSpace α) where
   sInf ps := {
-    converges := λ f x ↦ ∀ {p}, p ∈ ps → converges_ p f x,
-    pure_converges := λ x p ps ↦ pure_converges_ p x,
-    le_converges := λ {F} {G} hle x hconv p hmem ↦ le_converges_ p hle (hconv hmem)
+    converges := λ F x ↦ ∀ {p}, p ∈ ps → p.converges F x,
+    pure_converges := λ x p ps ↦ p.pure_converges x,
+    le_converges := λ {F} {G} hle x hconv p hmem ↦ p.le_converges hle (hconv hmem)
   }
 
 instance : SupSet (ConvergenceSpace α) where
   sSup ps := {
-    converges := λ f x ↦ f ≤ pure x ∨
-      ∃ p, p ∈ ps ∧ converges_ p f x,
+    converges := λ F x ↦ F ≤ pure x ∨
+      ∃ p, p ∈ ps ∧ p.converges F x,
     pure_converges := by
       intros x
       exact Or.inl (le_refl (pure x)),
@@ -230,7 +214,7 @@ instance : SupSet (ConvergenceSpace α) where
       intros F G hle x hor
       rcases hor with hle'|⟨p, hmem, hconv⟩
       · exact Or.inl (le_trans hle hle')
-      · refine Or.inr ⟨p, hmem, le_converges_ p hle hconv⟩
+      · refine Or.inr ⟨p, hmem, p.le_converges hle hconv⟩
   }
 
 instance : SemilatticeInf (ConvergenceSpace α) where
@@ -251,7 +235,7 @@ instance : CompleteSemilatticeSup (ConvergenceSpace α) where
   le_sSup ps p hmem F x hconv := Or.inr (Exists.intro p (And.intro hmem hconv))
   sSup_le qs p hle F x hconv :=
     hconv.elim
-      (λ hle' ↦ le_converges_ p hle' (pure_converges_ p x))
+      (λ hle' ↦ p.le_converges hle' (p.pure_converges x))
       (λ hexists ↦ Exists.elim hexists (λ q hconv' ↦ (hle q hconv'.left) hconv'.right))
 
 instance : CompleteLattice (ConvergenceSpace α) where
@@ -263,7 +247,7 @@ instance : CompleteLattice (ConvergenceSpace α) where
   sInf_le := CompleteSemilatticeInf.sInf_le
   le_sInf := CompleteSemilatticeInf.le_sInf
   le_top p := by intros; tauto
-  bot_le p F x hconv := le_converges_ p hconv (pure_converges_ p x)
+  bot_le p F x hconv := p.le_converges hconv (p.pure_converges x)
 
 
 /-!
@@ -273,10 +257,10 @@ instance : CompleteLattice (ConvergenceSpace α) where
 /-- A function `f` between converges spaces is continuous at a point `x`
   if whenever a filter converges to `x`, it's image under `f` converges to `f x`. --/
 def continuousAt [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) (x : α) :=
-∀ ⦃F⦄, converges F x → converges (map f F) (f x)
+∀ {{F}}, converges F x → converges (map f F) (f x)
 
 def continuous [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) : Prop :=
-∀ ⦃x⦄, continuousAt f x
+∀ {{x}}, continuousAt f x
 
 def continuous_ (p : ConvergenceSpace α) (q : ConvergenceSpace β)
   (f : α → β) : Prop :=
@@ -306,7 +290,6 @@ lemma continuous_inf_dom_left {p p' : ConvergenceSpace α}
   {q : ConvergenceSpace β} {f : α → β} :
   continuous_ p q f → continuous_ (p ⊓ p') q f := by
 intros hcont
--- exact continuous_le_dom (@inf_le_left (ConvergenceSpace α)  _ p p') hcont
 exact continuous_le_dom inf_le_left hcont
 
 -- lemma continuous_inf_dom_right {p p' : convergence_space α}
