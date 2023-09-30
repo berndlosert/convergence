@@ -292,19 +292,19 @@ lemma continuous_inf_dom_left {p p' : ConvergenceSpace α}
 intros hcont
 exact continuous_le_dom inf_le_left hcont
 
--- lemma continuous_inf_dom_right {p p' : convergence_space α}
---   {q : convergence_space β} {m : α → β} :
---   continuous_ p' q m → continuous_ (p ⊓ p') q m :=
--- continuous_le_dom inf_le_right
+lemma continuous_inf_dom_right {p p' : ConvergenceSpace α}
+  {q : ConvergenceSpace β} {f : α → β} :
+  continuous_ p' q f → continuous_ (p ⊓ p') q f := by
+intros hcont
+exact continuous_le_dom inf_le_right hcont
 
--- lemma continuous_inf_rng [p : convergence_space α] {q q' : convergence_space β} {m : α → β}
---   (hcont : continuous_ p q m) (hcont' : continuous_ p q' m) : continuous_ p (q ⊓ q') m :=
--- λ x f hp, and.intro (hcont hp) (hcont' hp)
+lemma continuous_inf_rng [p : ConvergenceSpace α] {q q' : ConvergenceSpace β} {f : α → β}
+  (hcont : continuous_ p q f) (hcont' : continuous_ p q' f) : continuous_ p (q ⊓ q') f :=
+λ x F hp ↦ And.intro (hcont hp) (hcont' hp)
 
--- structure homeomorph (α β : Type*) [convergence_space α] [convergence_space β]
---   extends α ≃ β :=
--- (continuous_to_fun : continuous to_fun)
--- (continuous_inv_fun : continuous inv_fun)
+structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceSpace β] extends α ≃ β where
+  continuous_to_fun : continuous_ p q to_fun
+  continuous_inv_fun : continuous_ p q inv_fun
 
 -- /-!
 -- ### Induced convergence structure
