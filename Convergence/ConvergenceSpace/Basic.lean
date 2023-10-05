@@ -419,36 +419,34 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --   {m : α → β} : continuous_ p (convergence_space.coinduced m) m :=
 -- λ x f hconv, or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩
 
--- /-!
--- ### More definitions
--- -/
+/-!
+### More definitions
+-/
 
--- section
+section
 
--- variables [convergence_space α]
+variable [ConvergenceSpace α]
 
--- /-- The set of all limits of a filter. -/
--- def lim (f : filter α) : set α := { x | converges f x }
+/-- The set of all limits of a filter. -/
+def lim (F : Filter α) : Set α := { x | converges F x }
 
--- /-- A filter is convergent if it has a limit. -/
--- def convergent (f : filter α) : Prop := ∃ x, converges f x
+/-- A filter is convergent if it has a limit. -/
+def convergent (F : Filter α) : Prop := ∃ x, converges F x
 
--- /-- A point `x` adheres to a filter `f` if there is some non-trivial filter
---   smaller than `f` that converges to `x`. -/
--- def adheres (f : filter α) (x : α) : Prop :=
--- ∃ (g : filter α) [ne_bot g], g ≤ f ∧ converges g x
+/-- A point `x` adheres to a filter `F` if there is some filter `G ≠ ⊥`
+  finer than `F` that converges to `x`. -/
+def adheres (F : Filter α) (x : α) : Prop :=
+∃ (G : Filter α), G ≠ ⊥ ∧ G ≤ F ∧ converges G x
 
--- lemma adheres.exists_ultrafilter (f : filter α) (x : α) :
---   adheres f x ↔ ∃ (g : ultrafilter α), ↑g ≤ f ∧ converges ↑g x :=
--- begin
---   split,
---   { rintros ⟨g, hnb, hle, hconv⟩,
---     haveI : g.ne_bot := hnb,
---     obtain ⟨g', hle'⟩ := filter.exists_ultrafilter_le g,
---     exact ⟨g', le_trans hle' hle, le_converges hle' hconv⟩ },
---   { rintros ⟨g, hle, hconv⟩,
---     exact ⟨↑g, g.ne_bot, hle, hconv⟩ }
--- end
+lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
+  adheres F x ↔ ∃ (G : Ultrafilter α), G ≤ F ∧ converges G x := by
+  constructor
+  · rintro ⟨G, hnb, hle, hconv⟩
+    haveI : NeBot G := { ne' := hnb }
+    obtain ⟨G', hle'⟩ := Filter.exists_ultrafilter_le G
+    exact ⟨G', le_trans hle' hle, le_converges hle' hconv⟩
+  · rintro ⟨G, hle, hconv⟩
+    exact ⟨G, G.neBot'.ne', hle, hconv⟩
 
 -- /-- The set of all points that adhere to a filter. -/
 -- def adh (f : filter α) : set α := { x | adheres f x }
