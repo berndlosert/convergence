@@ -266,39 +266,39 @@ def continuous_ (p : ConvergenceSpace α) (q : ConvergenceSpace β)
   (f : α → β) : Prop :=
 @continuous α β p q f
 
-lemma continuous.comp [ConvergenceSpace α] [ConvergenceSpace β]
+theorem continuous.comp [ConvergenceSpace α] [ConvergenceSpace β]
   [ConvergenceSpace γ] {g : β → γ} {f : α → β} (hg : continuous g)
   (hf : continuous f) : continuous (g ∘ f) :=
 λ x F hconv ↦ by convert (hg (hf hconv))
 
-lemma continuous_id [ConvergenceSpace α] : continuous (id : α → α) :=
+theorem continuous_id [ConvergenceSpace α] : continuous (id : α → α) :=
 λ x F hconv ↦ by simpa [Filter.map_id]
 
-lemma continuous_id' {α : Type*} [ConvergenceSpace α] : continuous (λ x : α ↦ x) :=
+theorem continuous_id' {α : Type*} [ConvergenceSpace α] : continuous (λ x : α ↦ x) :=
 continuous_id
 
-lemma continuous_const [ConvergenceSpace α] [ConvergenceSpace β] {y : β} :
+theorem continuous_const [ConvergenceSpace α] [ConvergenceSpace β] {y : β} :
   continuous (λ (x : α) ↦ y) :=
 λ x F hconv ↦ le_converges (tendsto_const_pure) (pure_converges y)
 
-lemma continuous_le_dom {p p' : ConvergenceSpace α} {q : ConvergenceSpace β}
+theorem continuous_le_dom {p p' : ConvergenceSpace α} {q : ConvergenceSpace β}
   {f : α → β} (hle : p' ≤ p) (hcont : continuous_ p q f) :
   continuous_ p' q f :=
 λ x F hconv ↦ hcont (hle hconv)
 
-lemma continuous_inf_dom_left {p p' : ConvergenceSpace α}
+theorem continuous_inf_dom_left {p p' : ConvergenceSpace α}
   {q : ConvergenceSpace β} {f : α → β} :
   continuous_ p q f → continuous_ (p ⊓ p') q f := by
 intros hcont
 exact continuous_le_dom inf_le_left hcont
 
-lemma continuous_inf_dom_right {p p' : ConvergenceSpace α}
+theorem continuous_inf_dom_right {p p' : ConvergenceSpace α}
   {q : ConvergenceSpace β} {f : α → β} :
   continuous_ p' q f → continuous_ (p ⊓ p') q f := by
 intros hcont
 exact continuous_le_dom inf_le_right hcont
 
-lemma continuous_inf_rng [p : ConvergenceSpace α] {q q' : ConvergenceSpace β} {f : α → β}
+theorem continuous_inf_rng [p : ConvergenceSpace α] {q q' : ConvergenceSpace β} {f : α → β}
   (hcont : continuous_ p q f) (hcont' : continuous_ p q' f) : continuous_ p (q ⊓ q') f :=
 λ x F hp ↦ And.intro (hcont hp) (hcont' hp)
 
@@ -320,16 +320,16 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --   pure_converges := by simp [filter.map_pure, pure_converges],
 --   le_converges := λ f g hle x hconv, le_converges (map_mono hle) hconv }
 
--- lemma continuous.induced_le (m : α → β) [p : convergence_space α]
+-- theorem continuous.induced_le (m : α → β) [p : convergence_space α]
 --   [convergence_space β] (hm : continuous m) :
 --   p ≤ convergence_space.induced m :=
 -- λ f x hconv, hm hconv
 
--- lemma continuous_induced_dom {m : α → β} {q : convergence_space β} :
+-- theorem continuous_induced_dom {m : α → β} {q : convergence_space β} :
 --   continuous_ (@convergence_space.induced α β m q) q m :=
 -- λ x f hconv, hconv
 
--- lemma continuous_induced_rng {m₁ : α → β} {m₂ : β → γ}
+-- theorem continuous_induced_rng {m₁ : α → β} {m₂ : β → γ}
 --   [p : convergence_space α] [q : convergence_space β] [r : convergence_space γ]
 --   (hcont : continuous (m₂ ∘ m₁)) : continuous_ p (convergence_space.induced m₂) m₁ :=
 -- λ x f hconv, hcont hconv
@@ -351,14 +351,14 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --       (λ ⟨f, x, hle', heq, hconv'⟩,
 --         or.inr ⟨f, x, le_trans hle hle', heq, hconv'⟩) }
 
--- lemma continuous.le_coinduced (m : α → β) [convergence_space α]
+-- theorem continuous.le_coinduced (m : α → β) [convergence_space α]
 --   [q : convergence_space β] (hm : continuous m) :
 --   convergence_space.coinduced m ≤ q :=
 -- λ g y hconv, hconv.elim
 --   (λ hle, le_converges_ q hle (pure_converges_ q y))
 --   (λ ⟨f, x, h₀, h₁, h₂⟩, by { rw ← h₁, exact le_converges_ q h₀ (hm h₂) })
 
--- lemma coinduced_id [p : convergence_space α] : convergence_space.coinduced id = p :=
+-- theorem coinduced_id [p : convergence_space α] : convergence_space.coinduced id = p :=
 -- begin
 --   ext f x, split,
 --   { assume hconv, cases hconv,
@@ -369,7 +369,7 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --     exact or.inr ⟨f, x, le_refl f, rfl, hconv⟩, }
 -- end
 
--- lemma continuous_iff_coinduced_le {m : α → β}
+-- theorem continuous_iff_coinduced_le {m : α → β}
 --   [convergence_space α] [q : convergence_space β]  :
 --   continuous m ↔ convergence_space.coinduced m ≤ q :=
 -- begin
@@ -381,7 +381,7 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --   { assume hle x f hconv, exact hle (or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩) }
 -- end
 
--- lemma coinduced_compose [convergence_space α]
+-- theorem coinduced_compose [convergence_space α]
 --   {m₁ : α → β} {m₂ : β → γ} :
 --   @convergence_space.coinduced _ _ m₂ (convergence_space.coinduced m₁) =
 --   convergence_space.coinduced (m₂ ∘ m₁) :=
@@ -415,7 +415,7 @@ structure homeomorph (α β : Type*) [p : ConvergenceSpace α] [q : ConvergenceS
 --       exact or.inr ⟨g, y, hg₁, hg₂, hg₃⟩ }}
 -- end
 
--- lemma continuous_coinduced_rng [p : convergence_space α]
+-- theorem continuous_coinduced_rng [p : convergence_space α]
 --   {m : α → β} : continuous_ p (convergence_space.coinduced m) m :=
 -- λ x f hconv, or.inr ⟨f, x, le_refl (map m f), rfl, hconv⟩
 
@@ -438,7 +438,7 @@ def convergent (F : Filter α) : Prop := ∃ x, converges F x
 def adheres (F : Filter α) (x : α) : Prop :=
 ∃ (G : Filter α), G ≠ ⊥ ∧ G ≤ F ∧ converges G x
 
-lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
+theorem adheres.exists_ultrafilter (F : Filter α) (x : α) :
   adheres F x ↔ ∃ (G : Ultrafilter α), G ≤ F ∧ converges G x := by
   constructor
   · rintro ⟨G, hnb, hle, hconv⟩
@@ -494,24 +494,24 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 -- instance : convergence_space (α × β) :=
 -- convergence_space.induced fst ⊓ convergence_space.induced snd
 
--- lemma continuous_fst : continuous (@fst α β) :=
+-- theorem continuous_fst : continuous (@fst α β) :=
 -- continuous_inf_dom_left continuous_induced_dom
 
--- lemma continuous_snd : continuous (@snd α β) :=
+-- theorem continuous_snd : continuous (@snd α β) :=
 -- continuous_inf_dom_right continuous_induced_dom
 
--- lemma prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
+-- theorem prod.converges {f : filter α} {g : filter β} {x : α} {y : β}
 --   (hf : converges f x) (hg : converges g y) : converges (f ×ᶠ g) (x, y) :=
 -- and.intro
 --   (le_converges tendsto_fst hf : converges (map fst (f ×ᶠ g)) x)
 --   (le_converges tendsto_snd hg : converges (map snd (f ×ᶠ g)) y)
 
--- lemma continuous.prod_mk [convergence_space α] [convergence_space β₁]
+-- theorem continuous.prod_mk [convergence_space α] [convergence_space β₁]
 --   [convergence_space β₂] {m₁ : α → β₁} {m₂ : α → β₂}
 --   (hcont₁ : continuous m₁) (hcont₂ : continuous m₂) : continuous (λx, (m₁ x, m₂ x)) :=
 -- continuous_inf_rng (continuous_induced_rng hcont₁) (continuous_induced_rng hcont₂)
 
--- lemma continuous.prod.mk [convergence_space α] [convergence_space β] (x : α) :
+-- theorem continuous.prod.mk [convergence_space α] [convergence_space β] (x : α) :
 --   continuous (prod.mk x : β → α × β) :=
 -- continuous_const.prod_mk continuous_id'
 
@@ -519,7 +519,7 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 --   (m : α → β → γ) : Prop :=
 -- ∀ ⦃x y f g⦄, converges f x → converges g y → converges (map₂ m f g) (m x y)
 
--- lemma continuous2_continuous_iff [convergence_space α] [convergence_space β] [convergence_space γ]
+-- theorem continuous2_continuous_iff [convergence_space α] [convergence_space β] [convergence_space γ]
 --   {m : α → β → γ} : continuous2 m ↔ continuous (uncurry m) :=
 -- begin
 --   split,
@@ -569,16 +569,16 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 
 -- instance : has_coe_to_fun (C(α, β)) (λ _, α → β) := ⟨continuous_map.to_fun⟩
 
--- @[simp] lemma to_fun_eq_coe {m : C(α, β)} : m.to_fun = (m : α → β) := rfl
+-- @[simp] theorem to_fun_eq_coe {m : C(α, β)} : m.to_fun = (m : α → β) := rfl
 
 -- def eval : C(α, β) × α → β := λ ⟨m, x⟩, m x
 
--- @[simp] lemma eval_comp_prod {m : C(α, β)} : eval ∘ prod.mk m = m :=
+-- @[simp] theorem eval_comp_prod {m : C(α, β)} : eval ∘ prod.mk m = m :=
 -- by { apply funext, intro, apply comp_apply }
 
--- protected lemma continuous (m : C(α, β)) : continuous m := m.continuous_to_fun
+-- protected theorem continuous (m : C(α, β)) : continuous m := m.continuous_to_fun
 
--- lemma map_eval_eq {m : C(α, β)} {f : filter α} :
+-- theorem map_eval_eq {m : C(α, β)} {f : filter α} :
 --   map continuous_map.eval (pure m ×ᶠ f) = map m f :=
 -- by simp [pure_prod, filter.map_map, eval_comp_prod]
 
@@ -681,7 +681,7 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 -- def quotient_map [convergence_space α] [q : convergence_space β]
 -- (m : α → β) : Prop := surjective m ∧ q = convergence_space.coinduced m
 
--- lemma quotient_map.converges [convergence_space α] [q : convergence_space β]
+-- theorem quotient_map.converges [convergence_space α] [q : convergence_space β]
 --   {m : α → β} (hquot : quotient_map m) (g : filter β) (y : β) :
 --   converges g y ↔ ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
 -- begin
@@ -694,7 +694,7 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 --   { rintro hexists, rw hquot.2, exact or.inr hexists }
 -- end
 
--- lemma quotient_map_iff [convergence_space α] [q : convergence_space β]
+-- theorem quotient_map_iff [convergence_space α] [q : convergence_space β]
 --   {m : α → β} : quotient_map m ↔ surjective m ∧ ∀ g y, converges g y ↔
 --   ∃ f x, (g ≤ map m f) ∧ (m x = y) ∧ (converges f x) :=
 -- begin
@@ -710,15 +710,15 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 --       (λ hexists, ((hrhs.2 g y).mpr hexists)) }
 -- end
 
--- lemma quotient_map.continuous_iff [convergence_space α] [convergence_space β]
+-- theorem quotient_map.continuous_iff [convergence_space α] [convergence_space β]
 --   [convergence_space γ] {m₁ : α → β} {m₂ : β → γ} (hquot : quotient_map m₁) :
 --   continuous m₂ ↔ continuous (m₂ ∘ m₁) :=
 -- by rw [continuous_iff_coinduced_le, continuous_iff_coinduced_le, hquot.right, coinduced_compose]
 
--- lemma quotient_map.id [convergence_space α] : quotient_map (@id α) :=
+-- theorem quotient_map.id [convergence_space α] : quotient_map (@id α) :=
 -- ⟨assume a, ⟨a, rfl⟩, coinduced_id.symm⟩
 
--- lemma quotient_map.prod_map
+-- theorem quotient_map.prod_map
 --   [convergence_space α₁] [convergence_space β₁]
 --   {m₁ : α₁ → β₁} (hquot₁ : quotient_map m₁)
 --   [convergence_space α₂] [convergence_space β₂]
@@ -770,11 +770,11 @@ lemma adheres.exists_ultrafilter (F : Filter α) (x : α) :
 --     exact ⟨hg₁, hg₂⟩ }
 -- end
 
--- lemma quotient_map_quot_mk [convergence_space α] {r : α → α → Prop} :
+-- theorem quotient_map_quot_mk [convergence_space α] {r : α → α → Prop} :
 --   quotient_map (quot.mk r) :=
 -- ⟨quot.exists_rep, rfl⟩
 
--- lemma continuous_quot_mk [convergence_space α]
+-- theorem continuous_quot_mk [convergence_space α]
 --   {r : α → α → Prop} : continuous (quot.mk r) :=
 -- continuous_coinduced_rng
 
