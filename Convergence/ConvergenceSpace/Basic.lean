@@ -172,10 +172,22 @@ theorem ConvergenceSpace.final_finest {X : ι → Type*}
 
 theorem ConvergenceSpace.final_prop {X : ι → Type*}
     (p : ∀ i, ConvergenceSpace (X i)) (f : ∀ i : ι, X i → Y)
-    (q : ConvergenceSpace Y) (hcont : ∀ i, continuous[p i, q] (f i)) :
-    ConvergenceSpace.final p f ≤ q
+    (q : ConvergenceSpace Z) (g : Y → Z) :
+    continuous[ConvergenceSpace.final p f, q] g ↔ ∀ i, continuous[p i, q] (g ∘ f i) := by
+  constructor
+  · intros hcont i x F hconv
+    let G := map (f i) F
+    let y := f i x
+    change converges (map g G) (g y)
+    have hconv' : (ConvergenceSpace.final p f).converges G y := by
+      exact Or.inr ⟨i, F, x, hconv, by tauto, by tauto⟩
+    exact hcont hconv'
+  · intros hcont y G hor
+    rcases hor with hle|⟨i, F, ⟨x, hconv, hle, heq⟩⟩
+    · exact q.le_converges (Filter.map_mono hle) (q.pure_converges (g y))
+    · rw [← heq]
+      refine q.le_converges (Filter.map_mono hle) (hcont i hconv)
 
-    
 /-!
 ### Discrete and indiscrete convergence structures
 
