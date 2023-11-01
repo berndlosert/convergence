@@ -36,7 +36,7 @@ The following presents the basic theory of convergence spaces.
 -/
 
 /--
-An instance or value of type `ConvergenceSpace α` is called a "convergence structure".
+An instance or value of type `ConvergenceSpace X` is called a "convergence structure".
 
 **Remarks**:
 * Preuss calls convergence spaces "generalized convergence spaces".
@@ -49,8 +49,8 @@ An instance or value of type `ConvergenceSpace α` is called a "convergence stru
   bottom filters, but for the most part, we won't need to worry about them.
 -/
 @[ext]
-class ConvergenceSpace (α : Type*) where
-  converges : Filter α → α → Prop
+class ConvergenceSpace (X : Type*) where
+  converges : Filter X → X → Prop
   pure_converges : ∀ x, converges (pure x) x
   le_converges : ∀ {F G}, F ≤ G → ∀ {x}, converges G x → converges F x
 
@@ -58,8 +58,21 @@ open ConvergenceSpace
 
 /- In any convergence space, the bottom filter converges to every point. This
 is OK though, since we never care what the bottom filter does. -/
-theorem bot_converges [ConvergenceSpace α] (x : α) : converges ⊥ x :=
-le_converges bot_le (pure_converges x)
+theorem bot_converges [ConvergenceSpace X] (x : X) : converges ⊥ x :=
+  le_converges bot_le (pure_converges x)
+
+/-!
+### Continuity
+-/
+
+def continuousAt [ConvergenceSpace X] [ConvergenceSpace Y] (f : X → Y) (x : X) : Prop :=
+  ∀ {{F}}, converges F x → converges (map f F) (f x)
+
+def continuous [ConvergenceSpace X] [ConvergenceSpace Y] (f : X → Y) : Prop :=
+  ∀ {{x}}, continuousAt f x
+
+notation (name := continuous_of) "continuous[" p ", " q "]" =>
+  @continuous _ _ p q
 
 /-!
 ### Ordering
@@ -67,12 +80,11 @@ le_converges bot_le (pure_converges x)
 
 /--
 The ordering on convergence structures on the type `α` is defined so that `p ≤ q`
-means `p`-convergence implies `q`-convergence. We read `p ≤ q` as "`p` is finer
-than `q`" or "`q` is coarser than `p`".
+means `continuous_ p q id` holds. In other words, `p ≤ q` if `p`-convergence implies
+`q`-convergence. We read `p ≤ q` as "`p` is finer than `q`" or "`q` is coarser than `p`".
 
 **Remarks**
-* Preus defines `p ≤ q` to mean that id : (α, p) → (α, q) is continuous
-  (see p. 30, Def. 1.1.4). This is the same as our definition.
+* Our definition of `p ≤ q` matches the definition from Preus (p. 30, Def. 1.1.4).
 * Dr. Richardson defines it backwards, i.e. he writes `p ≥ q` for our `p ≤ q`.
 * The reading "`p` is finer than `q`" that we adopted is the same one used by Preuss
   and Dr. Richardson.
@@ -82,7 +94,7 @@ than `q`" or "`q` is coarser than `p`".
 
 @[simp]
 instance : LE (ConvergenceSpace α) where
-  le p q := ∀ {{F x}}, p.converges F x → q.converges F x
+  le p q := continuous[p, q] id
 
 instance : PartialOrder (ConvergenceSpace α) where
   le_refl := by
@@ -105,20 +117,38 @@ Remark 2.3.1.4.
 
 **Remark**
 The terminolgoy "initial" and "final" is backwards from their categorical meaning. For
-example, if you think of the family f : ∀ i : ι, α → β i as projections, then the initial
+example, if you think of the family f : ∀ i, X → Y i as projections, then the initial
 convergence convergence structure will yield be the product convergence structure (and
 products are terminal objects, as is well known). See Preuss, p. 18 for the topological
 version of this example.
 -/
 
-def ConvergenceSpace.initial {ι : Type*} {β : ι → Type*}
-  (p : ∀ i : ι, ConvergenceSpace (β i)) (f : ∀ i : ι, α → β i) : ConvergenceSpace α where
+def ConvergenceSpace.initial {Y : ι → Type*} (p : ∀ i, ConvergenceSpace (Y i))
+    (f : ∀ i, X → Y i) : ConvergenceSpace X where
   converges F x := ∀ i : ι, (p i).converges (map (f i) F) (f i x)
   pure_converges x i := by rw [Filter.map_pure]; exact (p i).pure_converges (f i x)
   le_converges hle x hconv i := (p i).le_converges (Filter.map_mono hle) (hconv i)
 
-def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
-  (p : ∀ i : ι, ConvergenceSpace (α i)) (f : ∀ i : ι, α i → β) : ConvergenceSpace β where
+theorem ConvergenceSpace.initial_coarsest {Y : ι → Type*}
+    (p : ∀ i, ConvergenceSpace (Y i)) (f : ∀ i : ι, X → Y i)
+    (q : ConvergenceSpace X) (hcont : ∀ i, continuous[q, p i] (f i)) :
+    q ≤ ConvergenceSpace.initial p f := by
+  intros x F hconv i
+  simp
+  exact hcont i hconv
+
+theorem ConvergenceSpace.initial_prop {Y : ι → Type*}
+    (p : ∀ i, ConvergenceSpace (Y i)) (f : ∀ i, X → Y i)
+    (q : ConvergenceSpace Z) (g : Z → X) :
+    continuous[q, ConvergenceSpace.initial p f] g ↔ ∀ i, continuous[q, p i] (f i ∘ g) := by
+  constructor
+  · intros hcont i x F hconv
+    exact (hcont hconv) i
+  · intros hcont x F hconv i
+    exact hcont i hconv
+
+def ConvergenceSpace.final {X : ι → Type*} (p : ∀ i, ConvergenceSpace (X i))
+    (f : ∀ i, X i → Y) : ConvergenceSpace Y where
   converges G y := G ≤ pure y ∨ ∃ i F x,
     (p i).converges F x ∧ G ≤ Filter.map (f i) F ∧ f i x = y
   pure_converges x := by simp
@@ -129,6 +159,23 @@ def ConvergenceSpace.final (ι : Type*) (α : ι → Type*) (β : Type*)
     · obtain ⟨i, F, x, hconv', hle', heq⟩ := hex
       refine Or.inr ⟨i, F, x, hconv', le_trans hle hle', heq⟩
 
+theorem ConvergenceSpace.final_finest {X : ι → Type*}
+    (p : ∀ i, ConvergenceSpace (X i)) (f : ∀ i : ι, X i → Y)
+    (q : ConvergenceSpace Y) (hcont : ∀ i, continuous[p i, q] (f i)) :
+    ConvergenceSpace.final p f ≤ q := by
+  intros y G hor
+  simp
+  rcases hor with hle|⟨i, F, ⟨x, hconv, hle, heq⟩⟩
+  · exact q.le_converges hle (q.pure_converges y)
+  · rw [← heq]
+    exact q.le_converges hle (hcont i hconv)
+
+theorem ConvergenceSpace.final_prop {X : ι → Type*}
+    (p : ∀ i, ConvergenceSpace (X i)) (f : ∀ i : ι, X i → Y)
+    (q : ConvergenceSpace Y) (hcont : ∀ i, continuous[p i, q] (f i)) :
+    ConvergenceSpace.final p f ≤ q
+
+    
 /-!
 ### Discrete and indiscrete convergence structures
 
@@ -250,21 +297,7 @@ instance : CompleteLattice (ConvergenceSpace α) where
   bot_le p F x hconv := p.le_converges hconv (p.pure_converges x)
 
 
-/-!
-### Continuity
--/
 
-/-- A function `f` between converges spaces is continuous at a point `x`
-  if whenever a filter converges to `x`, it's image under `f` converges to `f x`. --/
-def continuousAt [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) (x : α) :=
-∀ {{F}}, converges F x → converges (map f F) (f x)
-
-def continuous [ConvergenceSpace α] [ConvergenceSpace β] (f : α → β) : Prop :=
-∀ {{x}}, continuousAt f x
-
-def continuous_ (p : ConvergenceSpace α) (q : ConvergenceSpace β)
-  (f : α → β) : Prop :=
-@continuous α β p q f
 
 theorem continuous.comp [ConvergenceSpace α] [ConvergenceSpace β]
   [ConvergenceSpace γ] {g : β → γ} {f : α → β} (hg : continuous g)
